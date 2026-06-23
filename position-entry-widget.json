@@ -1,16 +1,18 @@
 {
-  "name": "position-entry-widget",
   "id": "com.example.positionentry",
   "version": "16.0.0",
-  "newInstancePrefix": "PositionEntry",
+  "name": "Position Entry Widget",
   "description": "Position entry table widget for SAC",
+  "newInstancePrefix": "PositionEntry",
   "vendor": "Arnav",
+  "icon": "sap-icon://table-view",
   "webcomponents": [
     {
       "kind": "main",
       "tag": "com-example-position-entry",
       "url": "https://arnav973.github.io/position-entry/position-entry-widget.js",
-      "integrity": ""
+      "integrity": "",
+      "ignoreIntegrity": true
     }
   ],
   "properties": {
@@ -36,24 +38,26 @@
       "returnType": "string"
     },
     "setData": {
+      "description": "Set widget row data as JSON string",
       "parameters": [
         {
           "name": "dataStr",
           "type": "string"
         }
-      ],
-      "returnType": "void"
+      ]
     },
     "addRow": {
-      "returnType": "void"
+      "description": "Add a new row"
     },
     "clear": {
-      "returnType": "void"
+      "description": "Clear all rows and reset widget"
     },
     "validate": {
+      "description": "Validate all rows",
       "returnType": "string"
     },
     "setOptions": {
+      "description": "Set dropdown options for a field",
       "parameters": [
         {
           "name": "fieldName",
@@ -63,10 +67,10 @@
           "name": "optionsStr",
           "type": "string"
         }
-      ],
-      "returnType": "void"
+      ]
     },
     "setRowOptions": {
+      "description": "Set row-specific dropdown options",
       "parameters": [
         {
           "name": "rowIndex",
@@ -80,10 +84,10 @@
           "name": "optionsStr",
           "type": "string"
         }
-      ],
-      "returnType": "void"
+      ]
     },
     "setCellValue": {
+      "description": "Set a cell value programmatically",
       "parameters": [
         {
           "name": "rowIndex",
@@ -97,19 +101,26 @@
           "name": "value",
           "type": "string"
         }
-      ],
-      "returnType": "void"
+      ]
     },
     "getLastEvent": {
+      "description": "Get last widget event payload",
       "returnType": "string"
     },
     "getValidationErrors": {
+      "description": "Get validation error details",
       "returnType": "string"
     }
   },
   "events": {
-    "onDataChange": {},
-    "onValidate": {},
-    "onReady": {}
+    "onDataChange": {
+      "description": "Triggered when widget data changes"
+    },
+    "onValidate": {
+      "description": "Triggered when validation runs"
+    },
+    "onReady": {
+      "description": "Triggered when widget is ready"
+    }
   }
 }
