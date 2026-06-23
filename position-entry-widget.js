@@ -30,9 +30,9 @@ class PositionEntryWidget extends HTMLElement {
       { key: "division", label: "Division", type: "select", width: "140px" },
       { key: "department", label: "Department", type: "select", width: "160px" },
       { key: "costCenter", label: "Cost Center", type: "select", width: "160px" },
-      { key: "jobCode", label: "Job Code", type: "select", width: "140px" },
+      { key: "jobCode", label: "Job Code", type: "select", width: "160px" },
       { key: "positionTitle", label: "Position Title", type: "text", width: "180px" },
-      { key: "manpowerId", label: "Manpower ID", type: "text", width: "140px" },
+      { key: "employeeId", label: "Employee ID", type: "text", width: "160px" },
       { key: "noOfPositions", label: "No. of Positions", type: "number", width: "120px" },
       { key: "payGradeGroup", label: "Pay Grade", type: "select", width: "120px" },
       { key: "payGradeLevel", label: "Level", type: "select", width: "90px" },
@@ -63,20 +63,18 @@ class PositionEntryWidget extends HTMLElement {
     if (oldValue === newValue) {
       return;
     }
+
     if (name === "data") {
       try {
         var parsed = JSON.parse(newValue || "[]");
         if (Array.isArray(parsed)) {
           this._rows = parsed;
+          this._syncRowIds();
           this._render();
         }
       } catch (e) {}
     }
   }
-
-  //========================
-  // Public methods for SAC
-  //========================
 
   getData() {
     return JSON.stringify(this._rows);
@@ -93,6 +91,7 @@ class PositionEntryWidget extends HTMLElement {
     } catch (e) {
       this._rows = [this._createEmptyRow(1)];
     }
+
     this._syncRowIds();
     this._setDataProperty();
     this._render();
@@ -110,9 +109,7 @@ class PositionEntryWidget extends HTMLElement {
     this._rows = [this._createEmptyRow(1)];
     this._validationErrors = [];
     this._validationResult = "true";
-    this._lastEvent = JSON.stringify({
-      type: "clear"
-    });
+    this._lastEvent = "clear";
     this._setProperties();
     this._render();
     this._dispatch("onDataChange");
@@ -122,16 +119,9 @@ class PositionEntryWidget extends HTMLElement {
     var result = this._validateAllRows();
     this._validationErrors = result.errors;
     this._validationResult = result.isValid ? "true" : "false";
-
-    this._lastEvent = JSON.stringify({
-      type: "validate",
-      isValid: result.isValid,
-      errorCount: result.errors.length
-    });
-
+    this._lastEvent = "validate|" + String(this._validationResult) + "|" + String(result.errors.length);
     this._setProperties();
     this._render();
-
     this._dispatch("onValidate");
     return this._validationResult;
   }
@@ -153,9 +143,11 @@ class PositionEntryWidget extends HTMLElement {
       if (!Array.isArray(arr)) {
         arr = [];
       }
+
       if (!this._rowOptions[rowIndex]) {
         this._rowOptions[rowIndex] = {};
       }
+
       this._rowOptions[rowIndex][fieldName] = arr;
       this._render();
     } catch (e) {}
@@ -165,10 +157,10 @@ class PositionEntryWidget extends HTMLElement {
     if (!this._rows[rowIndex]) {
       return;
     }
+
     this._rows[rowIndex][fieldName] = value;
     this._setDataProperty();
     this._render();
-    this._fireFieldChange(rowIndex, fieldName, value);
   }
 
   getLastEvent() {
@@ -178,10 +170,6 @@ class PositionEntryWidget extends HTMLElement {
   getValidationErrors() {
     return JSON.stringify(this._validationErrors || []);
   }
-
-  //========================
-  // Internal helpers
-  //========================
 
   _createEmptyRow(rowId) {
     return {
@@ -193,7 +181,7 @@ class PositionEntryWidget extends HTMLElement {
       costCenter: "",
       jobCode: "",
       positionTitle: "",
-      manpowerId: "",
+      employeeId: "",
       noOfPositions: "1",
       payGradeGroup: "",
       payGradeLevel: "",
@@ -222,6 +210,7 @@ class PositionEntryWidget extends HTMLElement {
     ) {
       return this._rowOptions[rowIndex][fieldName];
     }
+
     return this._options[fieldName] || [];
   }
 
@@ -243,18 +232,13 @@ class PositionEntryWidget extends HTMLElement {
   }
 
   _fireReady() {
-    this._lastEvent = JSON.stringify({ type: "ready" });
+    this._lastEvent = "ready";
     this._setProperties();
     this._dispatch("onReady");
   }
 
   _fireFieldChange(rowIndex, fieldName, value) {
-    this._lastEvent = JSON.stringify({
-      type: "fieldChange",
-      rowIndex: rowIndex,
-      field: fieldName,
-      value: value
-    });
+    this._lastEvent = "fieldChange|" + String(rowIndex) + "|" + String(fieldName) + "|" + String(value);
     this._setProperties();
     this._dispatch("onDataChange");
   }
@@ -266,9 +250,11 @@ class PositionEntryWidget extends HTMLElement {
         filtered.push(this._rows[i]);
       }
     }
+
     if (!filtered.length) {
       filtered = [this._createEmptyRow(1)];
     }
+
     this._rows = filtered;
     this._syncRowIds();
     this._setProperties();
@@ -278,17 +264,17 @@ class PositionEntryWidget extends HTMLElement {
 
   _validateAllRows() {
     var errors = [];
-    var manpowerMap = {};
+    var employeeMap = {};
     var i = 0;
 
     for (i = 0; i < this._rows.length; i++) {
       var row = this._rows[i];
 
-      if (row.manpowerId && row.manpowerId !== "") {
-        if (!manpowerMap[row.manpowerId]) {
-          manpowerMap[row.manpowerId] = 1;
+      if (row.employeeId && row.employeeId !== "") {
+        if (!employeeMap[row.employeeId]) {
+          employeeMap[row.employeeId] = 1;
         } else {
-          manpowerMap[row.manpowerId] = manpowerMap[row.manpowerId] + 1;
+          employeeMap[row.employeeId] = employeeMap[row.employeeId] + 1;
         }
       }
     }
@@ -303,12 +289,12 @@ class PositionEntryWidget extends HTMLElement {
       if (!r.costCenter) rowErr.push("Cost Center is required");
       if (!r.jobCode) rowErr.push("Job Code is required");
       if (!r.positionTitle) rowErr.push("Position Title is required");
-      if (!r.manpowerId) rowErr.push("Manpower ID is required");
+      if (!r.employeeId) rowErr.push("Employee ID is required");
       if (!r.noOfPositions || Number(r.noOfPositions) <= 0) rowErr.push("No. of Positions must be greater than 0");
       if (!r.hireDate) rowErr.push("Hire Date is required");
 
-      if (r.manpowerId && manpowerMap[r.manpowerId] > 1) {
-        rowErr.push("Duplicate Manpower ID in widget rows");
+      if (r.employeeId && employeeMap[r.employeeId] > 1) {
+        rowErr.push("Duplicate Employee ID in widget rows");
       }
 
       if (r.specialApproval === "Yes" && !r.comment) {
@@ -547,7 +533,7 @@ class PositionEntryWidget extends HTMLElement {
         (fieldName === "costCenter" && msg.indexOf("Cost Center") === 0) ||
         (fieldName === "jobCode" && msg.indexOf("Job Code") === 0) ||
         (fieldName === "positionTitle" && msg.indexOf("Position Title") === 0) ||
-        (fieldName === "manpowerId" && (msg.indexOf("Manpower ID") === 0 || msg.indexOf("Duplicate Manpower ID") === 0)) ||
+        (fieldName === "employeeId" && (msg.indexOf("Employee ID") === 0 || msg.indexOf("Duplicate Employee ID") === 0)) ||
         (fieldName === "noOfPositions" && msg.indexOf("No. of Positions") === 0) ||
         (fieldName === "hireDate" && msg.indexOf("Hire Date") === 0) ||
         (fieldName === "comment" && msg.indexOf("Comment") === 0)
@@ -555,9 +541,11 @@ class PositionEntryWidget extends HTMLElement {
         matched.push(msg);
       }
     }
+
     if (!matched.length) {
       return "";
     }
+
     return `<div class="rowErr">${matched.join("<br>")}</div>`;
   }
 
@@ -568,13 +556,15 @@ class PositionEntryWidget extends HTMLElement {
   _bindCellEvents() {
     var that = this;
     var all = this.shadowRoot.querySelectorAll("[data-row][data-field]");
+
     all.forEach(function(el) {
       var eventName = el.tagName === "SELECT" ? "change" : "input";
+
       el.addEventListener(eventName, function() {
         var rowIndex = parseInt(this.getAttribute("data-row"), 10);
         var field = this.getAttribute("data-field");
         var type = this.getAttribute("data-type");
-        var value;
+        var value = "";
 
         if (type === "checkbox") {
           value = this.checked;
@@ -583,12 +573,9 @@ class PositionEntryWidget extends HTMLElement {
         }
 
         that._rows[rowIndex][field] = value;
-        that._setDataProperty();
-
-        // live clear row-level validation display until next explicit validate
         that._validationErrors = [];
         that._validationResult = "true";
-
+        that._setProperties();
         that._fireFieldChange(rowIndex, field, value);
         that._render();
       });
@@ -604,4 +591,6 @@ class PositionEntryWidget extends HTMLElement {
   }
 }
 
-customElements.define("com-example-position-entry", PositionEntryWidget);
+if (!customElements.get("com-example-position-entry")) {
+  customElements.define("com-example-position-entry", PositionEntryWidget);
+}
