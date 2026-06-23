@@ -1,0 +1,115 @@
+{
+  "name": "position-entry-widget",
+  "id": "com.example.positionentry",
+  "version": "1.0.0",
+  "newInstancePrefix": "PositionEntry",
+  "description": "Position entry table widget for SAC",
+  "vendor": "Arnav",
+  "webcomponents": [
+    {
+      "kind": "main",
+      "tag": "com-example-position-entry",
+      "url": "https://arnav973.github.io/position-entry/position-entry-widget.js",
+      "integrity": ""
+    }
+  ],
+  "properties": {
+    "data": {
+      "type": "string",
+      "default": "[]"
+    },
+    "lastEvent": {
+      "type": "string",
+      "default": ""
+    },
+    "validationResult": {
+      "type": "string",
+      "default": "true"
+    },
+    "validationErrors": {
+      "type": "string",
+      "default": "[]"
+    }
+  },
+  "methods": {
+    "getData": {
+      "returnType": "string"
+    },
+    "setData": {
+      "parameters": [
+        {
+          "name": "dataStr",
+          "type": "string"
+        }
+      ],
+      "returnType": "void"
+    },
+    "addRow": {
+      "returnType": "void"
+    },
+    "clear": {
+      "returnType": "void"
+    },
+    "validate": {
+      "returnType": "string"
+    },
+    "setOptions": {
+      "parameters": [
+        {
+          "name": "fieldName",
+          "type": "string"
+        },
+        {
+          "name": "optionsStr",
+          "type": "string"
+        }
+      ],
+      "returnType": "void"
+    },
+    "setRowOptions": {
+      "parameters": [
+        {
+          "name": "rowIndex",
+          "type": "integer"
+        },
+        {
+          "name": "fieldName",
+          "type": "string"
+        },
+        {
+          "name": "optionsStr",
+          "type": "string"
+        }
+      ],
+      "returnType": "void"
+    },
+    "setCellValue": {
+      "parameters": [
+        {
+          "name": "rowIndex",
+          "type": "integer"
+        },
+        {
+          "name": "fieldName",
+          "type": "string"
+        },
+        {
+          "name": "value",
+          "type": "string"
+        }
+      ],
+      "returnType": "void"
+    },
+    "getLastEvent": {
+      "returnType": "string"
+    },
+    "getValidationErrors": {
+      "returnType": "string"
+    }
+  },
+  "events": {
+    "onDataChange": {},
+    "onValidate": {},
+    "onReady": {}
+  }
+}
