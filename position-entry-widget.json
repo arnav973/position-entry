@@ -1,7 +1,7 @@
 {
   "name": "position-entry-widget",
   "id": "com.example.positionentry",
-  "version": "1.0.0",
+  "version": "16.0.0",
   "newInstancePrefix": "PositionEntry",
   "description": "Position entry table widget for SAC",
   "vendor": "Arnav",
