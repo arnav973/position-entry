@@ -76,9 +76,53 @@ class PositionEntryWidget extends HTMLElement {
     }
   }
 
-  getData() {
-    return JSON.stringify(this._rows);
+ getData() {
+  var result = "";
+  var i = 0;
+
+  for (i = 0; i < this._rows.length; i++) {
+    var r = this._rows[i];
+
+    if (result !== "") {
+      result = result + "||";
+    }
+
+    result = result
+      + "rowId::" + this._safeValue(r.rowId) + "~~"
+      + "selected::" + this._safeValue(r.selected ? "true" : "false") + "~~"
+      + "companyCode::" + this._safeValue(r.companyCode) + "~~"
+      + "division::" + this._safeValue(r.division) + "~~"
+      + "department::" + this._safeValue(r.department) + "~~"
+      + "costCenter::" + this._safeValue(r.costCenter) + "~~"
+      + "jobCode::" + this._safeValue(r.jobCode) + "~~"
+      + "positionTitle::" + this._safeValue(r.positionTitle) + "~~"
+      + "employeeId::" + this._safeValue(r.employeeId) + "~~"
+      + "noOfPositions::" + this._safeValue(r.noOfPositions) + "~~"
+      + "payGradeGroup::" + this._safeValue(r.payGradeGroup) + "~~"
+      + "payGradeLevel::" + this._safeValue(r.payGradeLevel) + "~~"
+      + "hireDate::" + this._safeValue(r.hireDate) + "~~"
+      + "nationality::" + this._safeValue(r.nationality) + "~~"
+      + "accommodation::" + this._safeValue(r.accommodation) + "~~"
+      + "transport::" + this._safeValue(r.transport) + "~~"
+      + "employeeClass::" + this._safeValue(r.employeeClass) + "~~"
+      + "overtime::" + this._safeValue(r.overtime) + "~~"
+      + "specialApproval::" + this._safeValue(r.specialApproval) + "~~"
+      + "comment::" + this._safeValue(r.comment);
   }
+
+  return result;
+}
+_safeValue(value) {
+  if (value === undefined || value === null) {
+    return "";
+  }
+
+  return String(value)
+    .replace(/\|\|/g, " ")
+    .replace(/~~/g, " ")
+    .replace(/::/g, " ");
+}
+
 
   setData(dataStr) {
     try {
