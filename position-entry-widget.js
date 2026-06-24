@@ -570,18 +570,16 @@ class PositionEntryWidget extends HTMLElement {
     });
 
     this.shadowRoot.getElementById("btnValidate").addEventListener("click", function() {
-      var result = that._validateAllRows();
-      that._validationErrors = result.errors;
-      that._validationResult = result.isValid ? "true" : "false";
-      that._sendPayload = that.getData();
-      that._lastEvent = result.isValid ? "sendForApproval" : "validationFailed";
-      that._setProperties();
-      that._render();
-
-      if (result.isValid) {
-        that._dispatch("onDataChange");
-      }
-    });
+    var result = that._validateAllRows();
+    that._validationErrors = result.errors;
+    that._validationResult = result.isValid ? "true" : "false";
+    that._sendPayload = that.getData();
+    that._lastEvent = result.isValid ? "sendForApproval" : "validationFailed";
+    that._setProperties();
+    that._render();
+  
+    that._dispatch("onValidate");
+  });
 
     this.shadowRoot.getElementById("btnClear").addEventListener("click", function() {
       that.clear();
