@@ -24,6 +24,7 @@ class PositionEntryWidget extends HTMLElement {
     this._sendPayload = "";
     this._validationResult = "true";
     this._validationErrors = [];
+    this._suspendAttributeSync = false;
 
     this._columns = [
       { key: "selected", label: "Sel", type: "checkbox", width: "50px" },
@@ -65,13 +66,16 @@ class PositionEntryWidget extends HTMLElement {
       return;
     }
 
+    if (this._suspendAttributeSync) {
+      return;
+    }
+
     if (name === "data") {
       try {
         var parsed = JSON.parse(newValue || "[]");
         if (Array.isArray(parsed)) {
           this._rows = parsed;
           this._syncRowIds();
-          this._render();
         }
       } catch (e) {}
     }
@@ -206,8 +210,7 @@ class PositionEntryWidget extends HTMLElement {
           return `<option value="${key}" ${selected}>${text}</option>`;
         }).join("");
         selectEl.innerHTML = optionsHtml;
-      } else {
-        this._render();
+        selectEl.value = currentValue;
       }
     } catch (e) {}
   }
@@ -227,8 +230,6 @@ class PositionEntryWidget extends HTMLElement {
       } else {
         el.value = value;
       }
-    } else {
-      this._render();
     }
   }
 
@@ -299,14 +300,18 @@ class PositionEntryWidget extends HTMLElement {
 
   _setProperties() {
     this._setDataProperty();
+    this._suspendAttributeSync = true;
     this.setAttribute("lastevent", this._lastEvent || "");
     this.setAttribute("validationresult", this._validationResult || "true");
     this.setAttribute("validationerrors", JSON.stringify(this._validationErrors || []));
     this.setAttribute("sendforapprovalpayload", this._sendPayload || "");
+    this._suspendAttributeSync = false;
   }
 
   _setDataProperty() {
+    this._suspendAttributeSync = true;
     this.setAttribute("data", JSON.stringify(this._rows));
+    this._suspendAttributeSync = false;
   }
 
   _dispatch(name) {
@@ -510,11 +515,10 @@ class PositionEntryWidget extends HTMLElement {
         <div class="toolbar">
           <button class="btn primary" id="btnAdd">Add Row</button>
           <button class="btn" id="btnDelete">Delete Selected</button>
-          <button class="btn" id="btnValidate">Validate</button>
-          <button class="btn primary" id="sendForApprovalBtn">Send for Approval</button>
+          <button class="btn primary" id="btnValidate">Send for Approval</button>
           <button class="btn" id="btnClear">Clear</button>
         </div>
-        <div class="gridWrap">
+        <div class="gridWrap" id="gridWrap">
           <table>
             <thead>
               <tr>
@@ -545,7 +549,17 @@ class PositionEntryWidget extends HTMLElement {
       </div>
     `;
 
+    var oldGrid = this.shadowRoot.getElementById("gridWrap");
+    var scrollLeft = oldGrid ? oldGrid.scrollLeft : 0;
+    var scrollTop = oldGrid ? oldGrid.scrollTop : 0;
+
     this.shadowRoot.innerHTML = style + html;
+
+    var newGrid = this.shadowRoot.getElementById("gridWrap");
+    if (newGrid) {
+      newGrid.scrollLeft = scrollLeft;
+      newGrid.scrollTop = scrollTop;
+    }
 
     this.shadowRoot.getElementById("btnAdd").addEventListener("click", function() {
       that.addRow();
@@ -556,10 +570,6 @@ class PositionEntryWidget extends HTMLElement {
     });
 
     this.shadowRoot.getElementById("btnValidate").addEventListener("click", function() {
-      that.validate();
-    });
-
-    this.shadowRoot.getElementById("sendForApprovalBtn").addEventListener("click", function() {
       var result = that._validateAllRows();
       that._validationErrors = result.errors;
       that._validationResult = result.isValid ? "true" : "false";
@@ -569,7 +579,7 @@ class PositionEntryWidget extends HTMLElement {
       that._render();
 
       if (result.isValid) {
-        that._dispatch("onSendForApproval");
+        that._dispatch("onDataChange");
       }
     });
 
@@ -693,7 +703,7 @@ class PositionEntryWidget extends HTMLElement {
           that._rows[rowIndex][field] = value;
           that._validationErrors = [];
           that._validationResult = "true";
-          that._setProperties();
+          that._setDataProperty();
         });
 
         el.addEventListener("change", function() {
@@ -704,8 +714,7 @@ class PositionEntryWidget extends HTMLElement {
           that._rows[rowIndex][field] = value;
           that._validationErrors = [];
           that._validationResult = "true";
-          that._setProperties();
-          that._fireFieldChange(rowIndex, field, value);
+          that._setDataProperty();
         });
       }
     });
