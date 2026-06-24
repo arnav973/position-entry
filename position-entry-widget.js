@@ -21,6 +21,7 @@ class PositionEntryWidget extends HTMLElement {
     };
     this._rowOptions = {};
     this._lastEvent = "";
+    this._sendPayload = "";
     this._validationResult = "true";
     this._validationErrors = [];
 
@@ -56,7 +57,7 @@ class PositionEntryWidget extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ["data", "lastevent", "validationresult", "validationerrors"];
+    return ["data", "lastevent", "validationresult", "validationerrors", "sendforapprovalpayload"];
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
@@ -76,53 +77,53 @@ class PositionEntryWidget extends HTMLElement {
     }
   }
 
- getData() {
-  var result = "";
-  var i = 0;
+  getData() {
+    var result = "";
+    var i = 0;
 
-  for (i = 0; i < this._rows.length; i++) {
-    var r = this._rows[i];
+    for (i = 0; i < this._rows.length; i++) {
+      var r = this._rows[i];
 
-    if (result !== "") {
-      result = result + "||";
+      if (result !== "") {
+        result = result + "||";
+      }
+
+      result = result
+        + "rowId::" + this._safeValue(r.rowId) + "~~"
+        + "selected::" + this._safeValue(r.selected ? "true" : "false") + "~~"
+        + "companyCode::" + this._safeValue(r.companyCode) + "~~"
+        + "division::" + this._safeValue(r.division) + "~~"
+        + "department::" + this._safeValue(r.department) + "~~"
+        + "costCenter::" + this._safeValue(r.costCenter) + "~~"
+        + "jobCode::" + this._safeValue(r.jobCode) + "~~"
+        + "positionTitle::" + this._safeValue(r.positionTitle) + "~~"
+        + "employeeId::" + this._safeValue(r.employeeId) + "~~"
+        + "noOfPositions::" + this._safeValue(r.noOfPositions) + "~~"
+        + "payGradeGroup::" + this._safeValue(r.payGradeGroup) + "~~"
+        + "payGradeLevel::" + this._safeValue(r.payGradeLevel) + "~~"
+        + "hireDate::" + this._safeValue(r.hireDate) + "~~"
+        + "nationality::" + this._safeValue(r.nationality) + "~~"
+        + "accommodation::" + this._safeValue(r.accommodation) + "~~"
+        + "transport::" + this._safeValue(r.transport) + "~~"
+        + "employeeClass::" + this._safeValue(r.employeeClass) + "~~"
+        + "overtime::" + this._safeValue(r.overtime) + "~~"
+        + "specialApproval::" + this._safeValue(r.specialApproval) + "~~"
+        + "comment::" + this._safeValue(r.comment);
     }
 
-    result = result
-      + "rowId::" + this._safeValue(r.rowId) + "~~"
-      + "selected::" + this._safeValue(r.selected ? "true" : "false") + "~~"
-      + "companyCode::" + this._safeValue(r.companyCode) + "~~"
-      + "division::" + this._safeValue(r.division) + "~~"
-      + "department::" + this._safeValue(r.department) + "~~"
-      + "costCenter::" + this._safeValue(r.costCenter) + "~~"
-      + "jobCode::" + this._safeValue(r.jobCode) + "~~"
-      + "positionTitle::" + this._safeValue(r.positionTitle) + "~~"
-      + "employeeId::" + this._safeValue(r.employeeId) + "~~"
-      + "noOfPositions::" + this._safeValue(r.noOfPositions) + "~~"
-      + "payGradeGroup::" + this._safeValue(r.payGradeGroup) + "~~"
-      + "payGradeLevel::" + this._safeValue(r.payGradeLevel) + "~~"
-      + "hireDate::" + this._safeValue(r.hireDate) + "~~"
-      + "nationality::" + this._safeValue(r.nationality) + "~~"
-      + "accommodation::" + this._safeValue(r.accommodation) + "~~"
-      + "transport::" + this._safeValue(r.transport) + "~~"
-      + "employeeClass::" + this._safeValue(r.employeeClass) + "~~"
-      + "overtime::" + this._safeValue(r.overtime) + "~~"
-      + "specialApproval::" + this._safeValue(r.specialApproval) + "~~"
-      + "comment::" + this._safeValue(r.comment);
+    return result;
   }
 
-  return result;
-}
-_safeValue(value) {
-  if (value === undefined || value === null) {
-    return "";
+  _safeValue(value) {
+    if (value === undefined || value === null) {
+      return "";
+    }
+
+    return String(value)
+      .replace(/\|\|/g, " ")
+      .replace(/~~/g, " ")
+      .replace(/::/g, " ");
   }
-
-  return String(value)
-    .replace(/\|\|/g, " ")
-    .replace(/~~/g, " ")
-    .replace(/::/g, " ");
-}
-
 
   setData(dataStr) {
     try {
@@ -154,6 +155,7 @@ _safeValue(value) {
     this._validationErrors = [];
     this._validationResult = "true";
     this._lastEvent = "clear";
+    this._sendPayload = "";
     this._setProperties();
     this._render();
     this._dispatch("onDataChange");
@@ -193,7 +195,20 @@ _safeValue(value) {
       }
 
       this._rowOptions[rowIndex][fieldName] = arr;
-      this._render();
+
+      var selectEl = this.shadowRoot.querySelector('select[data-row="' + rowIndex + '"][data-field="' + fieldName + '"]');
+      if (selectEl) {
+        var currentValue = this._rows[rowIndex] ? (this._rows[rowIndex][fieldName] || "") : "";
+        var optionsHtml = `<option value=""></option>` + arr.map(function(o) {
+          var key = o.key !== undefined ? o.key : "";
+          var text = o.text !== undefined ? o.text : key;
+          var selected = String(key) === String(currentValue) ? "selected" : "";
+          return `<option value="${key}" ${selected}>${text}</option>`;
+        }).join("");
+        selectEl.innerHTML = optionsHtml;
+      } else {
+        this._render();
+      }
     } catch (e) {}
   }
 
@@ -204,15 +219,39 @@ _safeValue(value) {
 
     this._rows[rowIndex][fieldName] = value;
     this._setDataProperty();
-    this._render();
+
+    var el = this.shadowRoot.querySelector('[data-row="' + rowIndex + '"][data-field="' + fieldName + '"]');
+    if (el) {
+      if (el.type === "checkbox") {
+        el.checked = value === true;
+      } else {
+        el.value = value;
+      }
+    } else {
+      this._render();
+    }
   }
 
   getLastEvent() {
     return this._lastEvent || "";
   }
 
+  getSendForApprovalPayload() {
+    return this._sendPayload || "";
+  }
+
   getValidationErrors() {
     return JSON.stringify(this._validationErrors || []);
+  }
+
+  clearRowsAfterSend() {
+    this._rows = [this._createEmptyRow(1)];
+    this._validationErrors = [];
+    this._validationResult = "true";
+    this._lastEvent = "clearAfterSend";
+    this._sendPayload = "";
+    this._setProperties();
+    this._render();
   }
 
   _createEmptyRow(rowId) {
@@ -263,6 +302,7 @@ _safeValue(value) {
     this.setAttribute("lastevent", this._lastEvent || "");
     this.setAttribute("validationresult", this._validationResult || "true");
     this.setAttribute("validationerrors", JSON.stringify(this._validationErrors || []));
+    this.setAttribute("sendforapprovalpayload", this._sendPayload || "");
   }
 
   _setDataProperty() {
@@ -519,6 +559,20 @@ _safeValue(value) {
       that.validate();
     });
 
+    this.shadowRoot.getElementById("sendForApprovalBtn").addEventListener("click", function() {
+      var result = that._validateAllRows();
+      that._validationErrors = result.errors;
+      that._validationResult = result.isValid ? "true" : "false";
+      that._sendPayload = that.getData();
+      that._lastEvent = result.isValid ? "sendForApproval" : "validationFailed";
+      that._setProperties();
+      that._render();
+
+      if (result.isValid) {
+        that._dispatch("onSendForApproval");
+      }
+    });
+
     this.shadowRoot.getElementById("btnClear").addEventListener("click", function() {
       that.clear();
     });
@@ -603,27 +657,57 @@ _safeValue(value) {
     var all = this.shadowRoot.querySelectorAll("[data-row][data-field]");
 
     all.forEach(function(el) {
-      var eventName = el.tagName === "SELECT" ? "change" : "input";
+      var isSelect = el.tagName === "SELECT";
+      var isCheckbox = el.getAttribute("data-type") === "checkbox";
 
-      el.addEventListener(eventName, function() {
-        var rowIndex = parseInt(this.getAttribute("data-row"), 10);
-        var field = this.getAttribute("data-field");
-        var type = this.getAttribute("data-type");
-        var value = "";
+      if (isSelect) {
+        el.addEventListener("change", function() {
+          var rowIndex = parseInt(this.getAttribute("data-row"), 10);
+          var field = this.getAttribute("data-field");
+          var value = this.value;
 
-        if (type === "checkbox") {
-          value = this.checked;
-        } else {
-          value = this.value;
-        }
+          that._rows[rowIndex][field] = value;
+          that._validationErrors = [];
+          that._validationResult = "true";
+          that._setProperties();
+          that._fireFieldChange(rowIndex, field, value);
+        });
+      } else if (isCheckbox) {
+        el.addEventListener("change", function() {
+          var rowIndex = parseInt(this.getAttribute("data-row"), 10);
+          var field = this.getAttribute("data-field");
+          var value = this.checked;
 
-        that._rows[rowIndex][field] = value;
-        that._validationErrors = [];
-        that._validationResult = "true";
-        that._setProperties();
-        that._fireFieldChange(rowIndex, field, value);
-        that._render();
-      });
+          that._rows[rowIndex][field] = value;
+          that._validationErrors = [];
+          that._validationResult = "true";
+          that._setProperties();
+          that._fireFieldChange(rowIndex, field, value);
+        });
+      } else {
+        el.addEventListener("input", function() {
+          var rowIndex = parseInt(this.getAttribute("data-row"), 10);
+          var field = this.getAttribute("data-field");
+          var value = this.value;
+
+          that._rows[rowIndex][field] = value;
+          that._validationErrors = [];
+          that._validationResult = "true";
+          that._setProperties();
+        });
+
+        el.addEventListener("change", function() {
+          var rowIndex = parseInt(this.getAttribute("data-row"), 10);
+          var field = this.getAttribute("data-field");
+          var value = this.value;
+
+          that._rows[rowIndex][field] = value;
+          that._validationErrors = [];
+          that._validationResult = "true";
+          that._setProperties();
+          that._fireFieldChange(rowIndex, field, value);
+        });
+      }
     });
   }
 
