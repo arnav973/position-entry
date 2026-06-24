@@ -471,6 +471,7 @@ _safeValue(value) {
           <button class="btn primary" id="btnAdd">Add Row</button>
           <button class="btn" id="btnDelete">Delete Selected</button>
           <button class="btn" id="btnValidate">Validate</button>
+          <button class="btn primary" id="sendForApprovalBtn">Send for Approval</button>
           <button class="btn" id="btnClear">Clear</button>
         </div>
         <div class="gridWrap">
