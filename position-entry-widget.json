@@ -110,8 +110,13 @@
     "getValidationErrors": {
       "description": "Get validation error details",
       "returnType": "string"
-    }
+    },
+     "getValidationResult": {
+    "description": "Get validation result",
+    "returnType": "string"
+  }
   },
+  
   "events": {
     "onDataChange": {
       "description": "Triggered when widget data changes"
