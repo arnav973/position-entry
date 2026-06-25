@@ -102,7 +102,6 @@
         + "jobCode::" + this._safeValue(r.jobCode) + "~~"
         + "positionTitle::" + this._safeValue(r.positionTitle) + "~~"
         + "employeeId::" + this._safeValue(r.employeeId) + "~~"
-        + "noOfPositions::" + this._safeValue(r.noOfPositions) + "~~"
         + "payGradeGroup::" + this._safeValue(r.payGradeGroup) + "~~"
         + "payGradeLevel::" + this._safeValue(r.payGradeLevel) + "~~"
         + "hireDate::" + this._safeValue(r.hireDate) + "~~"
@@ -379,7 +378,6 @@
       if (!r.jobCode) rowErr.push("Job Code is required");
       if (!r.positionTitle) rowErr.push("Position Title is required");
       if (!r.employeeId) rowErr.push("Employee ID is required");
-      if (!r.noOfPositions || Number(r.noOfPositions) <= 0) rowErr.push("No. of Positions must be greater than 0");
       if (!r.hireDate) rowErr.push("Hire Date is required");
 
       if (r.employeeId && employeeMap[r.employeeId] > 1) {
@@ -641,7 +639,6 @@
         (fieldName === "jobCode" && msg.indexOf("Job Code") === 0) ||
         (fieldName === "positionTitle" && msg.indexOf("Position Title") === 0) ||
         (fieldName === "employeeId" && (msg.indexOf("Employee ID") === 0 || msg.indexOf("Duplicate Employee ID") === 0)) ||
-        (fieldName === "noOfPositions" && msg.indexOf("No. of Positions") === 0) ||
         (fieldName === "hireDate" && msg.indexOf("Hire Date") === 0) ||
         (fieldName === "comment" && msg.indexOf("Comment") === 0)
       ) {
@@ -780,7 +777,6 @@ class PositionEntryWidget extends HTMLElement {
       { key: "jobCode", label: "Job Code", type: "select", width: "190px" },
       { key: "positionTitle", label: "Position Title", type: "text", width: "220px" },
       { key: "employeeId", label: "Employee ID", type: "text", width: "170px" },
-      { key: "noOfPositions", label: "No. of Positions", type: "number", width: "130px" },
       { key: "payGradeGroup", label: "Pay Grade", type: "select", width: "130px" },
       { key: "payGradeLevel", label: "Level", type: "select", width: "110px" },
       { key: "hireDate", label: "Hire Date", type: "date", width: "150px" },
@@ -857,7 +853,6 @@ class PositionEntryWidget extends HTMLElement {
         + "jobCode::" + this._safeValue(r.jobCode) + "~~"
         + "positionTitle::" + this._safeValue(r.positionTitle) + "~~"
         + "employeeId::" + this._safeValue(r.employeeId) + "~~"
-        + "noOfPositions::" + this._safeValue(r.noOfPositions) + "~~"
         + "payGradeGroup::" + this._safeValue(r.payGradeGroup) + "~~"
         + "payGradeLevel::" + this._safeValue(r.payGradeLevel) + "~~"
         + "hireDate::" + this._safeValue(r.hireDate) + "~~"
@@ -905,6 +900,55 @@ class PositionEntryWidget extends HTMLElement {
     var nextId = this._rows.length + 1;
     this._rows.push(this._createEmptyRow(nextId));
     this._setDataProperty();
+    this._render();
+    this._dispatch("onDataChange");
+  }
+
+  copySelectedRows() {
+    var copiedRows = [];
+    var i = 0;
+
+    for (i = 0; i < this._rows.length; i++) {
+      if (this._rows[i].selected === true) {
+        var source = this._rows[i];
+        var newRow = {
+          rowId: this._rows.length + copiedRows.length + 1,
+          selected: false,
+          companyCode: source.companyCode,
+          division: source.division,
+          department: source.department,
+          costCenter: source.costCenter,
+          jobCode: source.jobCode,
+          positionTitle: source.positionTitle,
+          employeeId: "",
+          payGradeGroup: source.payGradeGroup,
+          payGradeLevel: source.payGradeLevel,
+          hireDate: source.hireDate,
+          nationality: source.nationality,
+          accommodation: source.accommodation,
+          transport: source.transport,
+          employeeClass: source.employeeClass,
+          overtime: source.overtime,
+          specialApproval: source.specialApproval,
+          comment: source.comment
+        };
+        copiedRows.push(newRow);
+      }
+    }
+
+    if (copiedRows.length === 0) {
+      return;
+    }
+
+    for (i = 0; i < copiedRows.length; i++) {
+      this._rows.push(copiedRows[i]);
+    }
+
+    this._syncRowIds();
+    this._validationErrors = [];
+    this._validationResult = "true";
+    this._lastEvent = "copyRows";
+    this._setProperties();
     this._render();
     this._dispatch("onDataChange");
   }
@@ -992,7 +1036,7 @@ class PositionEntryWidget extends HTMLElement {
   getValidationErrors() {
     return JSON.stringify(this._validationErrors || []);
   }
- 
+
   getValidationResult() {
     return this._validationResult || "false";
   }
@@ -1018,7 +1062,6 @@ class PositionEntryWidget extends HTMLElement {
       jobCode: "",
       positionTitle: "",
       employeeId: "",
-      noOfPositions: "1",
       payGradeGroup: "",
       payGradeLevel: "",
       hireDate: "",
@@ -1142,7 +1185,6 @@ class PositionEntryWidget extends HTMLElement {
       if (!r.jobCode) rowErr.push("Job Code is required");
       if (!r.positionTitle) rowErr.push("Position Title is required");
       if (!r.employeeId) rowErr.push("Employee ID is required");
-      if (!r.noOfPositions || Number(r.noOfPositions) <= 0) rowErr.push("No. of Positions must be greater than 0");
       if (!r.hireDate) rowErr.push("Hire Date is required");
 
       if (r.employeeId && employeeMap[r.employeeId] > 1) {
@@ -1486,6 +1528,7 @@ class PositionEntryWidget extends HTMLElement {
       <div class="wrap">
         <div class="toolbar">
           <button class="btn" id="btnAdd">Add Row</button>
+          <button class="btn" id="btnCopy">Copy</button>
           <button class="btn" id="btnDelete">Delete Selected</button>
           <button class="btn" id="btnValidate">Validate</button>
           <button class="btn primary" id="btnSendForApproval">Send for Approval</button>
@@ -1536,6 +1579,10 @@ class PositionEntryWidget extends HTMLElement {
 
     this.shadowRoot.getElementById("btnAdd").addEventListener("click", function() {
       that.addRow();
+    });
+
+    this.shadowRoot.getElementById("btnCopy").addEventListener("click", function() {
+      that.copySelectedRows();
     });
 
     this.shadowRoot.getElementById("btnDelete").addEventListener("click", function() {
@@ -1630,7 +1677,6 @@ class PositionEntryWidget extends HTMLElement {
         (fieldName === "jobCode" && msg.indexOf("Job Code") === 0) ||
         (fieldName === "positionTitle" && msg.indexOf("Position Title") === 0) ||
         (fieldName === "employeeId" && (msg.indexOf("Employee ID") === 0 || msg.indexOf("Duplicate Employee ID") === 0)) ||
-        (fieldName === "noOfPositions" && msg.indexOf("No. of Positions") === 0) ||
         (fieldName === "hireDate" && msg.indexOf("Hire Date") === 0) ||
         (fieldName === "comment" && msg.indexOf("Comment") === 0)
       ) {
