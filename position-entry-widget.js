@@ -992,6 +992,10 @@ class PositionEntryWidget extends HTMLElement {
   getValidationErrors() {
     return JSON.stringify(this._validationErrors || []);
   }
+ 
+  getValidationResult() {
+    return this._validationResult || "false";
+  }
 
   clearRowsAfterSend() {
     this._rows = [this._createEmptyRow(1)];
