@@ -903,8 +903,76 @@ class PositionEntryWidget extends HTMLElement {
     this._render();
     this._dispatch("onDataChange");
   }
+   copySelectedRows() {
+  var copiedRows = [];
+  var copiedRowOptions = {};
+  var copiedCompanyEvents = [];
+  var i = 0;
 
-  copySelectedRows() {
+  for (i = 0; i < this._rows.length; i++) {
+    if (this._rows[i].selected === true) {
+      var source = this._rows[i];
+      var newIndex = this._rows.length + copiedRows.length;
+
+      var newRow = {
+        rowId: this._rows.length + copiedRows.length + 1,
+        selected: false,
+        companyCode: source.companyCode,
+        division: source.division,
+        department: source.department,
+        costCenter: source.costCenter,
+        jobCode: source.jobCode,
+        positionTitle: source.positionTitle,
+        employeeId: "",
+        payGradeGroup: source.payGradeGroup,
+        payGradeLevel: source.payGradeLevel,
+        hireDate: source.hireDate,
+        nationality: source.nationality,
+        accommodation: source.accommodation,
+        transport: source.transport,
+        employeeClass: source.employeeClass,
+        overtime: source.overtime,
+        specialApproval: source.specialApproval,
+        comment: source.comment
+      };
+
+      copiedRows.push(newRow);
+
+      if (this._rowOptions[i]) {
+        copiedRowOptions[newIndex] = JSON.parse(JSON.stringify(this._rowOptions[i]));
+      }
+
+      copiedCompanyEvents.push({
+        rowIndex: newIndex,
+        companyCode: source.companyCode
+      });
+    }
+  }
+
+  if (copiedRows.length === 0) {
+    return;
+  }
+
+  for (i = 0; i < copiedRows.length; i++) {
+    this._rows.push(copiedRows[i]);
+  }
+
+  for (var key in copiedRowOptions) {
+    this._rowOptions[key] = copiedRowOptions[key];
+  }
+
+  this._syncRowIds();
+  this._validationErrors = [];
+  this._validationResult = "true";
+  this._setProperties();
+  this._render();
+
+  for (i = 0; i < copiedCompanyEvents.length; i++) {
+    this._fireFieldChange(copiedCompanyEvents[i].rowIndex, "companyCode", copiedCompanyEvents[i].companyCode);
+  }
+}
+
+  /*copySelectedRows() {
     var copiedRows = [];
     var i = 0;
 
@@ -951,7 +1019,7 @@ class PositionEntryWidget extends HTMLElement {
     this._setProperties();
     this._render();
     this._dispatch("onDataChange");
-  }
+  } */
 
   clear() {
     this._rows = [this._createEmptyRow(1)];
