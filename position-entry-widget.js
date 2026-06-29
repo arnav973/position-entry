@@ -1,5 +1,5 @@
 
-/*
+
 class PositionEntryWidget extends HTMLElement {
   constructor() {
     super();
@@ -1137,9 +1137,9 @@ if (!customElements.get("com-example-position-entry")) {
   document.head.appendChild(style);
 })();
 
-*/
 
-class PositionEntryWidget extends HTMLElement {
+
+/*class PositionEntryWidget extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
@@ -2607,3 +2607,4 @@ if (!customElements.get("com-example-position-entry")) {
 
   document.head.appendChild(style);
 })();
+*/
