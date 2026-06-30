@@ -1,1 +1,131 @@
-
+{
+  "id": "com.example.positionentry",
+  "version": "16.0.0",
+  "name": "Position Entry Widget",
+  "description": "Position entry table widget for SAC",
+  "newInstancePrefix": "PositionEntry",
+  "vendor": "Arnav",
+  "icon": "sap-icon://table-view",
+  "webcomponents": [
+    {
+      "kind": "main",
+      "tag": "com-example-position-entry",
+      "url": "https://arnav973.github.io/position-entry/position-entry-widget.js",
+      "integrity": "",
+      "ignoreIntegrity": true
+    }
+  ],
+  "properties": {
+    "data": {
+      "type": "string",
+      "default": "[]"
+    },
+    "lastEvent": {
+      "type": "string",
+      "default": ""
+    },
+    "validationResult": {
+      "type": "string",
+      "default": "true"
+    },
+    "validationErrors": {
+      "type": "string",
+      "default": "[]"
+    }
+  },
+  "methods": {
+    "getData": {
+      "returnType": "string"
+    },
+    "setData": {
+      "description": "Set widget row data as JSON string",
+      "parameters": [
+        {
+          "name": "dataStr",
+          "type": "string"
+        }
+      ]
+    },
+    "addRow": {
+      "description": "Add a new row"
+    },
+    "clear": {
+      "description": "Clear all rows and reset widget"
+    },
+    "validate": {
+      "description": "Validate all rows",
+      "returnType": "string"
+    },
+    "setOptions": {
+      "description": "Set dropdown options for a field",
+      "parameters": [
+        {
+          "name": "fieldName",
+          "type": "string"
+        },
+        {
+          "name": "optionsStr",
+          "type": "string"
+        }
+      ]
+    },
+    "setRowOptions": {
+      "description": "Set row-specific dropdown options",
+      "parameters": [
+        {
+          "name": "rowIndex",
+          "type": "integer"
+        },
+        {
+          "name": "fieldName",
+          "type": "string"
+        },
+        {
+          "name": "optionsStr",
+          "type": "string"
+        }
+      ]
+    },
+    "setCellValue": {
+      "description": "Set a cell value programmatically",
+      "parameters": [
+        {
+          "name": "rowIndex",
+          "type": "integer"
+        },
+        {
+          "name": "fieldName",
+          "type": "string"
+        },
+        {
+          "name": "value",
+          "type": "string"
+        }
+      ]
+    },
+    "getLastEvent": {
+      "description": "Get last widget event payload",
+      "returnType": "string"
+    },
+    "getValidationErrors": {
+      "description": "Get validation error details",
+      "returnType": "string"
+    },
+     "getValidationResult": {
+    "description": "Get validation result",
+    "returnType": "string"
+  }
+  },
+  
+  "events": {
+    "onDataChange": {
+      "description": "Triggered when widget data changes"
+    },
+    "onValidate": {
+      "description": "Triggered when validation runs"
+    },
+    "onReady": {
+      "description": "Triggered when widget is ready"
+    }
+  }
+}
