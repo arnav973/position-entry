@@ -1346,6 +1346,22 @@ class PositionEntryWidget extends HTMLElement {
     this._setProperties();
     this._render();
   }
+_changeTabFromUI(tabName) {
+  if (tabName !== "create" && tabName !== "manage") {
+    tabName = "create";
+  }
+
+  if (this._activeTab === tabName) {
+    this._render();
+    return;
+  }
+
+  this._activeTab = tabName;
+  this._lastEvent = "tabChange|" + tabName;
+  this._setProperties();
+  this._render();
+  this._dispatch("onDataChange");
+}
 
   setData(dataStr) {
     try {
@@ -2197,8 +2213,9 @@ class PositionEntryWidget extends HTMLElement {
       newGridPanel.scrollTop = oldScrollTop;
     }
 
-    this.shadowRoot.getElementById("tabCreate").addEventListener("click", this.setActiveTab.bind(this, "create"));
-    this.shadowRoot.getElementById("tabManage").addEventListener("click", this.setActiveTab.bind(this, "manage"));
+    this.shadowRoot.getElementById("tabCreate").addEventListener("click", this._changeTabFromUI.bind(this, "create"));
+this.shadowRoot.getElementById("tabManage").addEventListener("click", this._changeTabFromUI.bind(this, "manage"));
+
 
     if (this._activeTab === "create") {
       this.shadowRoot.getElementById("btnAdd").addEventListener("click", this.addRow.bind(this));
