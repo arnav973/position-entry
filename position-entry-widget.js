@@ -2159,9 +2159,9 @@ _changeTabFromUI(tabName) {
         '.dropdown-trigger { width:100%; min-height:34px; height:34px; border:1px solid #c9d6e5; border-radius:6px; background:#fff; display:flex; align-items:center; justify-content:space-between; box-sizing:border-box; padding:0 10px; cursor:pointer; font-size:13px; color:#223548; user-select:none; }' +
         '.dropdown-trigger .label { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding-right:8px; }' +
         '.dropdown-trigger .arrow { color:#6a7f94; font-size:11px; flex:0 0 auto; }' +
-        '.row-checkbox { width:16px; height:16px; cursor:pointer; margin-top:8px; }' +
+        '.row-checkbox { width:18px; height:18px; cursor:pointer; margin-top:8px; }' +
         '.select-all-wrap { display:flex; align-items:center; gap:6px; }' +
-        '.select-all-checkbox { width:14px; height:14px; cursor:pointer; }' +
+        '.select-all-checkbox { width:16px; height:16px; cursor:pointer; }' +
         '</style>';
 
     var pageHtml = "";
