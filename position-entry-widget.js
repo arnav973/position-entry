@@ -1407,31 +1407,19 @@ _changeTabFromUI(tabName) {
       this._render();
     } catch (e) {}
   }
- setSelectedCompanyOnly(companyCode, companyText) {
-  var optionText = companyText || companyCode;
-  var i = 0;
+setCompanyDropdownOptionsOnly(optionsStr) {
+  try {
+    var optionsArray = JSON.parse(optionsStr || "[]");
+    if (!Array.isArray(optionsArray)) {
+      optionsArray = [];
+    }
 
-  this._options.companyCode = [{
-    key: companyCode,
-    text: optionText
-  }];
+    this._options.companyCode = optionsArray;
+    this._setProperties();
+    this._render();
+  } catch (e) {}
+}
 
-  for (i = 0; i < this._rows.length; i++) {
-    this._rows[i].companyCode = companyCode;
-  }
-
-  for (i = 0; i < this._manageRows.length; i++) {
-    this._manageRows[i].companyCode = companyCode;
-    this._manageRows[i].isModified = true;
-  }
-
-  this._validationErrors = [];
-  this._validationResult = "true";
-  this._lastEvent = "selectedCompanyOnly|" + companyCode;
-  this._setProperties();
-  this._render();
-  this._dispatch("onDataChange");
-}  
   setRowOptions(rowIndex, fieldName, optionsStr) {
     try {
       var optionsRowArray = JSON.parse(optionsStr || "[]");
