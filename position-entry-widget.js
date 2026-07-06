@@ -2186,15 +2186,16 @@ _changeTabFromUI(tabName) {
       pageHtml += '<table><thead><tr>';
 
       var createHeaderLoop = 0;
-            var createAllSelected = this._areAllRowsSelected("create");
+           var createAllSelected = this._areAllRowsSelected("create");
 
-      for (createHeaderLoop = 0; createHeaderLoop < this._createColumns.length; createHeaderLoop++) {
-        if (this._createColumns[createHeaderLoop].key === "selected") {
-          pageHtml += '<th style="width:' + this._createColumns[createHeaderLoop].width + '"><input type="checkbox" id="selectAllCreate" ' + (createAllSelected ? 'checked' : '') + ' title="Select All" /></th>';
-        } else {
-          pageHtml += '<th style="width:' + this._createColumns[createHeaderLoop].width + '">' + this._createColumns[createHeaderLoop].label + '</th>';
-        }
-      }
+for (createHeaderLoop = 0; createHeaderLoop < this._createColumns.length; createHeaderLoop++) {
+  if (this._createColumns[createHeaderLoop].key === "selected") {
+    pageHtml += '<th style="width:' + this._createColumns[createHeaderLoop].width + '">Sel <input type="checkbox" id="selectAllCreate" ' + (createAllSelected ? 'checked' : '') + ' title="Select All" /></th>';
+  } else {
+    pageHtml += '<th style="width:' + this._createColumns[createHeaderLoop].width + '">' + this._createColumns[createHeaderLoop].label + '</th>';
+  }
+}
+
 
 
       pageHtml += '</tr></thead><tbody>';
@@ -2238,13 +2239,14 @@ _changeTabFromUI(tabName) {
       var manageHeaderLoop = 0;
             var manageAllSelected = this._areAllRowsSelected("manage");
 
-      for (manageHeaderLoop = 0; manageHeaderLoop < this._manageColumns.length; manageHeaderLoop++) {
-        if (this._manageColumns[manageHeaderLoop].key === "selected") {
-          pageHtml += '<th style="width:' + this._manageColumns[manageHeaderLoop].width + '"><input type="checkbox" id="selectAllManage" ' + (manageAllSelected ? 'checked' : '') + ' title="Select All" /></th>';
-        } else {
-          pageHtml += '<th style="width:' + this._manageColumns[manageHeaderLoop].width + '">' + this._manageColumns[manageHeaderLoop].label + '</th>';
-        }
-      }
+for (manageHeaderLoop = 0; manageHeaderLoop < this._manageColumns.length; manageHeaderLoop++) {
+  if (this._manageColumns[manageHeaderLoop].key === "selected") {
+    pageHtml += '<th style="width:' + this._manageColumns[manageHeaderLoop].width + '">Sel <input type="checkbox" id="selectAllManage" ' + (manageAllSelected ? 'checked' : '') + ' title="Select All" /></th>';
+  } else {
+    pageHtml += '<th style="width:' + this._manageColumns[manageHeaderLoop].width + '">' + this._manageColumns[manageHeaderLoop].label + '</th>';
+  }
+}
+
 
 
       pageHtml += '</tr></thead><tbody>';
@@ -2450,7 +2452,7 @@ this.shadowRoot.getElementById("tabManage").addEventListener("click", this._chan
       var elementType = el.getAttribute("data-type");
       var elementTab = el.getAttribute("data-tab");
 
-      if (elementType === "checkbox") {
+            if (elementType === "checkbox") {
         el.addEventListener("change", function() {
           var changeRowIndex = parseInt(this.getAttribute("data-row"), 10);
           var changeFieldName = this.getAttribute("data-field");
@@ -2462,17 +2464,20 @@ this.shadowRoot.getElementById("tabManage").addEventListener("click", this._chan
             bindThat._validationErrors = [];
             bindThat._validationResult = "true";
             bindThat._setProperties();
+            bindThat._render();
             bindThat._fireManageFieldChange(changeRowIndex, changeFieldName, changeValue);
           } else {
             bindThat._rows[changeRowIndex][changeFieldName] = changeValue;
             bindThat._validationErrors = [];
             bindThat._validationResult = "true";
             bindThat._setProperties();
+            bindThat._render();
             bindThat._fireFieldChange(changeRowIndex, changeFieldName, changeValue);
           }
         });
         return;
       }
+
 
       if (elementType === "select") {
         el.addEventListener("click", function(e) {
