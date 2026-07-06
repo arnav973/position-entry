@@ -1897,10 +1897,66 @@ _changeTabFromUI(tabName) {
         errorCount = errorCount + 1;
       }
     }
-
     return errorCount;
   }
 
+  _hasSelectedRows(tabName) {
+    var sourceRows = tabName === "manage" ? this._manageRows : this._rows;
+    var i = 0;
+
+    for (i = 0; i < sourceRows.length; i++) {
+      if (sourceRows[i].selected === true) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  _areAllRowsSelected(tabName) {
+    var sourceRows = tabName === "manage" ? this._manageRows : this._rows;
+    var i = 0;
+
+    if (!sourceRows || sourceRows.length === 0) {
+      return false;
+    }
+
+    for (i = 0; i < sourceRows.length; i++) {
+      if (sourceRows[i].selected !== true) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  _toggleSelectAll(tabName, checked) {
+    var sourceRows = tabName === "manage" ? this._manageRows : this._rows;
+    var i = 0;
+
+    for (i = 0; i < sourceRows.length; i++) {
+      sourceRows[i].selected = checked;
+      if (tabName === "manage") {
+        sourceRows[i].isModified = true;
+      }
+    }
+
+    this._validationErrors = [];
+    this._validationResult = "true";
+    this._setProperties();
+    this._render();
+
+    if (tabName === "manage") {
+      this._lastEvent = "manageSelectAll|" + (checked ? "true" : "false");
+    } else {
+      this._lastEvent = "selectAll|" + (checked ? "true" : "false");
+    }
+
+    this._setProperties();
+    this._dispatch("onDataChange");
+  }
+
+ 
   _createDropdownPanel() {
     if (this._dropdownPanel) {
       return;
@@ -2113,10 +2169,14 @@ _changeTabFromUI(tabName) {
     pageHtml += '</div>';
 
     if (this._activeTab === "create") {
+       var hasCreateSelection = this._hasSelectedRows("create");
+
       pageHtml += '<div class="toolbar">';
       pageHtml += '<button class="btn" id="btnAdd">Add Row</button>';
-      pageHtml += '<button class="btn" id="btnCopy">Copy</button>';
-      pageHtml += '<button class="btn" id="btnDelete">Delete Selected</button>';
+      if (hasCreateSelection) {
+        pageHtml += '<button class="btn" id="btnCopy">Copy</button>';
+        pageHtml += '<button class="btn" id="btnDelete">Delete Selected</button>';
+      }
       pageHtml += '<button class="btn" id="btnValidate">Validate</button>';
       pageHtml += '<button class="btn primary" id="btnSendForApproval">Send for Approval</button>';
       pageHtml += '<button class="btn" id="btnClear">Clear</button>';
@@ -2126,9 +2186,16 @@ _changeTabFromUI(tabName) {
       pageHtml += '<table><thead><tr>';
 
       var createHeaderLoop = 0;
+            var createAllSelected = this._areAllRowsSelected("create");
+
       for (createHeaderLoop = 0; createHeaderLoop < this._createColumns.length; createHeaderLoop++) {
-        pageHtml += '<th style="width:' + this._createColumns[createHeaderLoop].width + '">' + this._createColumns[createHeaderLoop].label + '</th>';
+        if (this._createColumns[createHeaderLoop].key === "selected") {
+          pageHtml += '<th style="width:' + this._createColumns[createHeaderLoop].width + '"><input type="checkbox" id="selectAllCreate" ' + (createAllSelected ? 'checked' : '') + ' title="Select All" /></th>';
+        } else {
+          pageHtml += '<th style="width:' + this._createColumns[createHeaderLoop].width + '">' + this._createColumns[createHeaderLoop].label + '</th>';
+        }
       }
+
 
       pageHtml += '</tr></thead><tbody>';
 
@@ -2152,21 +2219,33 @@ _changeTabFromUI(tabName) {
       pageHtml += '<div>Error Rows: ' + this._countErrorRows("create") + '</div>';
       pageHtml += '</div>';
     } else {
+           var hasManageSelection = this._hasSelectedRows("manage");
+
       pageHtml += '<div class="toolbar">';
       pageHtml += '<button class="btn" id="btnLoadManage">Load Data</button>';
       pageHtml += '<button class="btn" id="btnValidateManage">Validate</button>';
       pageHtml += '<button class="btn primary" id="btnSaveManage">Save Changes</button>';
-      pageHtml += '<button class="btn danger" id="btnDeleteManage">Delete Selected</button>';
+      if (hasManageSelection) {
+        pageHtml += '<button class="btn danger" id="btnDeleteManage">Delete Selected</button>';
+      }
       pageHtml += '<button class="btn" id="btnClearManage">Clear</button>';
       pageHtml += '</div>';
+
 
       pageHtml += '<div class="gridWrap" id="gridWrap">';
       pageHtml += '<table><thead><tr>';
 
       var manageHeaderLoop = 0;
+            var manageAllSelected = this._areAllRowsSelected("manage");
+
       for (manageHeaderLoop = 0; manageHeaderLoop < this._manageColumns.length; manageHeaderLoop++) {
-        pageHtml += '<th style="width:' + this._manageColumns[manageHeaderLoop].width + '">' + this._manageColumns[manageHeaderLoop].label + '</th>';
+        if (this._manageColumns[manageHeaderLoop].key === "selected") {
+          pageHtml += '<th style="width:' + this._manageColumns[manageHeaderLoop].width + '"><input type="checkbox" id="selectAllManage" ' + (manageAllSelected ? 'checked' : '') + ' title="Select All" /></th>';
+        } else {
+          pageHtml += '<th style="width:' + this._manageColumns[manageHeaderLoop].width + '">' + this._manageColumns[manageHeaderLoop].label + '</th>';
+        }
       }
+
 
       pageHtml += '</tr></thead><tbody>';
 
@@ -2217,22 +2296,50 @@ _changeTabFromUI(tabName) {
 this.shadowRoot.getElementById("tabManage").addEventListener("click", this._changeTabFromUI.bind(this, "manage"));
 
 
-    if (this._activeTab === "create") {
+       if (this._activeTab === "create") {
       this.shadowRoot.getElementById("btnAdd").addEventListener("click", this.addRow.bind(this));
-      this.shadowRoot.getElementById("btnCopy").addEventListener("click", this.copySelectedRows.bind(this));
-      this.shadowRoot.getElementById("btnDelete").addEventListener("click", this._deleteSelectedRows.bind(this));
-      this.shadowRoot.getElementById("btnValidate").addEventListener("click", this.validate.bind(this));
 
+      var btnCopyEl = this.shadowRoot.getElementById("btnCopy");
+      if (btnCopyEl) {
+        btnCopyEl.addEventListener("click", this.copySelectedRows.bind(this));
+      }
+
+      var btnDeleteEl = this.shadowRoot.getElementById("btnDelete");
+      if (btnDeleteEl) {
+        btnDeleteEl.addEventListener("click", this._deleteSelectedRows.bind(this));
+      }
+
+      this.shadowRoot.getElementById("btnValidate").addEventListener("click", this.validate.bind(this));
       this.shadowRoot.getElementById("btnSendForApproval").addEventListener("click", this._handleSendForApproval.bind(this));
       this.shadowRoot.getElementById("btnClear").addEventListener("click", this.clear.bind(this));
+
+      var selectAllCreateEl = this.shadowRoot.getElementById("selectAllCreate");
+      if (selectAllCreateEl) {
+        selectAllCreateEl.addEventListener("change", function() {
+          this._toggleSelectAll("create", selectAllCreateEl.checked);
+        }.bind(this));
+      }
     }
 
-    if (this._activeTab === "manage") {
+
+        if (this._activeTab === "manage") {
       this.shadowRoot.getElementById("btnLoadManage").addEventListener("click", this.loadManageData.bind(this));
       this.shadowRoot.getElementById("btnValidateManage").addEventListener("click", this.validate.bind(this));
       this.shadowRoot.getElementById("btnSaveManage").addEventListener("click", this.saveManageData.bind(this));
-      this.shadowRoot.getElementById("btnDeleteManage").addEventListener("click", this.deleteManageData.bind(this));
+
+      var btnDeleteManageEl = this.shadowRoot.getElementById("btnDeleteManage");
+      if (btnDeleteManageEl) {
+        btnDeleteManageEl.addEventListener("click", this.deleteManageData.bind(this));
+      }
+
       this.shadowRoot.getElementById("btnClearManage").addEventListener("click", this.clear.bind(this));
+
+      var selectAllManageEl = this.shadowRoot.getElementById("selectAllManage");
+      if (selectAllManageEl) {
+        selectAllManageEl.addEventListener("change", function() {
+          this._toggleSelectAll("manage", selectAllManageEl.checked);
+        }.bind(this));
+      }
     }
 
     this._bindCellEvents();
