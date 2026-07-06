@@ -1930,7 +1930,7 @@ _changeTabFromUI(tabName) {
     return true;
   }
 
-  _toggleSelectAll(tabName, checked) {
+    _toggleSelectAll(tabName, checked) {
     var sourceRows = tabName === "manage" ? this._manageRows : this._rows;
     var i = 0;
 
@@ -1943,8 +1943,6 @@ _changeTabFromUI(tabName) {
 
     this._validationErrors = [];
     this._validationResult = "true";
-    this._setProperties();
-    this._render();
 
     if (tabName === "manage") {
       this._lastEvent = "manageSelectAll|" + (checked ? "true" : "false");
@@ -1953,8 +1951,10 @@ _changeTabFromUI(tabName) {
     }
 
     this._setProperties();
+    this._render();
     this._dispatch("onDataChange");
   }
+
 
  
   _createDropdownPanel() {
@@ -2159,7 +2159,10 @@ _changeTabFromUI(tabName) {
         '.dropdown-trigger { width:100%; min-height:34px; height:34px; border:1px solid #c9d6e5; border-radius:6px; background:#fff; display:flex; align-items:center; justify-content:space-between; box-sizing:border-box; padding:0 10px; cursor:pointer; font-size:13px; color:#223548; user-select:none; }' +
         '.dropdown-trigger .label { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding-right:8px; }' +
         '.dropdown-trigger .arrow { color:#6a7f94; font-size:11px; flex:0 0 auto; }' +
-      '</style>';
+        '.row-checkbox { width:16px; height:16px; cursor:pointer; margin-top:8px; }' +
+        '.select-all-wrap { display:flex; align-items:center; gap:6px; }' +
+        '.select-all-checkbox { width:14px; height:14px; cursor:pointer; }' +
+        '</style>';
 
     var pageHtml = "";
     pageHtml += '<div class="wrap">';
@@ -2190,7 +2193,7 @@ _changeTabFromUI(tabName) {
 
 for (createHeaderLoop = 0; createHeaderLoop < this._createColumns.length; createHeaderLoop++) {
   if (this._createColumns[createHeaderLoop].key === "selected") {
-    pageHtml += '<th style="width:' + this._createColumns[createHeaderLoop].width + '">Sel <input type="checkbox" id="selectAllCreate" ' + (createAllSelected ? 'checked' : '') + ' title="Select All" /></th>';
+    pageHtml += '<th style="width:' + this._createColumns[createHeaderLoop].width + '"><div class="select-all-wrap"><span>Sel</span><input class="select-all-checkbox" type="checkbox" id="selectAllCreate" ' + (createAllSelected ? 'checked' : '') + ' title="Select All" /></div></th>';
   } else {
     pageHtml += '<th style="width:' + this._createColumns[createHeaderLoop].width + '">' + this._createColumns[createHeaderLoop].label + '</th>';
   }
@@ -2241,7 +2244,7 @@ for (createHeaderLoop = 0; createHeaderLoop < this._createColumns.length; create
 
 for (manageHeaderLoop = 0; manageHeaderLoop < this._manageColumns.length; manageHeaderLoop++) {
   if (this._manageColumns[manageHeaderLoop].key === "selected") {
-    pageHtml += '<th style="width:' + this._manageColumns[manageHeaderLoop].width + '">Sel <input type="checkbox" id="selectAllManage" ' + (manageAllSelected ? 'checked' : '') + ' title="Select All" /></th>';
+    pageHtml += '<th style="width:' + this._manageColumns[manageHeaderLoop].width + '"><div class="select-all-wrap"><span>Sel</span><input class="select-all-checkbox" type="checkbox" id="selectAllManage" ' + (manageAllSelected ? 'checked' : '') + ' title="Select All" /></div></th>';
   } else {
     pageHtml += '<th style="width:' + this._manageColumns[manageHeaderLoop].width + '">' + this._manageColumns[manageHeaderLoop].label + '</th>';
   }
@@ -2372,9 +2375,9 @@ this.shadowRoot.getElementById("tabManage").addEventListener("click", this._chan
     var errorCss = cellHasError ? "error" : "";
     var cellValue = rowData[columnData.key] !== undefined && rowData[columnData.key] !== null ? rowData[columnData.key] : "";
 
-    if (columnData.type === "checkbox") {
-      return '<input class="cell ' + errorCss + '" data-tab="' + tabName + '" data-row="' + rowIndex + '" data-field="' + columnData.key + '" data-type="' + columnData.type + '" type="checkbox" ' + (cellValue === true ? "checked" : "") + ' />';
-    }
+   if (columnData.type === "checkbox") {
+  return '<input class="row-checkbox ' + errorCss + '" data-tab="' + tabName + '" data-row="' + rowIndex + '" data-field="' + columnData.key + '" data-type="' + columnData.type + '" type="checkbox" ' + (cellValue === true ? "checked" : "") + ' />';
+}
 
     if (columnData.type === "readonly") {
       return '<div class="readonly-cell" data-tab="' + tabName + '" data-row="' + rowIndex + '" data-field="' + columnData.key + '" data-type="' + columnData.type + '">' + this._escapeHtml(String(cellValue)) + '</div>' + this._renderFieldErrors(columnData.key, rowErrors);
