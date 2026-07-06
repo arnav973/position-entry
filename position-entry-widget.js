@@ -1407,7 +1407,33 @@ _changeTabFromUI(tabName) {
       this._render();
     } catch (e) {}
   }
+  setSelectedCompanyOnly(companyCode, companyText) {
+    var optionText = companyText || companyCode;
+    var i = 0;
 
+    this._options.companyCode = [{
+      key: companyCode,
+      text: optionText
+    }];
+
+    for (i = 0; i < this._rows.length; i++) {
+      this._rows[i].companyCode = companyCode;
+    }
+
+    for (i = 0; i < this._manageRows.length; i++) {
+      this._manageRows[i].companyCode = companyCode;
+      this._manageRows[i].isModified = true;
+    }
+
+    this._validationErrors = [];
+    this._validationResult = "true";
+    this._lastEvent = "selectedCompanyOnly|" + companyCode;
+    this._setProperties();
+    this._render();
+    this._dispatch("onDataChange");
+  }
+
+  
   setRowOptions(rowIndex, fieldName, optionsStr) {
     try {
       var optionsRowArray = JSON.parse(optionsStr || "[]");
@@ -1461,14 +1487,21 @@ _changeTabFromUI(tabName) {
     this._render();
   }
 
-  addRow() {
+    addRow() {
     var newRowId = this._rows.length + 1;
-    this._rows.push(this._createEmptyRow(newRowId));
+    var newRow = this._createEmptyRow(newRowId);
+
+    if (this._options.companyCode && this._options.companyCode.length === 1) {
+      newRow.companyCode = this._options.companyCode[0].key;
+    }
+
+    this._rows.push(newRow);
     this._syncRowIds();
     this._setDataProperty();
     this._render();
     this._dispatch("onDataChange");
   }
+
 
   copySelectedRows() {
     var copiedCreateRows = [];
