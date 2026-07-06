@@ -110,6 +110,21 @@
         }
       ]
     },
+
+    "setSelectedCompanyOnly": {
+  "description": "Restrict companyCode dropdown to selected company for both create and manage tabs",
+  "parameters": [
+    {
+      "name": "companyCode",
+      "type": "string"
+    },
+    {
+      "name": "companyText",
+      "type": "string"
+    }
+  ]
+},
+    
     "setRowOptions": {
       "description": "Set create row-specific dropdown options",
       "parameters": [
