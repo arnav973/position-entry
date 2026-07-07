@@ -1943,68 +1943,6 @@ class PositionEntryWidget extends HTMLElement {
       }
     }
 
-    if (selectedCountManage === 0) {
-      errorListManage.push({
-        tab: "manage",
-        rowIndex: -1,
-        rowId: "",
-        messages: ["Please select at least one row."]
-      });
-
-      return {
-        isValid: false,
-        errors: errorListManage
-      };
-    }
-
-    for (validateLoopManage = 0; validateLoopManage < this._manageRows.length; validateLoopManage++) {
-      var manageRowErrors = [];
-      var manageValidateRow = this._manageRows[validateLoopManage];
-
-      if (manageValidateRow.selected !== true) {
-        continue;
-      }
-
-      if (!manageValidateRow.employeeId) { manageRowErrors.push("Position ID is required"); }
-      if (!manageValidateRow.companyCode) { manageRowErrors.push("Company Code is required"); }
-      if (!manageValidateRow.division) { manageRowErrors.push("Division is required"); }
-      if (!manageValidateRow.department) { manageRowErrors.push("Department is required"); }
-      if (!manageValidateRow.costCenter) { manageRowErrors.push("Cost Center is required"); }
-      if (!manageValidateRow.jobCode) { manageRowErrors.push("Job Code is required"); }
-      if (!manageValidateRow.positionTitle) { manageRowErrors.push("Position Title is required"); }
-      if (!manageValidateRow.payGradeGroup) { manageRowErrors.push("Pay Grade is required"); }
-      if (!manageValidateRow.payGradeLevel) { manageRowErrors.push("Level is required"); }
-      if (!manageValidateRow.hireDate) { manageRowErrors.push("Hire Date is required"); }
-      if (!manageValidateRow.nationality) { manageRowErrors.push("Nationality is required"); }
-      if (!manageValidateRow.accommodation) { manageRowErrors.push("Accommodation is required"); }
-      if (!manageValidateRow.transport) { manageRowErrors.push("Transport is required"); }
-      if (!manageValidateRow.employeeClass) { manageRowErrors.push("Employee Class is required"); }
-      if (!manageValidateRow.overtime) { manageRowErrors.push("Overtime is required"); }
-      if (!manageValidateRow.specialApproval) { manageRowErrors.push("Special Approval is required"); }
-
-      if (manageValidateRow.employeeId && employeeMapManage[manageValidateRow.employeeId] > 1) {
-        manageRowErrors.push("Duplicate Position ID in selected rows");
-      }
-
-      if (manageValidateRow.specialApproval === "Yes" && !manageValidateRow.comment) {
-        manageRowErrors.push("Comment is required when Special Approval = Yes");
-      }
-
-      if (manageRowErrors.length > 0) {
-        errorListManage.push({
-          tab: "manage",
-          rowIndex: validateLoopManage,
-          rowId: manageValidateRow.rowId,
-          messages: manageRowErrors
-        });
-      }
-    }
-
-    return {
-      isValid: errorListManage.length === 0,
-      errors: errorListManage
-    };
-  }
 
   _handleSendForApproval() {
     var validationResult = this.validate();
