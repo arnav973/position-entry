@@ -1664,6 +1664,18 @@ class PositionEntryWidget extends HTMLElement {
   this._dispatch("onValidate");
   return this._validationResult;
 }
+_validateSilently() {
+  var validateResult = this._activeTab === "manage"
+    ? this._validateManageRows()
+    : this._validateCreateRows();
+
+  this._validationErrors = validateResult.errors;
+  this._validationResult = validateResult.isValid ? "true" : "false";
+  this._lastEvent = this._activeTab === "manage" ? "validateManage" : "validateOnly";
+  this._setProperties();
+  this._render();
+  return this._validationResult;
+}
 
 
 
@@ -2504,8 +2516,8 @@ class PositionEntryWidget extends HTMLElement {
     this._bindCellEvents();
   }
 
- _handleSendForApproval() {
-  var validationResult = this.validate(false);
+_handleSendForApproval() {
+  var validationResult = this._validateSilently();
 
   if (validationResult !== "true") {
     this._lastEvent = "validationFailed";
@@ -2519,6 +2531,7 @@ class PositionEntryWidget extends HTMLElement {
   this._setProperties();
   this._dispatch("onDataChange");
 }
+
 
 
   _renderCell(tabName, rowData, rowIndex, columnData, rowErrors) {
