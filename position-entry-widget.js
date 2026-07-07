@@ -1837,27 +1837,176 @@ setCompanyDropdownOptionsOnly(optionsStr) {
     this._dispatch("onDataChange");
   }
 
- _validateManageRows() {
-  var errorListManage = [];
-  var employeeMapManage = {};
-  var validateLoopManage = 0;
-  var selectedCountManage = 0;
+   _validateCreateRows() {
+    var errorListCreate = [];
+    var employeeMapCreate = {};
+    var validateLoopCreate = 0;
+    var selectedCountCreate = 0;
 
-  for (validateLoopManage = 0; validateLoopManage < this._manageRows.length; validateLoopManage++) {
-    var manageCheckRow = this._manageRows[validateLoopManage];
+    for (validateLoopCreate = 0; validateLoopCreate < this._rows.length; validateLoopCreate++) {
+      var createCheckRow = this._rows[validateLoopCreate];
 
-    if (manageCheckRow.selected === true) {
-      selectedCountManage = selectedCountManage + 1;
+      if (createCheckRow.selected === true) {
+        selectedCountCreate = selectedCountCreate + 1;
 
-      if (manageCheckRow.employeeId && manageCheckRow.employeeId !== "") {
-        if (!employeeMapManage[manageCheckRow.employeeId]) {
-          employeeMapManage[manageCheckRow.employeeId] = 1;
-        } else {
-          employeeMapManage[manageCheckRow.employeeId] = employeeMapManage[manageCheckRow.employeeId] + 1;
+        if (createCheckRow.employeeId && createCheckRow.employeeId !== "") {
+          if (!employeeMapCreate[createCheckRow.employeeId]) {
+            employeeMapCreate[createCheckRow.employeeId] = 1;
+          } else {
+            employeeMapCreate[createCheckRow.employeeId] = employeeMapCreate[createCheckRow.employeeId] + 1;
+          }
         }
       }
     }
+
+    if (selectedCountCreate === 0) {
+      errorListCreate.push({
+        tab: "create",
+        rowIndex: -1,
+        rowId: "",
+        messages: ["Please select at least one row."]
+      });
+
+      return {
+        isValid: false,
+        errors: errorListCreate
+      };
+    }
+
+    for (validateLoopCreate = 0; validateLoopCreate < this._rows.length; validateLoopCreate++) {
+      var createRowErrors = [];
+      var createValidateRow = this._rows[validateLoopCreate];
+
+      if (createValidateRow.selected !== true) {
+        continue;
+      }
+
+      if (!createValidateRow.companyCode) { createRowErrors.push("Company Code is required"); }
+      if (!createValidateRow.division) { createRowErrors.push("Division is required"); }
+      if (!createValidateRow.department) { createRowErrors.push("Department is required"); }
+      if (!createValidateRow.costCenter) { createRowErrors.push("Cost Center is required"); }
+      if (!createValidateRow.jobCode) { createRowErrors.push("Job Code is required"); }
+      if (!createValidateRow.positionTitle) { createRowErrors.push("Position Title is required"); }
+      if (!createValidateRow.employeeId) { createRowErrors.push("Position ID is required"); }
+      if (!createValidateRow.payGradeGroup) { createRowErrors.push("Pay Grade is required"); }
+      if (!createValidateRow.payGradeLevel) { createRowErrors.push("Level is required"); }
+      if (!createValidateRow.hireDate) { createRowErrors.push("Hire Date is required"); }
+      if (!createValidateRow.nationality) { createRowErrors.push("Nationality is required"); }
+      if (!createValidateRow.accommodation) { createRowErrors.push("Accommodation is required"); }
+      if (!createValidateRow.transport) { createRowErrors.push("Transport is required"); }
+      if (!createValidateRow.employeeClass) { createRowErrors.push("Employee Class is required"); }
+      if (!createValidateRow.overtime) { createRowErrors.push("Overtime is required"); }
+      if (!createValidateRow.specialApproval) { createRowErrors.push("Special Approval is required"); }
+
+      if (createValidateRow.employeeId && employeeMapCreate[createValidateRow.employeeId] > 1) {
+        createRowErrors.push("Duplicate Position ID in selected rows");
+      }
+
+      if (createValidateRow.specialApproval === "Yes" && !createValidateRow.comment) {
+        createRowErrors.push("Comment is required when Special Approval = Yes");
+      }
+
+      if (createRowErrors.length > 0) {
+        errorListCreate.push({
+          tab: "create",
+          rowIndex: validateLoopCreate,
+          rowId: createValidateRow.rowId,
+          messages: createRowErrors
+        });
+      }
+    }
+
+    return {
+      isValid: errorListCreate.length === 0,
+      errors: errorListCreate
+    };
   }
+
+  _validateManageRows() {
+    var errorListManage = [];
+    var employeeMapManage = {};
+    var validateLoopManage = 0;
+    var selectedCountManage = 0;
+
+    for (validateLoopManage = 0; validateLoopManage < this._manageRows.length; validateLoopManage++) {
+      var manageCheckRow = this._manageRows[validateLoopManage];
+
+      if (manageCheckRow.selected === true) {
+        selectedCountManage = selectedCountManage + 1;
+
+        if (manageCheckRow.employeeId && manageCheckRow.employeeId !== "") {
+          if (!employeeMapManage[manageCheckRow.employeeId]) {
+            employeeMapManage[manageCheckRow.employeeId] = 1;
+          } else {
+            employeeMapManage[manageCheckRow.employeeId] = employeeMapManage[manageCheckRow.employeeId] + 1;
+          }
+        }
+      }
+    }
+
+    if (selectedCountManage === 0) {
+      errorListManage.push({
+        tab: "manage",
+        rowIndex: -1,
+        rowId: "",
+        messages: ["Please select at least one row."]
+      });
+
+      return {
+        isValid: false,
+        errors: errorListManage
+      };
+    }
+
+    for (validateLoopManage = 0; validateLoopManage < this._manageRows.length; validateLoopManage++) {
+      var manageRowErrors = [];
+      var manageValidateRow = this._manageRows[validateLoopManage];
+
+      if (manageValidateRow.selected !== true) {
+        continue;
+      }
+
+      if (!manageValidateRow.employeeId) { manageRowErrors.push("Position ID is required"); }
+      if (!manageValidateRow.companyCode) { manageRowErrors.push("Company Code is required"); }
+      if (!manageValidateRow.division) { manageRowErrors.push("Division is required"); }
+      if (!manageValidateRow.department) { manageRowErrors.push("Department is required"); }
+      if (!manageValidateRow.costCenter) { manageRowErrors.push("Cost Center is required"); }
+      if (!manageValidateRow.jobCode) { manageRowErrors.push("Job Code is required"); }
+      if (!manageValidateRow.positionTitle) { manageRowErrors.push("Position Title is required"); }
+      if (!manageValidateRow.payGradeGroup) { manageRowErrors.push("Pay Grade is required"); }
+      if (!manageValidateRow.payGradeLevel) { manageRowErrors.push("Level is required"); }
+      if (!manageValidateRow.hireDate) { manageRowErrors.push("Hire Date is required"); }
+      if (!manageValidateRow.nationality) { manageRowErrors.push("Nationality is required"); }
+      if (!manageValidateRow.accommodation) { manageRowErrors.push("Accommodation is required"); }
+      if (!manageValidateRow.transport) { manageRowErrors.push("Transport is required"); }
+      if (!manageValidateRow.employeeClass) { manageRowErrors.push("Employee Class is required"); }
+      if (!manageValidateRow.overtime) { manageRowErrors.push("Overtime is required"); }
+      if (!manageValidateRow.specialApproval) { manageRowErrors.push("Special Approval is required"); }
+
+      if (manageValidateRow.employeeId && employeeMapManage[manageValidateRow.employeeId] > 1) {
+        manageRowErrors.push("Duplicate Position ID in selected rows");
+      }
+
+      if (manageValidateRow.specialApproval === "Yes" && !manageValidateRow.comment) {
+        manageRowErrors.push("Comment is required when Special Approval = Yes");
+      }
+
+      if (manageRowErrors.length > 0) {
+        errorListManage.push({
+          tab: "manage",
+          rowIndex: validateLoopManage,
+          rowId: manageValidateRow.rowId,
+          messages: manageRowErrors
+        });
+      }
+    }
+
+    return {
+      isValid: errorListManage.length === 0,
+      errors: errorListManage
+    };
+  }
+
 
   if (selectedCountManage === 0) {
     errorListManage.push({
@@ -1923,59 +2072,6 @@ setCompanyDropdownOptionsOnly(optionsStr) {
 }
 
 
-  _validateManageRows() {
-    var errorListManage = [];
-    var employeeMapManage = {};
-    var validateLoopManage = 0;
-
-    for (validateLoopManage = 0; validateLoopManage < this._manageRows.length; validateLoopManage++) {
-      var manageCheckRow = this._manageRows[validateLoopManage];
-
-      if (manageCheckRow.employeeId && manageCheckRow.employeeId !== "") {
-        if (!employeeMapManage[manageCheckRow.employeeId]) {
-          employeeMapManage[manageCheckRow.employeeId] = 1;
-        } else {
-          employeeMapManage[manageCheckRow.employeeId] = employeeMapManage[manageCheckRow.employeeId] + 1;
-        }
-      }
-    }
-
-    for (validateLoopManage = 0; validateLoopManage < this._manageRows.length; validateLoopManage++) {
-      var manageRowErrors = [];
-      var manageValidateRow = this._manageRows[validateLoopManage];
-
-      if (!manageValidateRow.employeeId) { manageRowErrors.push("Position ID is required"); }
-      if (!manageValidateRow.companyCode) { manageRowErrors.push("Company Code is required"); }
-      if (!manageValidateRow.division) { manageRowErrors.push("Division is required"); }
-      if (!manageValidateRow.department) { manageRowErrors.push("Department is required"); }
-      if (!manageValidateRow.costCenter) { manageRowErrors.push("Cost Center is required"); }
-      if (!manageValidateRow.jobCode) { manageRowErrors.push("Job Code is required"); }
-      if (!manageValidateRow.positionTitle) { manageRowErrors.push("Position Title is required"); }
-      if (!manageValidateRow.hireDate) { manageRowErrors.push("Hire Date is required"); }
-
-      if (manageValidateRow.employeeId && employeeMapManage[manageValidateRow.employeeId] > 1) {
-        manageRowErrors.push("Duplicate Position ID in manage rows");
-      }
-
-      if (manageValidateRow.specialApproval === "Yes" && !manageValidateRow.comment) {
-        manageRowErrors.push("Comment is required when Special Approval = Yes");
-      }
-
-      if (manageRowErrors.length > 0) {
-        errorListManage.push({
-          tab: "manage",
-          rowIndex: validateLoopManage,
-          rowId: manageValidateRow.rowId,
-          messages: manageRowErrors
-        });
-      }
-    }
-
-    return {
-      isValid: errorListManage.length === 0,
-      errors: errorListManage
-    };
-  }
 
   _getRowErrorMap(tabName) {
     var errorMap = {};
@@ -2453,13 +2549,9 @@ this.shadowRoot.getElementById("tabManage").addEventListener("click", this._chan
   }
 
   _handleSendForApproval() {
-  var approvalValidation = this._validateCreateRows();
+  var validationResult = this.validate();
 
-  this._validationErrors = approvalValidation.errors;
-  this._validationResult = approvalValidation.isValid ? "true" : "false";
-  this._render();
-
-  if (!approvalValidation.isValid) {
+  if (validationResult !== "true") {
     this._lastEvent = "validationFailed";
     this._setProperties();
     this._dispatch("onValidate");
@@ -2471,6 +2563,7 @@ this.shadowRoot.getElementById("tabManage").addEventListener("click", this._chan
   this._setProperties();
   this._dispatch("onDataChange");
 }
+
 
 
   _renderCell(tabName, rowData, rowIndex, columnData, rowErrors) {
