@@ -1166,6 +1166,7 @@ class PositionEntryWidget extends HTMLElement {
 
     this._rowOptions = {};
     this._manageRowOptions = {};
+    this._manageCompanyFilter = [];
 
     this._lastEvent = "";
     this._sendPayload = "";
@@ -1477,7 +1478,23 @@ class PositionEntryWidget extends HTMLElement {
       this._render();
     } catch (e) {}
   }
+  setManageCompanyFilter(filterStr) {
+  try {
+    var filterArray = JSON.parse(filterStr || "[]");
 
+    if (!Array.isArray(filterArray)) {
+      filterArray = [];
+    }
+
+    this._manageCompanyFilter = filterArray;
+    this._render();
+  } catch (e) {
+    this._manageCompanyFilter = [];
+    this._render();
+  }
+}
+
+  
   setRowOptions(rowIndex, fieldName, optionsStr) {
     try {
       var optionsRowArray = JSON.parse(optionsStr || "[]");
@@ -1786,7 +1803,26 @@ _validateSilently() {
 
     return "";
   }
+_isManageRowVisible(rowData) {
+  var i = 0;
+  var rowCompany = String(rowData.companyCode || "");
 
+  if (!this._manageCompanyFilter || this._manageCompanyFilter.length === 0) {
+    return true;
+  }
+
+  for (i = 0; i < this._manageCompanyFilter.length; i++) {
+    var filterValue = String(this._manageCompanyFilter[i] || "");
+
+    if (rowCompany === filterValue || rowCompany.indexOf(filterValue) === 0) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+  
   _setProperties() {
     this._setAllDataProperties();
     this._suspendAttributeSync = true;
@@ -2420,27 +2456,31 @@ _validateSilently() {
       pageHtml += '</tr></thead><tbody>';
 
       var manageRowLoop = 0;
+   for (manageRowLoop = 0; manageRowLoop < this._manageRows.length; manageRowLoop++) {
+  if (!this._isManageRowVisible(this._manageRows[manageRowLoop])) {
+    continue;
+  }
 
-      for (manageRowLoop = 0; manageRowLoop < this._manageRows.length; manageRowLoop++) {
-        var manageRowErrors = rowErrorMapManage[manageRowLoop] || [];
-        var manageRowClass = "";
+  var manageRowErrors = rowErrorMapManage[manageRowLoop] || [];
+  var manageRowClass = "";
 
-        if (manageRowErrors.length) {
-          manageRowClass = "errorRow";
-        } else if (this._manageRows[manageRowLoop].isModified === true) {
-          manageRowClass = "modifiedRow";
-        }
+  if (manageRowErrors.length) {
+    manageRowClass = "errorRow";
+  } else if (this._manageRows[manageRowLoop].isModified === true) {
+    manageRowClass = "modifiedRow";
+  }
 
-        pageHtml += '<tr class="' + manageRowClass + '">';
+  pageHtml += '<tr class="' + manageRowClass + '">';
 
-        var manageCellLoop = 0;
+  var manageCellLoop = 0;
 
-        for (manageCellLoop = 0; manageCellLoop < this._manageColumns.length; manageCellLoop++) {
-          pageHtml += '<td style="width:' + this._manageColumns[manageCellLoop].width + '">' + this._renderCell("manage", this._manageRows[manageRowLoop], manageRowLoop, this._manageColumns[manageCellLoop], manageRowErrors) + '</td>';
-        }
+  for (manageCellLoop = 0; manageCellLoop < this._manageColumns.length; manageCellLoop++) {
+    pageHtml += '<td style="width:' + this._manageColumns[manageCellLoop].width + '">' + this._renderCell("manage", this._manageRows[manageRowLoop], manageRowLoop, this._manageColumns[manageCellLoop], manageRowErrors) + '</td>';
+  }
 
-        pageHtml += '</tr>';
-      }
+  pageHtml += '</tr>';
+}
+
 
       pageHtml += '</tbody></table></div>';
       pageHtml += '<div class="summary">';
