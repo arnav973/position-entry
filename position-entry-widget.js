@@ -1346,86 +1346,86 @@ class PositionEntryWidget extends HTMLElement {
     this._setProperties();
     this._render();
   }
-_changeTabFromUI(tabName) {
-  if (tabName !== "create" && tabName !== "manage") {
-    tabName = "create";
-  }
 
-  if (this._activeTab === tabName) {
-    this._render();
-    return;
-  }
+  _changeTabFromUI(tabName) {
+    if (tabName !== "create" && tabName !== "manage") {
+      tabName = "create";
+    }
 
-  this._activeTab = tabName;
-  this._lastEvent = "tabChange|" + tabName;
-  this._setProperties();
-  this._render();
-  this._dispatch("onDataChange");
-}
-
-  setData(dataStr) {
-  try {
-    if (!dataStr || dataStr === "" || dataStr === "[]") {
-      this._rows = [this._createEmptyRow(1)];
-      this._syncRowIds();
-      this._setDataProperty();
+    if (this._activeTab === tabName) {
       this._render();
       return;
     }
 
-    if (String(dataStr).charAt(0) === "[") {
-      var parsedRows = JSON.parse(dataStr || "[]");
-      if (Array.isArray(parsedRows) && parsedRows.length > 0) {
-        this._rows = parsedRows;
-      } else {
-        this._rows = [this._createEmptyRow(1)];
-      }
-    } else {
-      var parsedTextRows = [];
-      var rawRows = String(dataStr).split("||");
-      var i = 0;
-      var j = 0;
-
-      for (i = 0; i < rawRows.length; i++) {
-        if (!rawRows[i]) {
-          continue;
-        }
-
-        var rowObj = this._createEmptyRow(parsedTextRows.length + 1);
-        var rawFields = rawRows[i].split("~~");
-
-        for (j = 0; j < rawFields.length; j++) {
-          var pair = rawFields[j];
-          var sepPos = pair.indexOf("::");
-
-          if (sepPos > -1) {
-            var key = pair.substring(0, sepPos);
-            var value = pair.substring(sepPos + 2);
-
-            if (key === "selected") {
-              rowObj[key] = (value === "true");
-            } else if (key === "rowId") {
-              rowObj[key] = parsedTextRows.length + 1;
-            } else {
-              rowObj[key] = value;
-            }
-          }
-        }
-
-        parsedTextRows.push(rowObj);
-      }
-
-      this._rows = parsedTextRows.length ? parsedTextRows : [this._createEmptyRow(1)];
-    }
-  } catch (e) {
-    this._rows = [this._createEmptyRow(1)];
+    this._activeTab = tabName;
+    this._lastEvent = "tabChange|" + tabName;
+    this._setProperties();
+    this._render();
+    this._dispatch("onDataChange");
   }
 
-  this._syncRowIds();
-  this._setDataProperty();
-  this._render();
-}
+  setData(dataStr) {
+    try {
+      if (!dataStr || dataStr === "" || dataStr === "[]") {
+        this._rows = [this._createEmptyRow(1)];
+        this._syncRowIds();
+        this._setDataProperty();
+        this._render();
+        return;
+      }
 
+      if (String(dataStr).charAt(0) === "[") {
+        var parsedRows = JSON.parse(dataStr || "[]");
+        if (Array.isArray(parsedRows) && parsedRows.length > 0) {
+          this._rows = parsedRows;
+        } else {
+          this._rows = [this._createEmptyRow(1)];
+        }
+      } else {
+        var parsedTextRows = [];
+        var rawRows = String(dataStr).split("||");
+        var i = 0;
+        var j = 0;
+
+        for (i = 0; i < rawRows.length; i++) {
+          if (!rawRows[i]) {
+            continue;
+          }
+
+          var rowObj = this._createEmptyRow(parsedTextRows.length + 1);
+          var rawFields = rawRows[i].split("~~");
+
+          for (j = 0; j < rawFields.length; j++) {
+            var pair = rawFields[j];
+            var sepPos = pair.indexOf("::");
+
+            if (sepPos > -1) {
+              var key = pair.substring(0, sepPos);
+              var value = pair.substring(sepPos + 2);
+
+              if (key === "selected") {
+                rowObj[key] = (value === "true");
+              } else if (key === "rowId") {
+                rowObj[key] = parsedTextRows.length + 1;
+              } else {
+                rowObj[key] = value;
+              }
+            }
+          }
+
+          parsedTextRows.push(rowObj);
+        }
+
+        this._rows = parsedTextRows.length ? parsedTextRows : [this._createEmptyRow(1)];
+      }
+    } catch (e) {
+      this._rows = [this._createEmptyRow(1)];
+    }
+
+    this._syncRowIds();
+    this._setDataProperty();
+    this._render();
+  }
 
   setManageData(dataStr) {
     try {
@@ -1454,18 +1454,19 @@ _changeTabFromUI(tabName) {
       this._render();
     } catch (e) {}
   }
-setCompanyDropdownOptionsOnly(optionsStr) {
-  try {
-    var optionsArray = JSON.parse(optionsStr || "[]");
-    if (!Array.isArray(optionsArray)) {
-      optionsArray = [];
-    }
 
-    this._options.companyCode = optionsArray;
-    this._setProperties();
-    this._render();
-  } catch (e) {}
-}
+  setCompanyDropdownOptionsOnly(optionsStr) {
+    try {
+      var optionsArray = JSON.parse(optionsStr || "[]");
+      if (!Array.isArray(optionsArray)) {
+        optionsArray = [];
+      }
+
+      this._options.companyCode = optionsArray;
+      this._setProperties();
+      this._render();
+    } catch (e) {}
+  }
 
   setRowOptions(rowIndex, fieldName, optionsStr) {
     try {
@@ -1520,7 +1521,7 @@ setCompanyDropdownOptionsOnly(optionsStr) {
     this._render();
   }
 
-    addRow() {
+  addRow() {
     var newRowId = this._rows.length + 1;
     var newRow = this._createEmptyRow(newRowId);
 
@@ -1534,7 +1535,6 @@ setCompanyDropdownOptionsOnly(optionsStr) {
     this._render();
     this._dispatch("onDataChange");
   }
-
 
   copySelectedRows() {
     var copiedCreateRows = [];
@@ -1640,19 +1640,18 @@ setCompanyDropdownOptionsOnly(optionsStr) {
   }
 
   validate() {
-  var validateResult = this._activeTab === "manage"
-    ? this._validateManageRows()
-    : this._validateCreateRows();
+    var validateResult = this._activeTab === "manage"
+      ? this._validateManageRows()
+      : this._validateCreateRows();
 
-  this._validationErrors = validateResult.errors;
-  this._validationResult = validateResult.isValid ? "true" : "false";
-  this._lastEvent = this._activeTab === "manage" ? "validateManage" : "validateOnly";
-  this._setProperties();
-  this._render();
-  this._dispatch("onValidate");
-  return this._validationResult;
-}
-
+    this._validationErrors = validateResult.errors;
+    this._validationResult = validateResult.isValid ? "true" : "false";
+    this._lastEvent = this._activeTab === "manage" ? "validateManage" : "validateOnly";
+    this._setProperties();
+    this._render();
+    this._dispatch("onValidate");
+    return this._validationResult;
+  }
 
   loadManageData() {
     this._lastEvent = "loadManage";
@@ -1837,7 +1836,7 @@ setCompanyDropdownOptionsOnly(optionsStr) {
     this._dispatch("onDataChange");
   }
 
-   _validateCreateRows() {
+  _validateCreateRows() {
     var errorListCreate = [];
     var employeeMapCreate = {};
     var validateLoopCreate = 0;
@@ -2007,71 +2006,107 @@ setCompanyDropdownOptionsOnly(optionsStr) {
     };
   }
 
+  _handleSendForApproval() {
+    var validationResult = this.validate();
 
-  if (selectedCountManage === 0) {
-    errorListManage.push({
-      tab: "manage",
-      rowIndex: -1,
-      rowId: "",
-      messages: ["Please select at least one row."]
-    });
+    if (validationResult !== "true") {
+      this._lastEvent = "validationFailed";
+      this._setProperties();
+      this._dispatch("onValidate");
+      return;
+    }
 
-    return {
-      isValid: false,
-      errors: errorListManage
-    };
+    this._sendPayload = this.getData();
+    this._lastEvent = "sendForApproval";
+    this._setProperties();
+    this._dispatch("onDataChange");
   }
 
-  for (validateLoopManage = 0; validateLoopManage < this._manageRows.length; validateLoopManage++) {
-    var manageRowErrors = [];
-    var manageValidateRow = this._manageRows[validateLoopManage];
+  _renderCell(tabName, rowData, rowIndex, columnData, rowErrors) {
+    var cellHasError = this._hasFieldError(columnData.key, rowErrors);
+    var errorCss = cellHasError ? "error" : "";
+    var cellValue = rowData[columnData.key] !== undefined && rowData[columnData.key] !== null ? rowData[columnData.key] : "";
 
-    if (manageValidateRow.selected !== true) {
-      continue;
+    if (columnData.type === "checkbox") {
+      return '<input class="row-checkbox ' + errorCss + '" data-tab="' + tabName + '" data-row="' + rowIndex + '" data-field="' + columnData.key + '" data-type="' + columnData.type + '" type="checkbox" ' + (cellValue === true ? "checked" : "") + ' />';
     }
 
-    if (!manageValidateRow.employeeId) { manageRowErrors.push("Position ID is required"); }
-    if (!manageValidateRow.companyCode) { manageRowErrors.push("Company Code is required"); }
-    if (!manageValidateRow.division) { manageRowErrors.push("Division is required"); }
-    if (!manageValidateRow.department) { manageRowErrors.push("Department is required"); }
-    if (!manageValidateRow.costCenter) { manageRowErrors.push("Cost Center is required"); }
-    if (!manageValidateRow.jobCode) { manageRowErrors.push("Job Code is required"); }
-    if (!manageValidateRow.positionTitle) { manageRowErrors.push("Position Title is required"); }
-    if (!manageValidateRow.payGradeGroup) { manageRowErrors.push("Pay Grade is required"); }
-    if (!manageValidateRow.payGradeLevel) { manageRowErrors.push("Level is required"); }
-    if (!manageValidateRow.hireDate) { manageRowErrors.push("Hire Date is required"); }
-    if (!manageValidateRow.nationality) { manageRowErrors.push("Nationality is required"); }
-    if (!manageValidateRow.accommodation) { manageRowErrors.push("Accommodation is required"); }
-    if (!manageValidateRow.transport) { manageRowErrors.push("Transport is required"); }
-    if (!manageValidateRow.employeeClass) { manageRowErrors.push("Employee Class is required"); }
-    if (!manageValidateRow.overtime) { manageRowErrors.push("Overtime is required"); }
-    if (!manageValidateRow.specialApproval) { manageRowErrors.push("Special Approval is required"); }
-
-    if (manageValidateRow.employeeId && employeeMapManage[manageValidateRow.employeeId] > 1) {
-      manageRowErrors.push("Duplicate Position ID in selected rows");
+    if (columnData.type === "readonly") {
+      return '<div class="readonly-cell" data-tab="' + tabName + '" data-row="' + rowIndex + '" data-field="' + columnData.key + '" data-type="' + columnData.type + '">' + this._escapeHtml(String(cellValue)) + '</div>' + this._renderFieldErrors(columnData.key, rowErrors);
     }
 
-    if (manageValidateRow.specialApproval === "Yes" && !manageValidateRow.comment) {
-      manageRowErrors.push("Comment is required when Special Approval = Yes");
+    if (columnData.type === "select") {
+      var displayText = this._getOptionText(tabName, rowIndex, columnData.key, cellValue);
+      if (!displayText) {
+        displayText = "Select";
+      }
+
+      return ''
+        + '<div class="dropdown-trigger ' + errorCss + '" tabindex="0" data-tab="' + tabName + '" data-row="' + rowIndex + '" data-field="' + columnData.key + '" data-type="' + columnData.type + '">'
+        + '<span class="label">' + this._escapeHtml(String(displayText)) + '</span>'
+        + '<span class="arrow">▼</span>'
+        + '</div>'
+        + this._renderFieldErrors(columnData.key, rowErrors);
     }
 
-    if (manageRowErrors.length > 0) {
-      errorListManage.push({
-        tab: "manage",
-        rowIndex: validateLoopManage,
-        rowId: manageValidateRow.rowId,
-        messages: manageRowErrors
-      });
+    var inputTypeName = "text";
+    if (columnData.type === "date") {
+      inputTypeName = "date";
+    } else if (columnData.type === "number") {
+      inputTypeName = "number";
     }
+
+    return ''
+      + '<input class="cell ' + errorCss + '"'
+      + ' data-tab="' + tabName + '"'
+      + ' data-row="' + rowIndex + '"'
+      + ' data-field="' + columnData.key + '"'
+      + ' data-type="' + columnData.type + '"'
+      + ' type="' + inputTypeName + '"'
+      + ' value="' + this._escapeHtml(String(cellValue)) + '" />'
+      + this._renderFieldErrors(columnData.key, rowErrors);
   }
 
-  return {
-    isValid: errorListManage.length === 0,
-    errors: errorListManage
-  };
-}
+  _renderFieldErrors(fieldName, rowErrors) {
+    var errorMessages = [];
+    var errorFieldLoop = 0;
 
+    for (errorFieldLoop = 0; errorFieldLoop < rowErrors.length; errorFieldLoop++) {
+      var fieldErrorText = rowErrors[errorFieldLoop];
 
+      if (
+        (fieldName === "companyCode" && fieldErrorText.indexOf("Company Code") === 0) ||
+        (fieldName === "division" && fieldErrorText.indexOf("Division") === 0) ||
+        (fieldName === "department" && fieldErrorText.indexOf("Department") === 0) ||
+        (fieldName === "costCenter" && fieldErrorText.indexOf("Cost Center") === 0) ||
+        (fieldName === "jobCode" && fieldErrorText.indexOf("Job Code") === 0) ||
+        (fieldName === "positionTitle" && fieldErrorText.indexOf("Position Title") === 0) ||
+        (fieldName === "employeeId" && (fieldErrorText.indexOf("Position ID") === 0 || fieldErrorText.indexOf("Duplicate Position ID") === 0)) ||
+        (fieldName === "payGradeGroup" && fieldErrorText.indexOf("Pay Grade") === 0) ||
+        (fieldName === "payGradeLevel" && fieldErrorText.indexOf("Level") === 0) ||
+        (fieldName === "hireDate" && fieldErrorText.indexOf("Hire Date") === 0) ||
+        (fieldName === "nationality" && fieldErrorText.indexOf("Nationality") === 0) ||
+        (fieldName === "accommodation" && fieldErrorText.indexOf("Accommodation") === 0) ||
+        (fieldName === "transport" && fieldErrorText.indexOf("Transport") === 0) ||
+        (fieldName === "employeeClass" && fieldErrorText.indexOf("Employee Class") === 0) ||
+        (fieldName === "overtime" && fieldErrorText.indexOf("Overtime") === 0) ||
+        (fieldName === "specialApproval" && fieldErrorText.indexOf("Special Approval") === 0) ||
+        (fieldName === "comment" && fieldErrorText.indexOf("Comment") === 0)
+      ) {
+        errorMessages.push(fieldErrorText);
+      }
+    }
+
+    if (!errorMessages.length) {
+      return "";
+    }
+
+    return '<div class="rowErr">' + errorMessages.join("<br>") + '</div>';
+  }
+
+  _hasFieldError(fieldName, rowErrors) {
+    return this._renderFieldErrors(fieldName, rowErrors) !== "";
+  }
 
   _getRowErrorMap(tabName) {
     var errorMap = {};
@@ -2128,7 +2163,7 @@ setCompanyDropdownOptionsOnly(optionsStr) {
     return true;
   }
 
-    _toggleSelectAll(tabName, checked) {
+  _toggleSelectAll(tabName, checked) {
     var sourceRows = tabName === "manage" ? this._manageRows : this._rows;
     var i = 0;
 
@@ -2153,8 +2188,6 @@ setCompanyDropdownOptionsOnly(optionsStr) {
     this._dispatch("onDataChange");
   }
 
-
- 
   _createDropdownPanel() {
     if (this._dropdownPanel) {
       return;
@@ -2370,7 +2403,7 @@ setCompanyDropdownOptionsOnly(optionsStr) {
     pageHtml += '</div>';
 
     if (this._activeTab === "create") {
-       var hasCreateSelection = this._hasSelectedRows("create");
+      var hasCreateSelection = this._hasSelectedRows("create");
 
       pageHtml += '<div class="toolbar">';
       pageHtml += '<button class="btn" id="btnAdd">Add Row</button>';
@@ -2387,17 +2420,15 @@ setCompanyDropdownOptionsOnly(optionsStr) {
       pageHtml += '<table><thead><tr>';
 
       var createHeaderLoop = 0;
-           var createAllSelected = this._areAllRowsSelected("create");
+      var createAllSelected = this._areAllRowsSelected("create");
 
-for (createHeaderLoop = 0; createHeaderLoop < this._createColumns.length; createHeaderLoop++) {
-  if (this._createColumns[createHeaderLoop].key === "selected") {
-    pageHtml += '<th style="width:' + this._createColumns[createHeaderLoop].width + '"><div class="select-all-wrap"><span>Sel</span><input class="select-all-checkbox" type="checkbox" id="selectAllCreate" ' + (createAllSelected ? 'checked' : '') + ' title="Select All" /></div></th>';
-  } else {
-    pageHtml += '<th style="width:' + this._createColumns[createHeaderLoop].width + '">' + this._createColumns[createHeaderLoop].label + '</th>';
-  }
-}
-
-
+      for (createHeaderLoop = 0; createHeaderLoop < this._createColumns.length; createHeaderLoop++) {
+        if (this._createColumns[createHeaderLoop].key === "selected") {
+          pageHtml += '<th style="width:' + this._createColumns[createHeaderLoop].width + '"><div class="select-all-wrap"><span>Sel</span><input class="select-all-checkbox" type="checkbox" id="selectAllCreate" ' + (createAllSelected ? 'checked' : '') + ' title="Select All" /></div></th>';
+        } else {
+          pageHtml += '<th style="width:' + this._createColumns[createHeaderLoop].width + '">' + this._createColumns[createHeaderLoop].label + '</th>';
+        }
+      }
 
       pageHtml += '</tr></thead><tbody>';
 
@@ -2421,7 +2452,7 @@ for (createHeaderLoop = 0; createHeaderLoop < this._createColumns.length; create
       pageHtml += '<div>Error Rows: ' + this._countErrorRows("create") + '</div>';
       pageHtml += '</div>';
     } else {
-           var hasManageSelection = this._hasSelectedRows("manage");
+      var hasManageSelection = this._hasSelectedRows("manage");
 
       pageHtml += '<div class="toolbar">';
       pageHtml += '<button class="btn" id="btnLoadManage">Load Data</button>';
@@ -2433,22 +2464,19 @@ for (createHeaderLoop = 0; createHeaderLoop < this._createColumns.length; create
       pageHtml += '<button class="btn" id="btnClearManage">Clear</button>';
       pageHtml += '</div>';
 
-
       pageHtml += '<div class="gridWrap" id="gridWrap">';
       pageHtml += '<table><thead><tr>';
 
       var manageHeaderLoop = 0;
-            var manageAllSelected = this._areAllRowsSelected("manage");
+      var manageAllSelected = this._areAllRowsSelected("manage");
 
-for (manageHeaderLoop = 0; manageHeaderLoop < this._manageColumns.length; manageHeaderLoop++) {
-  if (this._manageColumns[manageHeaderLoop].key === "selected") {
-    pageHtml += '<th style="width:' + this._manageColumns[manageHeaderLoop].width + '"><div class="select-all-wrap"><span>Sel</span><input class="select-all-checkbox" type="checkbox" id="selectAllManage" ' + (manageAllSelected ? 'checked' : '') + ' title="Select All" /></div></th>';
-  } else {
-    pageHtml += '<th style="width:' + this._manageColumns[manageHeaderLoop].width + '">' + this._manageColumns[manageHeaderLoop].label + '</th>';
-  }
-}
-
-
+      for (manageHeaderLoop = 0; manageHeaderLoop < this._manageColumns.length; manageHeaderLoop++) {
+        if (this._manageColumns[manageHeaderLoop].key === "selected") {
+          pageHtml += '<th style="width:' + this._manageColumns[manageHeaderLoop].width + '"><div class="select-all-wrap"><span>Sel</span><input class="select-all-checkbox" type="checkbox" id="selectAllManage" ' + (manageAllSelected ? 'checked' : '') + ' title="Select All" /></div></th>';
+        } else {
+          pageHtml += '<th style="width:' + this._manageColumns[manageHeaderLoop].width + '">' + this._manageColumns[manageHeaderLoop].label + '</th>';
+        }
+      }
 
       pageHtml += '</tr></thead><tbody>';
 
@@ -2496,10 +2524,9 @@ for (manageHeaderLoop = 0; manageHeaderLoop < this._manageColumns.length; manage
     }
 
     this.shadowRoot.getElementById("tabCreate").addEventListener("click", this._changeTabFromUI.bind(this, "create"));
-this.shadowRoot.getElementById("tabManage").addEventListener("click", this._changeTabFromUI.bind(this, "manage"));
+    this.shadowRoot.getElementById("tabManage").addEventListener("click", this._changeTabFromUI.bind(this, "manage"));
 
-
-       if (this._activeTab === "create") {
+    if (this._activeTab === "create") {
       this.shadowRoot.getElementById("btnAdd").addEventListener("click", this.addRow.bind(this));
 
       var btnCopyEl = this.shadowRoot.getElementById("btnCopy");
@@ -2524,8 +2551,7 @@ this.shadowRoot.getElementById("tabManage").addEventListener("click", this._chan
       }
     }
 
-
-        if (this._activeTab === "manage") {
+    if (this._activeTab === "manage") {
       this.shadowRoot.getElementById("btnLoadManage").addEventListener("click", this.loadManageData.bind(this));
       this.shadowRoot.getElementById("btnValidateManage").addEventListener("click", this.validate.bind(this));
       this.shadowRoot.getElementById("btnSaveManage").addEventListener("click", this.saveManageData.bind(this));
@@ -2548,111 +2574,6 @@ this.shadowRoot.getElementById("tabManage").addEventListener("click", this._chan
     this._bindCellEvents();
   }
 
-  _handleSendForApproval() {
-  var validationResult = this.validate();
-
-  if (validationResult !== "true") {
-    this._lastEvent = "validationFailed";
-    this._setProperties();
-    this._dispatch("onValidate");
-    return;
-  }
-
-  this._sendPayload = this.getData();
-  this._lastEvent = "sendForApproval";
-  this._setProperties();
-  this._dispatch("onDataChange");
-}
-
-
-
-  _renderCell(tabName, rowData, rowIndex, columnData, rowErrors) {
-    var cellHasError = this._hasFieldError(columnData.key, rowErrors);
-    var errorCss = cellHasError ? "error" : "";
-    var cellValue = rowData[columnData.key] !== undefined && rowData[columnData.key] !== null ? rowData[columnData.key] : "";
-
-   if (columnData.type === "checkbox") {
-  return '<input class="row-checkbox ' + errorCss + '" data-tab="' + tabName + '" data-row="' + rowIndex + '" data-field="' + columnData.key + '" data-type="' + columnData.type + '" type="checkbox" ' + (cellValue === true ? "checked" : "") + ' />';
-}
-
-    if (columnData.type === "readonly") {
-      return '<div class="readonly-cell" data-tab="' + tabName + '" data-row="' + rowIndex + '" data-field="' + columnData.key + '" data-type="' + columnData.type + '">' + this._escapeHtml(String(cellValue)) + '</div>' + this._renderFieldErrors(columnData.key, rowErrors);
-    }
-
-    if (columnData.type === "select") {
-      var displayText = this._getOptionText(tabName, rowIndex, columnData.key, cellValue);
-      if (!displayText) {
-        displayText = "Select";
-      }
-
-      return ''
-        + '<div class="dropdown-trigger ' + errorCss + '" tabindex="0" data-tab="' + tabName + '" data-row="' + rowIndex + '" data-field="' + columnData.key + '" data-type="' + columnData.type + '">'
-        + '<span class="label">' + this._escapeHtml(String(displayText)) + '</span>'
-        + '<span class="arrow">▼</span>'
-        + '</div>'
-        + this._renderFieldErrors(columnData.key, rowErrors);
-    }
-
-    var inputTypeName = "text";
-    if (columnData.type === "date") {
-      inputTypeName = "date";
-    } else if (columnData.type === "number") {
-      inputTypeName = "number";
-    }
-
-    return ''
-      + '<input class="cell ' + errorCss + '"'
-      + ' data-tab="' + tabName + '"'
-      + ' data-row="' + rowIndex + '"'
-      + ' data-field="' + columnData.key + '"'
-      + ' data-type="' + columnData.type + '"'
-      + ' type="' + inputTypeName + '"'
-      + ' value="' + this._escapeHtml(String(cellValue)) + '" />'
-      + this._renderFieldErrors(columnData.key, rowErrors);
-  }
-
- _renderFieldErrors(fieldName, rowErrors) {
-  var errorMessages = [];
-  var errorFieldLoop = 0;
-
-  for (errorFieldLoop = 0; errorFieldLoop < rowErrors.length; errorFieldLoop++) {
-    var fieldErrorText = rowErrors[errorFieldLoop];
-
-    if (
-      (fieldName === "companyCode" && fieldErrorText.indexOf("Company Code") === 0) ||
-      (fieldName === "division" && fieldErrorText.indexOf("Division") === 0) ||
-      (fieldName === "department" && fieldErrorText.indexOf("Department") === 0) ||
-      (fieldName === "costCenter" && fieldErrorText.indexOf("Cost Center") === 0) ||
-      (fieldName === "jobCode" && fieldErrorText.indexOf("Job Code") === 0) ||
-      (fieldName === "positionTitle" && fieldErrorText.indexOf("Position Title") === 0) ||
-      (fieldName === "employeeId" && (fieldErrorText.indexOf("Position ID") === 0 || fieldErrorText.indexOf("Duplicate Position ID") === 0)) ||
-      (fieldName === "payGradeGroup" && fieldErrorText.indexOf("Pay Grade") === 0) ||
-      (fieldName === "payGradeLevel" && fieldErrorText.indexOf("Level") === 0) ||
-      (fieldName === "hireDate" && fieldErrorText.indexOf("Hire Date") === 0) ||
-      (fieldName === "nationality" && fieldErrorText.indexOf("Nationality") === 0) ||
-      (fieldName === "accommodation" && fieldErrorText.indexOf("Accommodation") === 0) ||
-      (fieldName === "transport" && fieldErrorText.indexOf("Transport") === 0) ||
-      (fieldName === "employeeClass" && fieldErrorText.indexOf("Employee Class") === 0) ||
-      (fieldName === "overtime" && fieldErrorText.indexOf("Overtime") === 0) ||
-      (fieldName === "specialApproval" && fieldErrorText.indexOf("Special Approval") === 0) ||
-      (fieldName === "comment" && fieldErrorText.indexOf("Comment") === 0)
-    ) {
-      errorMessages.push(fieldErrorText);
-    }
-  }
-
-  if (!errorMessages.length) {
-    return "";
-  }
-
-  return '<div class="rowErr">' + errorMessages.join("<br>") + '</div>';
-}
-
-
-  _hasFieldError(fieldName, rowErrors) {
-    return this._renderFieldErrors(fieldName, rowErrors) !== "";
-  }
-
   _bindCellEvents() {
     var bindThat = this;
     var allCellElements = this.shadowRoot.querySelectorAll("[data-row][data-field]");
@@ -2661,7 +2582,7 @@ this.shadowRoot.getElementById("tabManage").addEventListener("click", this._chan
       var elementType = el.getAttribute("data-type");
       var elementTab = el.getAttribute("data-tab");
 
-            if (elementType === "checkbox") {
+      if (elementType === "checkbox") {
         el.addEventListener("change", function() {
           var changeRowIndex = parseInt(this.getAttribute("data-row"), 10);
           var changeFieldName = this.getAttribute("data-field");
@@ -2686,7 +2607,6 @@ this.shadowRoot.getElementById("tabManage").addEventListener("click", this._chan
         });
         return;
       }
-
 
       if (elementType === "select") {
         el.addEventListener("click", function(e) {
@@ -2837,4 +2757,3 @@ if (!customElements.get("com-example-position-entry")) {
 
   document.head.appendChild(globalStyleEl);
 })();
-
