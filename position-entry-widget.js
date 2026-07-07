@@ -1138,7 +1138,6 @@ if (!customElements.get("com-example-position-entry")) {
 })();
 */
 
-
 class PositionEntryWidget extends HTMLElement {
   constructor() {
     super();
@@ -1232,6 +1231,7 @@ class PositionEntryWidget extends HTMLElement {
     if (!this._rows.length) {
       this._rows = [this._createEmptyRow(1)];
     }
+
     this._createDropdownPanel();
     this._render();
     this._fireReady();
@@ -1239,9 +1239,11 @@ class PositionEntryWidget extends HTMLElement {
 
   disconnectedCallback() {
     this._closeDropdown();
+
     if (this._dropdownPanel && this._dropdownPanel.parentNode) {
       this._dropdownPanel.parentNode.removeChild(this._dropdownPanel);
     }
+
     this._dropdownPanel = null;
   }
 
@@ -1257,6 +1259,7 @@ class PositionEntryWidget extends HTMLElement {
     if (name === "data") {
       try {
         var parsedData = JSON.parse(newValue || "[]");
+
         if (Array.isArray(parsedData)) {
           this._rows = parsedData.length ? parsedData : [this._createEmptyRow(1)];
           this._syncRowIds();
@@ -1268,6 +1271,7 @@ class PositionEntryWidget extends HTMLElement {
     if (name === "managedata") {
       try {
         var parsedManage = JSON.parse(newValue || "[]");
+
         if (Array.isArray(parsedManage)) {
           this._manageRows = parsedManage;
           this._syncManageRowIds();
@@ -1342,6 +1346,7 @@ class PositionEntryWidget extends HTMLElement {
     if (tabName !== "create" && tabName !== "manage") {
       tabName = "create";
     }
+
     this._activeTab = tabName;
     this._setProperties();
     this._render();
@@ -1376,6 +1381,7 @@ class PositionEntryWidget extends HTMLElement {
 
       if (String(dataStr).charAt(0) === "[") {
         var parsedRows = JSON.parse(dataStr || "[]");
+
         if (Array.isArray(parsedRows) && parsedRows.length > 0) {
           this._rows = parsedRows;
         } else {
@@ -1430,6 +1436,7 @@ class PositionEntryWidget extends HTMLElement {
   setManageData(dataStr) {
     try {
       var parsedManageRows = JSON.parse(dataStr || "[]");
+
       if (Array.isArray(parsedManageRows)) {
         this._manageRows = parsedManageRows;
       } else {
@@ -1447,9 +1454,11 @@ class PositionEntryWidget extends HTMLElement {
   setOptions(fieldName, optionsStr) {
     try {
       var optionsArray = JSON.parse(optionsStr || "[]");
+
       if (!Array.isArray(optionsArray)) {
         optionsArray = [];
       }
+
       this._options[fieldName] = optionsArray;
       this._render();
     } catch (e) {}
@@ -1458,6 +1467,7 @@ class PositionEntryWidget extends HTMLElement {
   setCompanyDropdownOptionsOnly(optionsStr) {
     try {
       var optionsArray = JSON.parse(optionsStr || "[]");
+
       if (!Array.isArray(optionsArray)) {
         optionsArray = [];
       }
@@ -1471,6 +1481,7 @@ class PositionEntryWidget extends HTMLElement {
   setRowOptions(rowIndex, fieldName, optionsStr) {
     try {
       var optionsRowArray = JSON.parse(optionsStr || "[]");
+
       if (!Array.isArray(optionsRowArray)) {
         optionsRowArray = [];
       }
@@ -1487,6 +1498,7 @@ class PositionEntryWidget extends HTMLElement {
   setManageRowOptions(rowIndex, fieldName, optionsStr) {
     try {
       var optionsManageArray = JSON.parse(optionsStr || "[]");
+
       if (!Array.isArray(optionsManageArray)) {
         optionsManageArray = [];
       }
@@ -1708,8 +1720,10 @@ class PositionEntryWidget extends HTMLElement {
 
   _syncRowIds() {
     var syncLoop = 0;
+
     for (syncLoop = 0; syncLoop < this._rows.length; syncLoop++) {
       this._rows[syncLoop].rowId = syncLoop + 1;
+
       if (this._rows[syncLoop].selected === undefined) {
         this._rows[syncLoop].selected = false;
       }
@@ -1718,11 +1732,14 @@ class PositionEntryWidget extends HTMLElement {
 
   _syncManageRowIds() {
     var syncManageLoop = 0;
+
     for (syncManageLoop = 0; syncManageLoop < this._manageRows.length; syncManageLoop++) {
       this._manageRows[syncManageLoop].rowId = syncManageLoop + 1;
+
       if (this._manageRows[syncManageLoop].selected === undefined) {
         this._manageRows[syncManageLoop].selected = false;
       }
+
       if (this._manageRows[syncManageLoop].isModified === undefined) {
         this._manageRows[syncManageLoop].isModified = false;
       }
@@ -1943,107 +1960,67 @@ class PositionEntryWidget extends HTMLElement {
       }
     }
 
+    if (selectedCountManage === 0) {
+      errorListManage.push({
+        tab: "manage",
+        rowIndex: -1,
+        rowId: "",
+        messages: ["Please select at least one row."]
+      });
 
-  _handleSendForApproval() 
-    var validationResult = this.validate();
-
-    if (validationResult !== "true") {
-      this._lastEvent = "validationFailed";
-      this._setProperties();
-      this._dispatch("onValidate");
-      return;
+      return {
+        isValid: false,
+        errors: errorListManage
+      };
     }
 
-    this._sendPayload = this.getData();
-    this._lastEvent = "sendForApproval";
-    this._setProperties();
-    this._dispatch("onDataChange");
-  
+    for (validateLoopManage = 0; validateLoopManage < this._manageRows.length; validateLoopManage++) {
+      var manageRowErrors = [];
+      var manageValidateRow = this._manageRows[validateLoopManage];
 
-  _renderCell(tabName, rowData, rowIndex, columnData, rowErrors) {
-    var cellHasError = this._hasFieldError(columnData.key, rowErrors);
-    var errorCss = cellHasError ? "error" : "";
-    var cellValue = rowData[columnData.key] !== undefined && rowData[columnData.key] !== null ? rowData[columnData.key] : "";
-
-    if (columnData.type === "checkbox") {
-      return '<input class="row-checkbox ' + errorCss + '" data-tab="' + tabName + '" data-row="' + rowIndex + '" data-field="' + columnData.key + '" data-type="' + columnData.type + '" type="checkbox" ' + (cellValue === true ? "checked" : "") + ' />';
-    }
-
-    if (columnData.type === "readonly") {
-      return '<div class="readonly-cell" data-tab="' + tabName + '" data-row="' + rowIndex + '" data-field="' + columnData.key + '" data-type="' + columnData.type + '">' + this._escapeHtml(String(cellValue)) + '</div>' + this._renderFieldErrors(columnData.key, rowErrors);
-    }
-
-    if (columnData.type === "select") {
-      var displayText = this._getOptionText(tabName, rowIndex, columnData.key, cellValue);
-      if (!displayText) {
-        displayText = "Select";
+      if (manageValidateRow.selected !== true) {
+        continue;
       }
 
-      return ''
-        + '<div class="dropdown-trigger ' + errorCss + '" tabindex="0" data-tab="' + tabName + '" data-row="' + rowIndex + '" data-field="' + columnData.key + '" data-type="' + columnData.type + '">'
-        + '<span class="label">' + this._escapeHtml(String(displayText)) + '</span>'
-        + '<span class="arrow">▼</span>'
-        + '</div>'
-        + this._renderFieldErrors(columnData.key, rowErrors);
-    }
+      if (!manageValidateRow.employeeId) { manageRowErrors.push("Position ID is required"); }
+      if (!manageValidateRow.companyCode) { manageRowErrors.push("Company Code is required"); }
+      if (!manageValidateRow.division) { manageRowErrors.push("Division is required"); }
+      if (!manageValidateRow.department) { manageRowErrors.push("Department is required"); }
+      if (!manageValidateRow.costCenter) { manageRowErrors.push("Cost Center is required"); }
+      if (!manageValidateRow.jobCode) { manageRowErrors.push("Job Code is required"); }
+      if (!manageValidateRow.positionTitle) { manageRowErrors.push("Position Title is required"); }
+      if (!manageValidateRow.payGradeGroup) { manageRowErrors.push("Pay Grade is required"); }
+      if (!manageValidateRow.payGradeLevel) { manageRowErrors.push("Level is required"); }
+      if (!manageValidateRow.hireDate) { manageRowErrors.push("Hire Date is required"); }
+      if (!manageValidateRow.nationality) { manageRowErrors.push("Nationality is required"); }
+      if (!manageValidateRow.accommodation) { manageRowErrors.push("Accommodation is required"); }
+      if (!manageValidateRow.transport) { manageRowErrors.push("Transport is required"); }
+      if (!manageValidateRow.employeeClass) { manageRowErrors.push("Employee Class is required"); }
+      if (!manageValidateRow.overtime) { manageRowErrors.push("Overtime is required"); }
+      if (!manageValidateRow.specialApproval) { manageRowErrors.push("Special Approval is required"); }
 
-    var inputTypeName = "text";
-    if (columnData.type === "date") {
-      inputTypeName = "date";
-    } else if (columnData.type === "number") {
-      inputTypeName = "number";
-    }
+      if (manageValidateRow.employeeId && employeeMapManage[manageValidateRow.employeeId] > 1) {
+        manageRowErrors.push("Duplicate Position ID in selected rows");
+      }
 
-    return ''
-      + '<input class="cell ' + errorCss + '"'
-      + ' data-tab="' + tabName + '"'
-      + ' data-row="' + rowIndex + '"'
-      + ' data-field="' + columnData.key + '"'
-      + ' data-type="' + columnData.type + '"'
-      + ' type="' + inputTypeName + '"'
-      + ' value="' + this._escapeHtml(String(cellValue)) + '" />'
-      + this._renderFieldErrors(columnData.key, rowErrors);
-  }
+      if (manageValidateRow.specialApproval === "Yes" && !manageValidateRow.comment) {
+        manageRowErrors.push("Comment is required when Special Approval = Yes");
+      }
 
-  _renderFieldErrors(fieldName, rowErrors) {
-    var errorMessages = [];
-    var errorFieldLoop = 0;
-
-    for (errorFieldLoop = 0; errorFieldLoop < rowErrors.length; errorFieldLoop++) {
-      var fieldErrorText = rowErrors[errorFieldLoop];
-
-      if (
-        (fieldName === "companyCode" && fieldErrorText.indexOf("Company Code") === 0) ||
-        (fieldName === "division" && fieldErrorText.indexOf("Division") === 0) ||
-        (fieldName === "department" && fieldErrorText.indexOf("Department") === 0) ||
-        (fieldName === "costCenter" && fieldErrorText.indexOf("Cost Center") === 0) ||
-        (fieldName === "jobCode" && fieldErrorText.indexOf("Job Code") === 0) ||
-        (fieldName === "positionTitle" && fieldErrorText.indexOf("Position Title") === 0) ||
-        (fieldName === "employeeId" && (fieldErrorText.indexOf("Position ID") === 0 || fieldErrorText.indexOf("Duplicate Position ID") === 0)) ||
-        (fieldName === "payGradeGroup" && fieldErrorText.indexOf("Pay Grade") === 0) ||
-        (fieldName === "payGradeLevel" && fieldErrorText.indexOf("Level") === 0) ||
-        (fieldName === "hireDate" && fieldErrorText.indexOf("Hire Date") === 0) ||
-        (fieldName === "nationality" && fieldErrorText.indexOf("Nationality") === 0) ||
-        (fieldName === "accommodation" && fieldErrorText.indexOf("Accommodation") === 0) ||
-        (fieldName === "transport" && fieldErrorText.indexOf("Transport") === 0) ||
-        (fieldName === "employeeClass" && fieldErrorText.indexOf("Employee Class") === 0) ||
-        (fieldName === "overtime" && fieldErrorText.indexOf("Overtime") === 0) ||
-        (fieldName === "specialApproval" && fieldErrorText.indexOf("Special Approval") === 0) ||
-        (fieldName === "comment" && fieldErrorText.indexOf("Comment") === 0)
-      ) {
-        errorMessages.push(fieldErrorText);
+      if (manageRowErrors.length > 0) {
+        errorListManage.push({
+          tab: "manage",
+          rowIndex: validateLoopManage,
+          rowId: manageValidateRow.rowId,
+          messages: manageRowErrors
+        });
       }
     }
 
-    if (!errorMessages.length) {
-      return "";
-    }
-
-    return '<div class="rowErr">' + errorMessages.join("<br>") + '</div>';
-  }
-
-  _hasFieldError(fieldName, rowErrors) {
-    return this._renderFieldErrors(fieldName, rowErrors) !== "";
+    return {
+      isValid: errorListManage.length === 0,
+      errors: errorListManage
+    };
   }
 
   _getRowErrorMap(tabName) {
@@ -2068,6 +2045,7 @@ class PositionEntryWidget extends HTMLElement {
         errorCount = errorCount + 1;
       }
     }
+
     return errorCount;
   }
 
@@ -2107,6 +2085,7 @@ class PositionEntryWidget extends HTMLElement {
 
     for (i = 0; i < sourceRows.length; i++) {
       sourceRows[i].selected = checked;
+
       if (tabName === "manage") {
         sourceRows[i].isModified = true;
       }
@@ -2189,6 +2168,7 @@ class PositionEntryWidget extends HTMLElement {
     if (dropdownLeft + dropdownWidth > window.innerWidth - 10) {
       dropdownLeft = window.innerWidth - dropdownWidth - 10;
     }
+
     if (dropdownLeft < 10) {
       dropdownLeft = 10;
     }
@@ -2205,6 +2185,7 @@ class PositionEntryWidget extends HTMLElement {
     this._dropdownOpen = true;
 
     var openThat = this;
+
     setTimeout(function() {
       if (openThat._dropdownSearch) {
         openThat._dropdownSearch.focus();
@@ -2331,7 +2312,7 @@ class PositionEntryWidget extends HTMLElement {
         '.row-checkbox { width:18px; height:18px; cursor:pointer; margin-top:8px; }' +
         '.select-all-wrap { display:flex; align-items:center; gap:6px; }' +
         '.select-all-checkbox { width:16px; height:16px; cursor:pointer; }' +
-        '</style>';
+      '</style>';
 
     var pageHtml = "";
     pageHtml += '<div class="wrap">';
@@ -2345,10 +2326,12 @@ class PositionEntryWidget extends HTMLElement {
 
       pageHtml += '<div class="toolbar">';
       pageHtml += '<button class="btn" id="btnAdd">Add Row</button>';
+
       if (hasCreateSelection) {
         pageHtml += '<button class="btn" id="btnCopy">Copy</button>';
         pageHtml += '<button class="btn" id="btnDelete">Delete Selected</button>';
       }
+
       pageHtml += '<button class="btn" id="btnValidate">Validate</button>';
       pageHtml += '<button class="btn primary" id="btnSendForApproval">Send for Approval</button>';
       pageHtml += '<button class="btn" id="btnClear">Clear</button>';
@@ -2371,11 +2354,13 @@ class PositionEntryWidget extends HTMLElement {
       pageHtml += '</tr></thead><tbody>';
 
       var createRowLoop = 0;
+
       for (createRowLoop = 0; createRowLoop < this._rows.length; createRowLoop++) {
         var createRowErrors = rowErrorMapCreate[createRowLoop] || [];
         pageHtml += '<tr class="' + (createRowErrors.length ? "errorRow" : "") + '">';
 
         var createCellLoop = 0;
+
         for (createCellLoop = 0; createCellLoop < this._createColumns.length; createCellLoop++) {
           pageHtml += '<td style="width:' + this._createColumns[createCellLoop].width + '">' + this._renderCell("create", this._rows[createRowLoop], createRowLoop, this._createColumns[createCellLoop], createRowErrors) + '</td>';
         }
@@ -2396,9 +2381,11 @@ class PositionEntryWidget extends HTMLElement {
       pageHtml += '<button class="btn" id="btnLoadManage">Load Data</button>';
       pageHtml += '<button class="btn" id="btnValidateManage">Validate</button>';
       pageHtml += '<button class="btn primary" id="btnSaveManage">Save Changes</button>';
+
       if (hasManageSelection) {
         pageHtml += '<button class="btn danger" id="btnDeleteManage">Delete Selected</button>';
       }
+
       pageHtml += '<button class="btn" id="btnClearManage">Clear</button>';
       pageHtml += '</div>';
 
@@ -2419,6 +2406,7 @@ class PositionEntryWidget extends HTMLElement {
       pageHtml += '</tr></thead><tbody>';
 
       var manageRowLoop = 0;
+
       for (manageRowLoop = 0; manageRowLoop < this._manageRows.length; manageRowLoop++) {
         var manageRowErrors = rowErrorMapManage[manageRowLoop] || [];
         var manageRowClass = "";
@@ -2432,6 +2420,7 @@ class PositionEntryWidget extends HTMLElement {
         pageHtml += '<tr class="' + manageRowClass + '">';
 
         var manageCellLoop = 0;
+
         for (manageCellLoop = 0; manageCellLoop < this._manageColumns.length; manageCellLoop++) {
           pageHtml += '<td style="width:' + this._manageColumns[manageCellLoop].width + '">' + this._renderCell("manage", this._manageRows[manageRowLoop], manageRowLoop, this._manageColumns[manageCellLoop], manageRowErrors) + '</td>';
         }
@@ -2456,6 +2445,7 @@ class PositionEntryWidget extends HTMLElement {
     this.shadowRoot.innerHTML = styleHtml + pageHtml;
 
     var newGridPanel = this.shadowRoot.getElementById("gridWrap");
+
     if (newGridPanel) {
       newGridPanel.scrollLeft = oldScrollLeft;
       newGridPanel.scrollTop = oldScrollTop;
@@ -2512,6 +2502,110 @@ class PositionEntryWidget extends HTMLElement {
     this._bindCellEvents();
   }
 
+  _handleSendForApproval() {
+    var validationResult = this.validate();
+
+    if (validationResult !== "true") {
+      this._lastEvent = "validationFailed";
+      this._setProperties();
+      this._dispatch("onValidate");
+      return;
+    }
+
+    this._sendPayload = this.getData();
+    this._lastEvent = "sendForApproval";
+    this._setProperties();
+    this._dispatch("onDataChange");
+  }
+
+  _renderCell(tabName, rowData, rowIndex, columnData, rowErrors) {
+    var cellHasError = this._hasFieldError(columnData.key, rowErrors);
+    var errorCss = cellHasError ? "error" : "";
+    var cellValue = rowData[columnData.key] !== undefined && rowData[columnData.key] !== null ? rowData[columnData.key] : "";
+
+    if (columnData.type === "checkbox") {
+      return '<input class="row-checkbox ' + errorCss + '" data-tab="' + tabName + '" data-row="' + rowIndex + '" data-field="' + columnData.key + '" data-type="' + columnData.type + '" type="checkbox" ' + (cellValue === true ? "checked" : "") + ' />';
+    }
+
+    if (columnData.type === "readonly") {
+      return '<div class="readonly-cell" data-tab="' + tabName + '" data-row="' + rowIndex + '" data-field="' + columnData.key + '" data-type="' + columnData.type + '">' + this._escapeHtml(String(cellValue)) + '</div>' + this._renderFieldErrors(columnData.key, rowErrors);
+    }
+
+    if (columnData.type === "select") {
+      var displayText = this._getOptionText(tabName, rowIndex, columnData.key, cellValue);
+
+      if (!displayText) {
+        displayText = "Select";
+      }
+
+      return ''
+        + '<div class="dropdown-trigger ' + errorCss + '" tabindex="0" data-tab="' + tabName + '" data-row="' + rowIndex + '" data-field="' + columnData.key + '" data-type="' + columnData.type + '">'
+        + '<span class="label">' + this._escapeHtml(String(displayText)) + '</span>'
+        + '<span class="arrow">▼</span>'
+        + '</div>'
+        + this._renderFieldErrors(columnData.key, rowErrors);
+    }
+
+    var inputTypeName = "text";
+
+    if (columnData.type === "date") {
+      inputTypeName = "date";
+    } else if (columnData.type === "number") {
+      inputTypeName = "number";
+    }
+
+    return ''
+      + '<input class="cell ' + errorCss + '"'
+      + ' data-tab="' + tabName + '"'
+      + ' data-row="' + rowIndex + '"'
+      + ' data-field="' + columnData.key + '"'
+      + ' data-type="' + columnData.type + '"'
+      + ' type="' + inputTypeName + '"'
+      + ' value="' + this._escapeHtml(String(cellValue)) + '" />'
+      + this._renderFieldErrors(columnData.key, rowErrors);
+  }
+
+  _renderFieldErrors(fieldName, rowErrors) {
+    var errorMessages = [];
+    var errorFieldLoop = 0;
+
+    for (errorFieldLoop = 0; errorFieldLoop < rowErrors.length; errorFieldLoop++) {
+      var fieldErrorText = rowErrors[errorFieldLoop];
+
+      if (
+        (fieldName === "companyCode" && fieldErrorText.indexOf("Company Code") === 0) ||
+        (fieldName === "division" && fieldErrorText.indexOf("Division") === 0) ||
+        (fieldName === "department" && fieldErrorText.indexOf("Department") === 0) ||
+        (fieldName === "costCenter" && fieldErrorText.indexOf("Cost Center") === 0) ||
+        (fieldName === "jobCode" && fieldErrorText.indexOf("Job Code") === 0) ||
+        (fieldName === "positionTitle" && fieldErrorText.indexOf("Position Title") === 0) ||
+        (fieldName === "employeeId" && (fieldErrorText.indexOf("Position ID") === 0 || fieldErrorText.indexOf("Duplicate Position ID") === 0)) ||
+        (fieldName === "payGradeGroup" && fieldErrorText.indexOf("Pay Grade") === 0) ||
+        (fieldName === "payGradeLevel" && fieldErrorText.indexOf("Level") === 0) ||
+        (fieldName === "hireDate" && fieldErrorText.indexOf("Hire Date") === 0) ||
+        (fieldName === "nationality" && fieldErrorText.indexOf("Nationality") === 0) ||
+        (fieldName === "accommodation" && fieldErrorText.indexOf("Accommodation") === 0) ||
+        (fieldName === "transport" && fieldErrorText.indexOf("Transport") === 0) ||
+        (fieldName === "employeeClass" && fieldErrorText.indexOf("Employee Class") === 0) ||
+        (fieldName === "overtime" && fieldErrorText.indexOf("Overtime") === 0) ||
+        (fieldName === "specialApproval" && fieldErrorText.indexOf("Special Approval") === 0) ||
+        (fieldName === "comment" && fieldErrorText.indexOf("Comment") === 0)
+      ) {
+        errorMessages.push(fieldErrorText);
+      }
+    }
+
+    if (!errorMessages.length) {
+      return "";
+    }
+
+    return '<div class="rowErr">' + errorMessages.join("<br>") + '</div>';
+  }
+
+  _hasFieldError(fieldName, rowErrors) {
+    return this._renderFieldErrors(fieldName, rowErrors) !== "";
+  }
+
   _bindCellEvents() {
     var bindThat = this;
     var allCellElements = this.shadowRoot.querySelectorAll("[data-row][data-field]");
@@ -2543,6 +2637,7 @@ class PositionEntryWidget extends HTMLElement {
             bindThat._fireFieldChange(changeRowIndex, changeFieldName, changeValue);
           }
         });
+
         return;
       }
 
@@ -2562,6 +2657,7 @@ class PositionEntryWidget extends HTMLElement {
             bindThat._openDropdown(this, elementTab, keyRowIndex, keyFieldName);
           }
         });
+
         return;
       }
 
