@@ -1944,7 +1944,7 @@ class PositionEntryWidget extends HTMLElement {
     }
 
 
-  _handleSendForApproval() {
+  _handleSendForApproval() 
     var validationResult = this.validate();
 
     if (validationResult !== "true") {
@@ -1958,7 +1958,7 @@ class PositionEntryWidget extends HTMLElement {
     this._lastEvent = "sendForApproval";
     this._setProperties();
     this._dispatch("onDataChange");
-  }
+  
 
   _renderCell(tabName, rowData, rowIndex, columnData, rowErrors) {
     var cellHasError = this._hasFieldError(columnData.key, rowErrors);
