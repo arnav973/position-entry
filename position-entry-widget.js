@@ -1651,19 +1651,28 @@ class PositionEntryWidget extends HTMLElement {
     this._render();
   }
 
-  validate() {
-    var validateResult = this._activeTab === "manage"
-      ? this._validateManageRows()
-      : this._validateCreateRows();
-
-    this._validationErrors = validateResult.errors;
-    this._validationResult = validateResult.isValid ? "true" : "false";
-    this._lastEvent = this._activeTab === "manage" ? "validateManage" : "validateOnly";
-    this._setProperties();
-    this._render();
-    this._dispatch("onValidate");
-    return this._validationResult;
+  validate(showEvent) {
+  if (showEvent === undefined) {
+    showEvent = true;
   }
+
+  var validateResult = this._activeTab === "manage"
+    ? this._validateManageRows()
+    : this._validateCreateRows();
+
+  this._validationErrors = validateResult.errors;
+  this._validationResult = validateResult.isValid ? "true" : "false";
+  this._lastEvent = this._activeTab === "manage" ? "validateManage" : "validateOnly";
+  this._setProperties();
+  this._render();
+
+  if (showEvent === true) {
+    this._dispatch("onValidate");
+  }
+
+  return this._validationResult;
+}
+
 
   loadManageData() {
     this._lastEvent = "loadManage";
@@ -2502,21 +2511,22 @@ class PositionEntryWidget extends HTMLElement {
     this._bindCellEvents();
   }
 
-  _handleSendForApproval() {
-    var validationResult = this.validate();
+ _handleSendForApproval() {
+  var validationResult = this.validate(false);
 
-    if (validationResult !== "true") {
-      this._lastEvent = "validationFailed";
-      this._setProperties();
-      this._dispatch("onValidate");
-      return;
-    }
-
-    this._sendPayload = this.getData();
-    this._lastEvent = "sendForApproval";
+  if (validationResult !== "true") {
+    this._lastEvent = "validationFailed";
     this._setProperties();
-    this._dispatch("onDataChange");
+    this._dispatch("onValidate");
+    return;
   }
+
+  this._sendPayload = this.getData();
+  this._lastEvent = "sendForApproval";
+  this._setProperties();
+  this._dispatch("onDataChange");
+}
+
 
   _renderCell(tabName, rowData, rowIndex, columnData, rowErrors) {
     var cellHasError = this._hasFieldError(columnData.key, rowErrors);
