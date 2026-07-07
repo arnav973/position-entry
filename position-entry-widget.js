@@ -1651,11 +1651,7 @@ class PositionEntryWidget extends HTMLElement {
     this._render();
   }
 
-  validate(showEvent) {
-  if (showEvent === undefined) {
-    showEvent = true;
-  }
-
+ validate() {
   var validateResult = this._activeTab === "manage"
     ? this._validateManageRows()
     : this._validateCreateRows();
@@ -1665,13 +1661,10 @@ class PositionEntryWidget extends HTMLElement {
   this._lastEvent = this._activeTab === "manage" ? "validateManage" : "validateOnly";
   this._setProperties();
   this._render();
-
-  if (showEvent === true) {
-    this._dispatch("onValidate");
-  }
-
+  this._dispatch("onValidate");
   return this._validationResult;
 }
+
 
 
   loadManageData() {
