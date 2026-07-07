@@ -120,7 +120,16 @@
     }
   ]
 },
-    
+  
+    "setManageCompanyFilter": {
+  "description": "Filter manage rows by selected company codes",
+  "parameters": [
+    {
+      "name": "filterStr",
+      "type": "string"
+    }
+  ]
+}, 
     "setRowOptions": {
       "description": "Set create row-specific dropdown options",
       "parameters": [
