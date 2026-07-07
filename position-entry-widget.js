@@ -1364,21 +1364,68 @@ _changeTabFromUI(tabName) {
 }
 
   setData(dataStr) {
-    try {
+  try {
+    if (!dataStr || dataStr === "" || dataStr === "[]") {
+      this._rows = [this._createEmptyRow(1)];
+      this._syncRowIds();
+      this._setDataProperty();
+      this._render();
+      return;
+    }
+
+    if (String(dataStr).charAt(0) === "[") {
       var parsedRows = JSON.parse(dataStr || "[]");
       if (Array.isArray(parsedRows) && parsedRows.length > 0) {
         this._rows = parsedRows;
       } else {
         this._rows = [this._createEmptyRow(1)];
       }
-    } catch (e) {
-      this._rows = [this._createEmptyRow(1)];
-    }
+    } else {
+      var parsedTextRows = [];
+      var rawRows = String(dataStr).split("||");
+      var i = 0;
+      var j = 0;
 
-    this._syncRowIds();
-    this._setDataProperty();
-    this._render();
+      for (i = 0; i < rawRows.length; i++) {
+        if (!rawRows[i]) {
+          continue;
+        }
+
+        var rowObj = this._createEmptyRow(parsedTextRows.length + 1);
+        var rawFields = rawRows[i].split("~~");
+
+        for (j = 0; j < rawFields.length; j++) {
+          var pair = rawFields[j];
+          var sepPos = pair.indexOf("::");
+
+          if (sepPos > -1) {
+            var key = pair.substring(0, sepPos);
+            var value = pair.substring(sepPos + 2);
+
+            if (key === "selected") {
+              rowObj[key] = (value === "true");
+            } else if (key === "rowId") {
+              rowObj[key] = parsedTextRows.length + 1;
+            } else {
+              rowObj[key] = value;
+            }
+          }
+        }
+
+        parsedTextRows.push(rowObj);
+      }
+
+      this._rows = parsedTextRows.length ? parsedTextRows : [this._createEmptyRow(1)];
+    }
+  } catch (e) {
+    this._rows = [this._createEmptyRow(1)];
   }
+
+  this._syncRowIds();
+  this._setDataProperty();
+  this._render();
+}
+
 
   setManageData(dataStr) {
     try {
@@ -1593,15 +1640,19 @@ setCompanyDropdownOptionsOnly(optionsStr) {
   }
 
   validate() {
-    var validateResult = this._activeTab === "manage" ? this._validateManageRows() : this._validateCreateRows();
-    this._validationErrors = validateResult.errors;
-    this._validationResult = validateResult.isValid ? "true" : "false";
-    this._lastEvent = this._activeTab === "manage" ? "validateManage" : "validateOnly";
-    this._setProperties();
-    this._render();
-    this._dispatch("onValidate");
-    return this._validationResult;
-  }
+  var validateResult = this._activeTab === "manage"
+    ? this._validateManageRows()
+    : this._validateCreateRows();
+
+  this._validationErrors = validateResult.errors;
+  this._validationResult = validateResult.isValid ? "true" : "false";
+  this._lastEvent = this._activeTab === "manage" ? "validateManage" : "validateOnly";
+  this._setProperties();
+  this._render();
+  this._dispatch("onValidate");
+  return this._validationResult;
+}
+
 
   loadManageData() {
     this._lastEvent = "loadManage";
@@ -1786,59 +1837,91 @@ setCompanyDropdownOptionsOnly(optionsStr) {
     this._dispatch("onDataChange");
   }
 
-  _validateCreateRows() {
-    var errorListCreate = [];
-    var employeeMapCreate = {};
-    var validateLoopCreate = 0;
+ _validateManageRows() {
+  var errorListManage = [];
+  var employeeMapManage = {};
+  var validateLoopManage = 0;
+  var selectedCountManage = 0;
 
-    for (validateLoopCreate = 0; validateLoopCreate < this._rows.length; validateLoopCreate++) {
-      var createCheckRow = this._rows[validateLoopCreate];
+  for (validateLoopManage = 0; validateLoopManage < this._manageRows.length; validateLoopManage++) {
+    var manageCheckRow = this._manageRows[validateLoopManage];
 
-      if (createCheckRow.employeeId && createCheckRow.employeeId !== "") {
-        if (!employeeMapCreate[createCheckRow.employeeId]) {
-          employeeMapCreate[createCheckRow.employeeId] = 1;
+    if (manageCheckRow.selected === true) {
+      selectedCountManage = selectedCountManage + 1;
+
+      if (manageCheckRow.employeeId && manageCheckRow.employeeId !== "") {
+        if (!employeeMapManage[manageCheckRow.employeeId]) {
+          employeeMapManage[manageCheckRow.employeeId] = 1;
         } else {
-          employeeMapCreate[createCheckRow.employeeId] = employeeMapCreate[createCheckRow.employeeId] + 1;
+          employeeMapManage[manageCheckRow.employeeId] = employeeMapManage[manageCheckRow.employeeId] + 1;
         }
       }
     }
+  }
 
-    for (validateLoopCreate = 0; validateLoopCreate < this._rows.length; validateLoopCreate++) {
-      var createRowErrors = [];
-      var createValidateRow = this._rows[validateLoopCreate];
-
-      if (!createValidateRow.companyCode) { createRowErrors.push("Company Code is required"); }
-      if (!createValidateRow.division) { createRowErrors.push("Division is required"); }
-      if (!createValidateRow.department) { createRowErrors.push("Department is required"); }
-      if (!createValidateRow.costCenter) { createRowErrors.push("Cost Center is required"); }
-      if (!createValidateRow.jobCode) { createRowErrors.push("Job Code is required"); }
-      if (!createValidateRow.positionTitle) { createRowErrors.push("Position Title is required"); }
-      if (!createValidateRow.employeeId) { createRowErrors.push("Position ID is required"); }
-      if (!createValidateRow.hireDate) { createRowErrors.push("Hire Date is required"); }
-
-      if (createValidateRow.employeeId && employeeMapCreate[createValidateRow.employeeId] > 1) {
-        createRowErrors.push("Duplicate Position ID in widget rows");
-      }
-
-      if (createValidateRow.specialApproval === "Yes" && !createValidateRow.comment) {
-        createRowErrors.push("Comment is required when Special Approval = Yes");
-      }
-
-      if (createRowErrors.length > 0) {
-        errorListCreate.push({
-          tab: "create",
-          rowIndex: validateLoopCreate,
-          rowId: createValidateRow.rowId,
-          messages: createRowErrors
-        });
-      }
-    }
+  if (selectedCountManage === 0) {
+    errorListManage.push({
+      tab: "manage",
+      rowIndex: -1,
+      rowId: "",
+      messages: ["Please select at least one row."]
+    });
 
     return {
-      isValid: errorListCreate.length === 0,
-      errors: errorListCreate
+      isValid: false,
+      errors: errorListManage
     };
   }
+
+  for (validateLoopManage = 0; validateLoopManage < this._manageRows.length; validateLoopManage++) {
+    var manageRowErrors = [];
+    var manageValidateRow = this._manageRows[validateLoopManage];
+
+    if (manageValidateRow.selected !== true) {
+      continue;
+    }
+
+    if (!manageValidateRow.employeeId) { manageRowErrors.push("Position ID is required"); }
+    if (!manageValidateRow.companyCode) { manageRowErrors.push("Company Code is required"); }
+    if (!manageValidateRow.division) { manageRowErrors.push("Division is required"); }
+    if (!manageValidateRow.department) { manageRowErrors.push("Department is required"); }
+    if (!manageValidateRow.costCenter) { manageRowErrors.push("Cost Center is required"); }
+    if (!manageValidateRow.jobCode) { manageRowErrors.push("Job Code is required"); }
+    if (!manageValidateRow.positionTitle) { manageRowErrors.push("Position Title is required"); }
+    if (!manageValidateRow.payGradeGroup) { manageRowErrors.push("Pay Grade is required"); }
+    if (!manageValidateRow.payGradeLevel) { manageRowErrors.push("Level is required"); }
+    if (!manageValidateRow.hireDate) { manageRowErrors.push("Hire Date is required"); }
+    if (!manageValidateRow.nationality) { manageRowErrors.push("Nationality is required"); }
+    if (!manageValidateRow.accommodation) { manageRowErrors.push("Accommodation is required"); }
+    if (!manageValidateRow.transport) { manageRowErrors.push("Transport is required"); }
+    if (!manageValidateRow.employeeClass) { manageRowErrors.push("Employee Class is required"); }
+    if (!manageValidateRow.overtime) { manageRowErrors.push("Overtime is required"); }
+    if (!manageValidateRow.specialApproval) { manageRowErrors.push("Special Approval is required"); }
+
+    if (manageValidateRow.employeeId && employeeMapManage[manageValidateRow.employeeId] > 1) {
+      manageRowErrors.push("Duplicate Position ID in selected rows");
+    }
+
+    if (manageValidateRow.specialApproval === "Yes" && !manageValidateRow.comment) {
+      manageRowErrors.push("Comment is required when Special Approval = Yes");
+    }
+
+    if (manageRowErrors.length > 0) {
+      errorListManage.push({
+        tab: "manage",
+        rowIndex: validateLoopManage,
+        rowId: manageValidateRow.rowId,
+        messages: manageRowErrors
+      });
+    }
+  }
+
+  return {
+    isValid: errorListManage.length === 0,
+    errors: errorListManage
+  };
+}
+
 
   _validateManageRows() {
     var errorListManage = [];
@@ -2370,24 +2453,25 @@ this.shadowRoot.getElementById("tabManage").addEventListener("click", this._chan
   }
 
   _handleSendForApproval() {
-    var approvalValidation = this._validateCreateRows();
-    this._validationErrors = approvalValidation.errors;
-    this._validationResult = approvalValidation.isValid ? "true" : "false";
-    this._setProperties();
-    this._render();
+  var approvalValidation = this._validateCreateRows();
 
-    if (!approvalValidation.isValid) {
-      this._lastEvent = "validationFailed";
-      this._setProperties();
-      this._dispatch("onValidate");
-      return;
-    }
+  this._validationErrors = approvalValidation.errors;
+  this._validationResult = approvalValidation.isValid ? "true" : "false";
+  this._render();
 
-    this._sendPayload = this.getData();
-    this._lastEvent = "sendForApproval";
+  if (!approvalValidation.isValid) {
+    this._lastEvent = "validationFailed";
     this._setProperties();
-    this._dispatch("onDataChange");
+    this._dispatch("onValidate");
+    return;
   }
+
+  this._sendPayload = this.getData();
+  this._lastEvent = "sendForApproval";
+  this._setProperties();
+  this._dispatch("onDataChange");
+}
+
 
   _renderCell(tabName, rowData, rowIndex, columnData, rowErrors) {
     var cellHasError = this._hasFieldError(columnData.key, rowErrors);
@@ -2434,33 +2518,43 @@ this.shadowRoot.getElementById("tabManage").addEventListener("click", this._chan
       + this._renderFieldErrors(columnData.key, rowErrors);
   }
 
-  _renderFieldErrors(fieldName, rowErrors) {
-    var errorMessages = [];
-    var errorFieldLoop = 0;
+ _renderFieldErrors(fieldName, rowErrors) {
+  var errorMessages = [];
+  var errorFieldLoop = 0;
 
-    for (errorFieldLoop = 0; errorFieldLoop < rowErrors.length; errorFieldLoop++) {
-      var fieldErrorText = rowErrors[errorFieldLoop];
-      if (
-        (fieldName === "companyCode" && fieldErrorText.indexOf("Company Code") === 0) ||
-        (fieldName === "division" && fieldErrorText.indexOf("Division") === 0) ||
-        (fieldName === "department" && fieldErrorText.indexOf("Department") === 0) ||
-        (fieldName === "costCenter" && fieldErrorText.indexOf("Cost Center") === 0) ||
-        (fieldName === "jobCode" && fieldErrorText.indexOf("Job Code") === 0) ||
-        (fieldName === "positionTitle" && fieldErrorText.indexOf("Position Title") === 0) ||
-        (fieldName === "employeeId" && (fieldErrorText.indexOf("Position ID") === 0 || fieldErrorText.indexOf("Duplicate Position ID") === 0)) ||
-        (fieldName === "hireDate" && fieldErrorText.indexOf("Hire Date") === 0) ||
-        (fieldName === "comment" && fieldErrorText.indexOf("Comment") === 0)
-      ) {
-        errorMessages.push(fieldErrorText);
-      }
+  for (errorFieldLoop = 0; errorFieldLoop < rowErrors.length; errorFieldLoop++) {
+    var fieldErrorText = rowErrors[errorFieldLoop];
+
+    if (
+      (fieldName === "companyCode" && fieldErrorText.indexOf("Company Code") === 0) ||
+      (fieldName === "division" && fieldErrorText.indexOf("Division") === 0) ||
+      (fieldName === "department" && fieldErrorText.indexOf("Department") === 0) ||
+      (fieldName === "costCenter" && fieldErrorText.indexOf("Cost Center") === 0) ||
+      (fieldName === "jobCode" && fieldErrorText.indexOf("Job Code") === 0) ||
+      (fieldName === "positionTitle" && fieldErrorText.indexOf("Position Title") === 0) ||
+      (fieldName === "employeeId" && (fieldErrorText.indexOf("Position ID") === 0 || fieldErrorText.indexOf("Duplicate Position ID") === 0)) ||
+      (fieldName === "payGradeGroup" && fieldErrorText.indexOf("Pay Grade") === 0) ||
+      (fieldName === "payGradeLevel" && fieldErrorText.indexOf("Level") === 0) ||
+      (fieldName === "hireDate" && fieldErrorText.indexOf("Hire Date") === 0) ||
+      (fieldName === "nationality" && fieldErrorText.indexOf("Nationality") === 0) ||
+      (fieldName === "accommodation" && fieldErrorText.indexOf("Accommodation") === 0) ||
+      (fieldName === "transport" && fieldErrorText.indexOf("Transport") === 0) ||
+      (fieldName === "employeeClass" && fieldErrorText.indexOf("Employee Class") === 0) ||
+      (fieldName === "overtime" && fieldErrorText.indexOf("Overtime") === 0) ||
+      (fieldName === "specialApproval" && fieldErrorText.indexOf("Special Approval") === 0) ||
+      (fieldName === "comment" && fieldErrorText.indexOf("Comment") === 0)
+    ) {
+      errorMessages.push(fieldErrorText);
     }
-
-    if (!errorMessages.length) {
-      return "";
-    }
-
-    return '<div class="rowErr">' + errorMessages.join("<br>") + '</div>';
   }
+
+  if (!errorMessages.length) {
+    return "";
+  }
+
+  return '<div class="rowErr">' + errorMessages.join("<br>") + '</div>';
+}
+
 
   _hasFieldError(fieldName, rowErrors) {
     return this._renderFieldErrors(fieldName, rowErrors) !== "";
