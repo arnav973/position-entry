@@ -21,6 +21,14 @@
       "type": "string",
       "default": "[]"
     },
+    "managedata": {
+      "type": "string",
+      "default": "[]"
+    },
+    "activetab": {
+      "type": "string",
+      "default": "create"
+    },
     "lastEvent": {
       "type": "string",
       "default": ""
@@ -32,14 +40,19 @@
     "validationErrors": {
       "type": "string",
       "default": "[]"
+    },
+    "sendforapprovalpayload": {
+      "type": "string",
+      "default": ""
     }
   },
   "methods": {
     "getData": {
+      "description": "Get create tab data",
       "returnType": "string"
     },
     "setData": {
-      "description": "Set widget row data as JSON string",
+      "description": "Set create tab data",
       "parameters": [
         {
           "name": "dataStr",
@@ -47,14 +60,42 @@
         }
       ]
     },
+    "getManageData": {
+      "description": "Get manage tab data",
+      "returnType": "string"
+    },
+    "setManageData": {
+      "description": "Set manage tab data",
+      "parameters": [
+        {
+          "name": "dataStr",
+          "type": "string"
+        }
+      ]
+    },
+    "setActiveTab": {
+      "description": "Set active tab",
+      "parameters": [
+        {
+          "name": "tabName",
+          "type": "string"
+        }
+      ]
+    },
     "addRow": {
       "description": "Add a new row"
     },
+    "copySelectedRows": {
+      "description": "Copy selected rows"
+    },
     "clear": {
-      "description": "Clear all rows and reset widget"
+      "description": "Clear active tab data"
+    },
+    "clearRowsAfterSend": {
+      "description": "Clear create rows after send"
     },
     "validate": {
-      "description": "Validate all rows",
+      "description": "Validate active tab rows",
       "returnType": "string"
     },
     "setOptions": {
@@ -70,8 +111,45 @@
         }
       ]
     },
+
+    "setCompanyDropdownOptionsOnly": {
+  "description": "Set company code dropdown options only without auto-filling rows",
+  "parameters": [
+    {
+      "name": "optionsStr",
+      "type": "string"
+    }
+  ]
+},
+  
+    "setManageCompanyFilter": {
+  "description": "Filter manage rows by selected company codes",
+  "parameters": [
+    {
+      "name": "filterStr",
+      "type": "string"
+    }
+  ]
+}, 
     "setRowOptions": {
-      "description": "Set row-specific dropdown options",
+      "description": "Set create row-specific dropdown options",
+      "parameters": [
+        {
+          "name": "rowIndex",
+          "type": "integer"
+        },
+        {
+          "name": "fieldName",
+          "type": "string"
+        },
+        {
+          "name": "optionsStr",
+          "type": "string"
+        }
+      ]
+    },
+    "setManageRowOptions": {
+      "description": "Set manage row-specific dropdown options",
       "parameters": [
         {
           "name": "rowIndex",
@@ -88,7 +166,24 @@
       ]
     },
     "setCellValue": {
-      "description": "Set a cell value programmatically",
+      "description": "Set create cell value programmatically",
+      "parameters": [
+        {
+          "name": "rowIndex",
+          "type": "integer"
+        },
+        {
+          "name": "fieldName",
+          "type": "string"
+        },
+        {
+          "name": "value",
+          "type": "string"
+        }
+      ]
+    },
+    "setManageCellValue": {
+      "description": "Set manage cell value programmatically",
       "parameters": [
         {
           "name": "rowIndex",
@@ -112,12 +207,24 @@
       "description": "Get validation error details",
       "returnType": "string"
     },
-     "getValidationResult": {
-    "description": "Get validation result",
-    "returnType": "string"
-  }
+    "getValidationResult": {
+      "description": "Get validation result",
+      "returnType": "string"
+    },
+    "getSendForApprovalPayload": {
+      "description": "Get send for approval payload",
+      "returnType": "string"
+    },
+    "loadManageData": {
+      "description": "Trigger load manage data event"
+    },
+    "saveManageData": {
+      "description": "Trigger save manage data event"
+    },
+    "deleteManageData": {
+      "description": "Trigger delete manage data event"
+    }
   },
-  
   "events": {
     "onDataChange": {
       "description": "Triggered when widget data changes"
