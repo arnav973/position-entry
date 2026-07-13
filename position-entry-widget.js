@@ -737,6 +737,45 @@ _isManageRowVisible(rowData) {
   }
 
   _deleteSelectedRows() {
+  if (this._activeTab === "manage") {
+    this.deleteManageData();
+    return;
+  }
+
+  var remainingRows = [];
+  var newRowOptions = {};
+  var deleteLoop = 0;
+  var newIndex = 0;
+
+  for (deleteLoop = 0; deleteLoop < this._rows.length; deleteLoop++) {
+    if (this._rows[deleteLoop].selected !== true) {
+      remainingRows.push(this._rows[deleteLoop]);
+
+      if (this._rowOptions[deleteLoop]) {
+        newRowOptions[newIndex] = JSON.parse(JSON.stringify(this._rowOptions[deleteLoop]));
+      }
+
+      newIndex = newIndex + 1;
+    }
+  }
+
+  if (!remainingRows.length) {
+    remainingRows = [this._createEmptyRow(1)];
+    newRowOptions = {};
+  }
+
+  this._rows = remainingRows;
+  this._rowOptions = newRowOptions;
+  this._syncRowIds();
+  this._validationErrors = [];
+  this._validationResult = "true";
+  this._setProperties();
+  this._render();
+  this._dispatch("onDataChange");
+}
+
+  
+ /* _deleteSelectedRows() {
     if (this._activeTab === "manage") {
       this.deleteManageData();
       return;
@@ -762,7 +801,7 @@ _isManageRowVisible(rowData) {
     this._setProperties();
     this._render();
     this._dispatch("onDataChange");
-  }
+  }*/
 
   _validateCreateRows() {
     var errorListCreate = [];
