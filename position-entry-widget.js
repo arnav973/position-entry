@@ -455,7 +455,7 @@ class PositionEntryWidget extends HTMLElement {
         accommodation: copySource.accommodation || "Yes",
         transport: copySource.transport || "Yes",
         employeeClass: copySource.employeeClass || "Regular",
-        overtime: copySource.overtime || "Yes",
+        overtime: copySource.overtime || "No",
         specialApproval: copySource.specialApproval || "No",
         comment: copySource.comment || ""
       };
@@ -599,7 +599,7 @@ _validateSilently() {
       accommodation: "Yes",
       transport: "Yes",
       employeeClass: "Regular",
-      overtime: "Yes",
+      overtime: "No",
       specialApproval: "No",
       comment: ""
     };
