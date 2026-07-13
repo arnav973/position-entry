@@ -427,77 +427,68 @@ class PositionEntryWidget extends HTMLElement {
   }
 
   copySelectedRows() {
-    var copiedCreateRows = [];
-    var copiedOptionsMap = {};
-    var companyEventsCopy = [];
-    var copyLoop = 0;
+  var copiedCreateRows = [];
+  var copiedOptionsMap = {};
+  var copyLoop = 0;
 
-    for (copyLoop = 0; copyLoop < this._rows.length; copyLoop++) {
-      if (this._rows[copyLoop].selected === true) {
-        var copySource = this._rows[copyLoop];
-        var copyIndex = this._rows.length + copiedCreateRows.length;
+  for (copyLoop = 0; copyLoop < this._rows.length; copyLoop++) {
+    if (this._rows[copyLoop].selected === true) {
+      var copySource = this._rows[copyLoop];
+      var copyIndex = this._rows.length + copiedCreateRows.length;
 
-        var copiedRowObject = {
-          rowId: copyIndex + 1,
-          selected: false,
-          companyCode: copySource.companyCode || "",
-          division: copySource.division || "",
-          department: copySource.department || "",
-          costCenter: copySource.costCenter || "",
-          jobCode: copySource.jobCode || "",
-          positionTitle: copySource.positionTitle || "",
-          employeeId: "",
-          payGradeGroup: copySource.payGradeGroup || "",
-          payGradeLevel: copySource.payGradeLevel || "",
-          hireDate: copySource.hireDate || "",
-          nationality: copySource.nationality || "",
-          accommodation: copySource.accommodation || "Yes",
-          transport: copySource.transport || "Yes",
-          employeeClass: copySource.employeeClass || "Regular",
-          overtime: copySource.overtime || "Yes",
-          specialApproval: copySource.specialApproval || "No",
-          comment: copySource.comment || ""
-        };
+      var copiedRowObject = {
+        rowId: copyIndex + 1,
+        selected: false,
+        companyCode: copySource.companyCode || "",
+        division: copySource.division || "",
+        department: copySource.department || "",
+        costCenter: copySource.costCenter || "",
+        jobCode: copySource.jobCode || "",
+        positionTitle: copySource.positionTitle || "",
+        employeeId: "",
+        payGradeGroup: copySource.payGradeGroup || "",
+        payGradeLevel: copySource.payGradeLevel || "",
+        hireDate: copySource.hireDate || "",
+        nationality: copySource.nationality || "",
+        accommodation: copySource.accommodation || "Yes",
+        transport: copySource.transport || "Yes",
+        employeeClass: copySource.employeeClass || "Regular",
+        overtime: copySource.overtime || "Yes",
+        specialApproval: copySource.specialApproval || "No",
+        comment: copySource.comment || ""
+      };
 
-        copiedCreateRows.push(copiedRowObject);
+      copiedCreateRows.push(copiedRowObject);
 
-        if (this._rowOptions[copyLoop]) {
-          copiedOptionsMap[copyIndex] = JSON.parse(JSON.stringify(this._rowOptions[copyLoop]));
-        }
-
-        companyEventsCopy.push({
-          rowIndex: copyIndex,
-          companyCode: copySource.companyCode || ""
-        });
-      }
-    }
-
-    if (copiedCreateRows.length === 0) {
-      return;
-    }
-
-    for (copyLoop = 0; copyLoop < copiedCreateRows.length; copyLoop++) {
-      this._rows.push(copiedCreateRows[copyLoop]);
-    }
-
-    for (var copyKey in copiedOptionsMap) {
-      if (Object.prototype.hasOwnProperty.call(copiedOptionsMap, copyKey)) {
-        this._rowOptions[copyKey] = copiedOptionsMap[copyKey];
-      }
-    }
-
-    this._syncRowIds();
-    this._validationErrors = [];
-    this._validationResult = "true";
-    this._setProperties();
-    this._render();
-
-    for (copyLoop = 0; copyLoop < companyEventsCopy.length; copyLoop++) {
-      if (companyEventsCopy[copyLoop].companyCode !== "") {
-        this._fireFieldChange(companyEventsCopy[copyLoop].rowIndex, "companyCode", companyEventsCopy[copyLoop].companyCode);
+      if (this._rowOptions[copyLoop]) {
+        copiedOptionsMap[copyIndex] = JSON.parse(JSON.stringify(this._rowOptions[copyLoop]));
       }
     }
   }
+
+  if (copiedCreateRows.length === 0) {
+    return;
+  }
+
+  for (copyLoop = 0; copyLoop < copiedCreateRows.length; copyLoop++) {
+    this._rows.push(copiedCreateRows[copyLoop]);
+  }
+
+  for (var copyKey in copiedOptionsMap) {
+    if (Object.prototype.hasOwnProperty.call(copiedOptionsMap, copyKey)) {
+      this._rowOptions[copyKey] = copiedOptionsMap[copyKey];
+    }
+  }
+
+  this._syncRowIds();
+  this._validationErrors = [];
+  this._validationResult = "true";
+  this._lastEvent = "copyRows";
+  this._setProperties();
+  this._render();
+  this._dispatch("onDataChange");
+}
+
 
   clear() {
     if (this._activeTab === "manage") {
