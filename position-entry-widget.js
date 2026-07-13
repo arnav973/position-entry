@@ -54,7 +54,7 @@ class PositionEntryWidget extends HTMLElement {
       { key: "costCenter", label: "Cost Center", type: "select", width: "190px" },
       { key: "jobCode", label: "Job Code", type: "select", width: "190px" },
       { key: "positionTitle", label: "Position Title", type: "text", width: "220px" },
-      { key: "employeeId", label: "Position ID", type: "text", width: "170px" },
+      { key: "employeeId", label: "Position ID", type: "readonly", width: "170px" },
       { key: "payGradeGroup", label: "Pay Grade", type: "select", width: "130px" },
       { key: "payGradeLevel", label: "Level", type: "select", width: "110px" },
       { key: "hireDate", label: "Hire Date", type: "date", width: "150px" },
