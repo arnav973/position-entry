@@ -431,11 +431,12 @@ class PositionEntryWidget extends HTMLElement {
   var copiedOptionsMap = {};
   var companyEventsCopy = [];
   var copyLoop = 0;
+  var baseLength = this._rows.length;
 
-  for (copyLoop = 0; copyLoop < this._rows.length; copyLoop++) {
+  for (copyLoop = 0; copyLoop < baseLength; copyLoop++) {
     if (this._rows[copyLoop].selected === true) {
       var copySource = this._rows[copyLoop];
-      var copyIndex = this._rows.length + copiedCreateRows.length;
+      var copyIndex = baseLength + copiedCreateRows.length;
 
       var copiedRowObject = {
         rowId: copyIndex + 1,
@@ -468,7 +469,7 @@ class PositionEntryWidget extends HTMLElement {
       if (copySource.companyCode !== "") {
         companyEventsCopy.push({
           rowIndex: copyIndex,
-          companyCode: copySource.companyCode || ""
+          companyCode: copySource.companyCode
         });
       }
     }
@@ -491,15 +492,16 @@ class PositionEntryWidget extends HTMLElement {
   this._syncRowIds();
   this._validationErrors = [];
   this._validationResult = "true";
-  this._setProperties();
+  this._setDataProperty();
   this._render();
 
   for (copyLoop = 0; copyLoop < companyEventsCopy.length; copyLoop++) {
-    this._lastEvent = "copyGenerateId|" + String(companyEventsCopy[copyLoop].rowIndex) + "|companyCode|" + String(companyEventsCopy[copyLoop].companyCode);
+    this._lastEvent = "copyGenerateId|" + companyEventsCopy[copyLoop].rowIndex + "|companyCode|" + companyEventsCopy[copyLoop].companyCode;
     this._setProperties();
     this._dispatch("onDataChange");
   }
 }
+
 
 
 
