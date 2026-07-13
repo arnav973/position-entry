@@ -429,6 +429,7 @@ class PositionEntryWidget extends HTMLElement {
   copySelectedRows() {
   var copiedCreateRows = [];
   var copiedOptionsMap = {};
+  var companyEventsCopy = [];
   var copyLoop = 0;
 
   for (copyLoop = 0; copyLoop < this._rows.length; copyLoop++) {
@@ -463,6 +464,13 @@ class PositionEntryWidget extends HTMLElement {
       if (this._rowOptions[copyLoop]) {
         copiedOptionsMap[copyIndex] = JSON.parse(JSON.stringify(this._rowOptions[copyLoop]));
       }
+
+      if (copySource.companyCode !== "") {
+        companyEventsCopy.push({
+          rowIndex: copyIndex,
+          companyCode: copySource.companyCode || ""
+        });
+      }
     }
   }
 
@@ -483,11 +491,16 @@ class PositionEntryWidget extends HTMLElement {
   this._syncRowIds();
   this._validationErrors = [];
   this._validationResult = "true";
-  this._lastEvent = "copyRows";
   this._setProperties();
   this._render();
-  this._dispatch("onDataChange");
+
+  for (copyLoop = 0; copyLoop < companyEventsCopy.length; copyLoop++) {
+    this._lastEvent = "copyGenerateId|" + String(companyEventsCopy[copyLoop].rowIndex) + "|companyCode|" + String(companyEventsCopy[copyLoop].companyCode);
+    this._setProperties();
+    this._dispatch("onDataChange");
+  }
 }
+
 
 
   clear() {
