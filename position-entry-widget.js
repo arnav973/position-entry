@@ -410,8 +410,20 @@ class PositionEntryWidget extends HTMLElement {
     this._setManageDataProperty();
     this._render();
   }
+addRow() {
+  var newRowId = this._rows.length + 1;
+  var newRow = this._createEmptyRow(newRowId);
 
-  addRow() {
+  newRow.companyCode = "";
+
+  this._rows.push(newRow);
+  this._syncRowIds();
+  this._lastEvent = "addRow";
+  this._setProperties();
+  this._render();
+}
+
+  /*addRow() {
   var newRowId = this._rows.length + 1;
   var newRow = this._createEmptyRow(newRowId);
 
@@ -422,21 +434,8 @@ class PositionEntryWidget extends HTMLElement {
   this._setDataProperty();
   this._render();
   this._dispatch("onDataChange");
-}
-/*addRow() {
-    var newRowId = this._rows.length + 1;
-    var newRow = this._createEmptyRow(newRowId);
+}*/
 
-    if (this._options.companyCode && this._options.companyCode.length === 1) {
-      newRow.companyCode = this._options.companyCode[0].key;
-    }
-
-    this._rows.push(newRow);
-    this._syncRowIds();
-    this._setDataProperty();
-    this._render();
-    this._dispatch("onDataChange");
-  }*/
 
   copySelectedRows() {
   var copiedCreateRows = [];
