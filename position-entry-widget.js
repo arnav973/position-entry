@@ -885,9 +885,9 @@ _isManageRowVisible(rowData) {
         createRowErrors.push("Duplicate Position ID in selected rows");
       }
 
-      if (createValidateRow.specialApproval === "Yes" && !createValidateRow.comment) {
+      /*if (createValidateRow.specialApproval === "Yes" && !createValidateRow.comment) {
         createRowErrors.push("Comment is required when Special Approval = Yes");
-      }
+      }*/
 
       if (createRowErrors.length > 0) {
         errorListCreate.push({
@@ -970,9 +970,9 @@ _isManageRowVisible(rowData) {
         manageRowErrors.push("Duplicate Position ID in selected rows");
       }
 
-      if (manageValidateRow.specialApproval === "Yes" && !manageValidateRow.comment) {
+      /*if (manageValidateRow.specialApproval === "Yes" && !manageValidateRow.comment) {
         manageRowErrors.push("Comment is required when Special Approval = Yes");
-      }
+      }*/
 
       if (manageRowErrors.length > 0) {
         errorListManage.push({
