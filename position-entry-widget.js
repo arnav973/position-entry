@@ -26,8 +26,8 @@ class PositionEntryWidget extends HTMLElement {
     };
 
     this._rowOptions = {};
-    this._manageRowOptions = {};
-    this._manageCompanyFilter = [];
+    this._RowOptions = {};
+    this._CompanyFilter = [];
 
     this._lastEvent = "";
     this._sendPayload = "";
@@ -67,7 +67,7 @@ class PositionEntryWidget extends HTMLElement {
       { key: "comment", label: "Comment", type: "text", width: "260px" }
     ];
 
-    this._manageColumns = [
+    this._Columns = [
       { key: "selected", label: "Sel", type: "checkbox", width: "60px" },
       { key: "employeeId", label: "Position ID", type: "readonly", width: "170px" },
       { key: "companyCode", label: "Company Code", type: "select", width: "160px" },
@@ -110,7 +110,7 @@ class PositionEntryWidget extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ["data", "managedata", "activetab", "lastevent", "validationresult", "validationerrors", "sendforapprovalpayload"];
+    return ["data", "data", "activetab", "lastevent", "validationresult", "validationerrors", "sendforapprovalpayload"];
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
@@ -130,13 +130,13 @@ class PositionEntryWidget extends HTMLElement {
       } catch (e) {}
     }
 
-    if (name === "managedata") {
+    if (name === "data") {
       try {
-        var parsedManage = JSON.parse(newValue || "[]");
+        var parsed = JSON.parse(newValue || "[]");
 
-        if (Array.isArray(parsedManage)) {
-          this._manageRows = parsedManage;
-          this._syncManageRowIds();
+        if (Array.isArray(parsed)) {
+          this._Rows = parsed;
+          this._syncRowIds();
           this._render();
         }
       } catch (e2) {}
@@ -184,8 +184,8 @@ class PositionEntryWidget extends HTMLElement {
     return outText;
   }
 
-  getManageData() {
-    return JSON.stringify(this._manageRows || []);
+  getData() {
+    return JSON.stringify(this._Rows || []);
   }
 
   getLastEvent() {
@@ -205,7 +205,7 @@ class PositionEntryWidget extends HTMLElement {
   }
 
   setActiveTab(tabName) {
-    if (tabName !== "create" && tabName !== "manage") {
+    if (tabName !== "create" && tabName !== "") {
       tabName = "create";
     }
 
@@ -215,7 +215,7 @@ class PositionEntryWidget extends HTMLElement {
   }
 
   _changeTabFromUI(tabName) {
-    if (tabName !== "create" && tabName !== "manage") {
+    if (tabName !== "create" && tabName !== "") {
       tabName = "create";
     }
 
@@ -295,9 +295,9 @@ class PositionEntryWidget extends HTMLElement {
     this._render();
   }
 
-  setManageData(dataStr) {
+  setData(dataStr) {
     try {
-      var parsedManageRows = JSON.parse(dataStr || "[]");
+      var parsedRows = JSON.parse(dataStr || "[]");
 
       if (Array.isArray(parsedManageRows)) {
         this._manageRows = parsedManageRows;
@@ -339,7 +339,7 @@ class PositionEntryWidget extends HTMLElement {
       this._render();
     } catch (e) {}
   }
-  setManageCompanyFilter(filterStr) {
+ setManageCompanyFilter(filterStr) {
   try {
     var filterArray = JSON.parse(filterStr || "[]");
 
@@ -347,7 +347,18 @@ class PositionEntryWidget extends HTMLElement {
       filterArray = [];
     }
 
-    this._manageCompanyFilter = filterArray;
+    var cleanedFilter = [];
+    var i = 0;
+
+    for (i = 0; i < filterArray.length; i++) {
+      var cleanValue = this._normalizeCompanyCode(filterArray[i]);
+
+      if (cleanValue !== "" && cleanValue !== "ALL_SBU") {
+        cleanedFilter.push(cleanValue);
+      }
+    }
+
+    this._manageCompanyFilter = cleanedFilter;
     this._render();
   } catch (e) {
     this._manageCompanyFilter = [];
@@ -683,22 +694,27 @@ _validateSilently() {
   }
 _isManageRowVisible(rowData) {
   var i = 0;
-  var rowCompany = String(rowData.companyCode || "");
+  var rowCompany = this._normalizeCompanyCode(rowData.companyCode);
 
   if (!this._manageCompanyFilter || this._manageCompanyFilter.length === 0) {
     return true;
   }
 
   for (i = 0; i < this._manageCompanyFilter.length; i++) {
-    var filterValue = String(this._manageCompanyFilter[i] || "");
+    var filterValue = this._normalizeCompanyCode(this._manageCompanyFilter[i]);
 
-    if (rowCompany === filterValue || rowCompany.indexOf(filterValue) === 0) {
+    if (filterValue === "" || filterValue === "ALL_SBU") {
+      continue;
+    }
+
+    if (rowCompany === filterValue) {
       return true;
     }
   }
 
   return false;
 }
+
 
   
   _setProperties() {
