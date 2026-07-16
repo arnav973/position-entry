@@ -1,4 +1,4 @@
-class PositionManageWidget extends HTMLElement {
+/*class PositionManageWidget extends HTMLElement {*/
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
