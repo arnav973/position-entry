@@ -1,4 +1,4 @@
-/*class PositionManageWidget extends HTMLElement {*/
+/*class PositionManageWidget extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
@@ -21,7 +21,7 @@
       employeeClass: [],
       overtime: [],
       specialApproval: []
-    };
+    };*/
 
     this._rowOptions = {};
     this._companyFilter = [];
