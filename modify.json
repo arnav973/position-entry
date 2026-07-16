@@ -1,6 +1,6 @@
 {
   "id": "com.example.positionentry",
-  "version": "16.0.5",
+  "version": "9.0.5",
   "name": "Position Manage Widget",
   "description": "Manage, load, modify and delete position data for SAC",
   "newInstancePrefix": "PositionManage",
