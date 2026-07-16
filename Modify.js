@@ -5,6 +5,7 @@ class PositionManageWidget extends HTMLElement {
 
     this._rows = [];
     this._filteredIndexes = [];
+    this._positionSearchText = "";
 
     this._options = {
       companyCode: [],
@@ -41,7 +42,7 @@ class PositionManageWidget extends HTMLElement {
     this._activeDropdownSelectedKey = "";
 
     this._columns = [
-      { key: "selected", label: "Sel", type: "checkbox", width: "60px" },
+      { key: "selected", label: "Sel", type: "checkbox", width: "70px" },
       { key: "employeeId", label: "Position ID", type: "readonly", width: "170px" },
       { key: "companyCode", label: "Company Code", type: "select", width: "160px" },
       { key: "division", label: "Division", type: "select", width: "180px" },
@@ -63,7 +64,7 @@ class PositionManageWidget extends HTMLElement {
 
     this._visibleStart = 0;
     this._visibleCount = 80;
-    this._rowHeight = 44;
+    this._rowHeight = 52;
     this._topSpacer = 0;
     this._bottomSpacer = 0;
   }
@@ -171,7 +172,7 @@ class PositionManageWidget extends HTMLElement {
     try {
       var optionsArray = JSON.parse(optionsStr || "[]");
       this._options[fieldName] = Array.isArray(optionsArray) ? optionsArray : [];
-      this._render();
+      this._renderVisibleOnly();
     } catch (e) {}
   }
 
@@ -188,7 +189,7 @@ class PositionManageWidget extends HTMLElement {
       }
 
       this._rowOptions[rowIndex][fieldName] = optionsArray;
-      this._render();
+      this._renderVisibleOnly();
     } catch (e) {}
   }
 
@@ -253,6 +254,7 @@ class PositionManageWidget extends HTMLElement {
     this._validationErrors = [];
     this._validationResult = "true";
     this._lastEvent = "clearManage";
+    this._positionSearchText = "";
     this._setProperties();
     this._rebuildFilteredIndexes();
     this._render();
@@ -374,19 +376,29 @@ class PositionManageWidget extends HTMLElement {
   _isRowVisible(rowData) {
     var i = 0;
     var rowCompany = this._normalizeCompanyCode(rowData.companyCode);
+    var searchText = String(this._positionSearchText || "").toLowerCase().trim();
+    var employeeId = String(rowData.employeeId || "").toLowerCase();
+    var positionTitle = String(rowData.positionTitle || "").toLowerCase();
+    var companyPass = false;
+    var searchPass = true;
 
     if (!this._companyFilter || this._companyFilter.length === 0) {
-      return true;
-    }
-
-    for (i = 0; i < this._companyFilter.length; i++) {
-      var filterValue = this._normalizeCompanyCode(this._companyFilter[i]);
-      if (filterValue !== "" && filterValue !== "ALL_SBU" && rowCompany === filterValue) {
-        return true;
+      companyPass = true;
+    } else {
+      for (i = 0; i < this._companyFilter.length; i++) {
+        var filterValue = this._normalizeCompanyCode(this._companyFilter[i]);
+        if (filterValue !== "" && filterValue !== "ALL_SBU" && rowCompany === filterValue) {
+          companyPass = true;
+          break;
+        }
       }
     }
 
-    return false;
+    if (searchText !== "") {
+      searchPass = employeeId.indexOf(searchText) > -1 || positionTitle.indexOf(searchText) > -1;
+    }
+
+    return companyPass && searchPass;
   }
 
   _rebuildFilteredIndexes() {
@@ -583,7 +595,7 @@ class PositionManageWidget extends HTMLElement {
     this._validationResult = "true";
     this._lastEvent = "manageSelectAll|" + (checked ? "true" : "false");
     this._setProperties();
-    this._renderVisibleOnly();
+    this._render();
     this._dispatch("onDataChange");
   }
 
@@ -746,7 +758,11 @@ class PositionManageWidget extends HTMLElement {
       '<style>' +
         ':host { display:block; font-family:"72", Arial, sans-serif; color:#223548; }' +
         '.wrap { border:1px solid #d9e2ef; border-radius:12px; background:#ffffff; overflow:hidden; }' +
-        '.toolbar { display:flex; justify-content:flex-end; gap:8px; padding:12px; border-bottom:1px solid #e5edf7; background:#f8fbff; }' +
+        '.toolbarWrap { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:12px; border-bottom:1px solid #e5edf7; background:#f8fbff; flex-wrap:wrap; }' +
+        '.toolbarLeft { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }' +
+        '.toolbarRight { display:flex; justify-content:flex-end; gap:8px; flex-wrap:wrap; }' +
+        '.searchBox { width:260px; max-width:100%; height:36px; border:1px solid #c7d7ea; background:#ffffff; color:#223548; border-radius:8px; padding:0 12px; font-size:13px; outline:none; }' +
+        '.searchBox:focus { border-color:#0a6ed1; box-shadow:0 0 0 2px rgba(10,110,209,0.12); }' +
         '.btn { border:1px solid #c7d7ea; background:#ffffff; color:#0a6ed1; border-radius:8px; padding:8px 14px; cursor:pointer; font-weight:600; font-size:13px; }' +
         '.btn:hover { background:#f3f8fd; }' +
         '.btn.primary { background:#0a6ed1; color:#ffffff; border-color:#0a6ed1; }' +
@@ -762,15 +778,16 @@ class PositionManageWidget extends HTMLElement {
         '.cell.error, .dropdown-trigger.error { border-color:#e25555; background:#fff5f5; }' +
         '.readonly-cell { width:100%; min-height:34px; height:34px; border:1px solid #d6dee8; border-radius:6px; padding:6px 10px; font-size:13px; background:#f6f8fb; color:#425466; box-sizing:border-box; display:flex; align-items:center; }' +
         '.rowErr { margin-top:4px; font-size:11px; color:#c53030; white-space:normal; max-width:240px; line-height:1.3; }' +
-        '.summary { padding:10px 12px; border-top:1px solid #e5edf7; display:flex; gap:18px; font-size:12px; background:#fafcff; }' +
+        '.summary { padding:10px 12px; border-top:1px solid #e5edf7; display:flex; gap:18px; font-size:12px; background:#fafcff; flex-wrap:wrap; }' +
         '.dropdown-trigger { width:100%; min-height:34px; height:34px; border:1px solid #c9d6e5; border-radius:6px; background:#fff; display:flex; align-items:center; justify-content:space-between; box-sizing:border-box; padding:0 10px; cursor:pointer; font-size:13px; color:#223548; user-select:none; }' +
         '.dropdown-trigger .label { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding-right:8px; }' +
         '.dropdown-trigger .arrow { color:#6a7f94; font-size:11px; flex:0 0 auto; }' +
-        '.row-checkbox { width:22px; height:22px; cursor:pointer; margin-top:8px; }' +
+        '.row-checkbox { width:24px; height:24px; cursor:pointer; margin-top:6px; accent-color:#0a6ed1; }' +
         '.select-all-wrap { display:flex; align-items:center; gap:6px; }' +
-        '.select-all-checkbox { width:16px; height:16px; cursor:pointer; }' +
+        '.select-all-checkbox { width:18px; height:18px; cursor:pointer; accent-color:#0a6ed1; }' +
         '.spacer-row td { padding:0 !important; border-bottom:none !important; height:auto !important; background:#fff !important; }' +
         '.spacer { width:1px; }' +
+        '.muted { font-size:12px; color:#6b7c93; }' +
       '</style>';
 
     var html = "";
@@ -778,7 +795,13 @@ class PositionManageWidget extends HTMLElement {
     var allSelected = this._areAllVisibleRowsSelected();
 
     html += '<div class="wrap">';
-    html += '<div class="toolbar">';
+    html += '<div class="toolbarWrap">';
+    html += '<div class="toolbarLeft">';
+    html += '<input id="positionSearchBox" class="searchBox" type="text" placeholder="Search Position ID or Title..." value="' + this._escapeHtml(String(this._positionSearchText || "")) + '" />';
+    html += '<span class="muted">Visible: ' + this._filteredIndexes.length + '</span>';
+    html += '</div>';
+
+    html += '<div class="toolbarRight">';
     html += '<button class="btn" id="btnLoad">Load Data</button>';
     html += '<button class="btn" id="btnValidate">Validate</button>';
     html += '<button class="btn primary" id="btnSave">Save Changes</button>';
@@ -786,6 +809,7 @@ class PositionManageWidget extends HTMLElement {
       html += '<button class="btn danger" id="btnDelete">Delete Selected</button>';
     }
     html += '<button class="btn" id="btnClear">Clear</button>';
+    html += '</div>';
     html += '</div>';
 
     html += '<div class="gridWrap" id="gridWrap">';
@@ -810,6 +834,7 @@ class PositionManageWidget extends HTMLElement {
     html += '<div>Total Rows: ' + this._rows.length + '</div>';
     html += '<div>Visible Rows: ' + this._filteredIndexes.length + '</div>';
     html += '<div>Modified Rows: ' + this._countModifiedRows() + '</div>';
+    html += '<div>Selected Rows: ' + this._countSelectedRows() + '</div>';
     html += '<div>Validation: ' + this._validationResult + '</div>';
     html += '<div>Error Rows: ' + this._countErrorRows() + '</div>';
     html += '</div>';
@@ -832,6 +857,16 @@ class PositionManageWidget extends HTMLElement {
     if (selectAll) {
       selectAll.addEventListener("change", function() {
         this._toggleSelectAllVisible(selectAll.checked);
+      }.bind(this));
+    }
+
+    var positionSearchBox = this.shadowRoot.getElementById("positionSearchBox");
+    if (positionSearchBox) {
+      positionSearchBox.addEventListener("input", function() {
+        this._positionSearchText = positionSearchBox.value || "";
+        this._visibleStart = 0;
+        this._rebuildFilteredIndexes();
+        this._render();
       }.bind(this));
     }
 
@@ -894,6 +929,7 @@ class PositionManageWidget extends HTMLElement {
         '<div>Total Rows: ' + this._rows.length + '</div>' +
         '<div>Visible Rows: ' + this._filteredIndexes.length + '</div>' +
         '<div>Modified Rows: ' + this._countModifiedRows() + '</div>' +
+        '<div>Selected Rows: ' + this._countSelectedRows() + '</div>' +
         '<div>Validation: ' + this._validationResult + '</div>' +
         '<div>Error Rows: ' + this._countErrorRows() + '</div>';
     }
@@ -919,6 +955,19 @@ class PositionManageWidget extends HTMLElement {
 
     for (i = 0; i < this._rows.length; i++) {
       if (this._rows[i].isModified === true) {
+        count++;
+      }
+    }
+
+    return count;
+  }
+
+  _countSelectedRows() {
+    var i = 0;
+    var count = 0;
+
+    for (i = 0; i < this._rows.length; i++) {
+      if (this._rows[i].selected === true) {
         count++;
       }
     }
@@ -988,7 +1037,8 @@ class PositionManageWidget extends HTMLElement {
         (fieldName === "transport" && text.indexOf("Transport") === 0) ||
         (fieldName === "employeeClass" && text.indexOf("Employee Class") === 0) ||
         (fieldName === "overtime" && text.indexOf("Overtime") === 0) ||
-        (fieldName === "specialApproval" && text.indexOf("Special Approval") === 0)
+        (fieldName === "specialApproval" && text.indexOf("Special Approval") === 0) ||
+        (fieldName === "comment" && text.indexOf("Comment") === 0)
       ) {
         messages.push(text);
       }
@@ -1023,7 +1073,7 @@ class PositionManageWidget extends HTMLElement {
           that._validationErrors = [];
           that._validationResult = "true";
           that._setProperties();
-          that._renderVisibleOnly();
+          that._render();
           that._fireFieldChange(rowIndex, fieldName, value);
         });
 
