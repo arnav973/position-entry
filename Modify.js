@@ -1345,13 +1345,12 @@ class PositionManageWidget extends HTMLElement {
     this._render();
   }
 
-  setOptions(fieldName, optionsStr) {
-    try {
-      var optionsArray = JSON.parse(optionsStr || "[]");
-      this._options[fieldName] = Array.isArray(optionsArray) ? optionsArray : [];
-      this._renderVisibleOnly();
-    } catch (e) {}
-  }
+ setOptions(fieldName, optionsStr) {
+  try {
+    var optionsArray = JSON.parse(optionsStr || "[]");
+    this._options[fieldName] = Array.isArray(optionsArray) ? optionsArray : [];
+  } catch (e) {}
+}
 
   setRowOptions(rowIndex, fieldName, optionsStr) {
   try {
