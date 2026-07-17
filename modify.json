@@ -1,6 +1,6 @@
 {
   "id": "com.example.positionentry",
-  "version": "9.0.5",
+  "version": "9.0.6",
   "name": "Position Manage Widget",
   "description": "Manage, load, modify and delete position data for SAC",
   "newInstancePrefix": "PositionManage",
@@ -117,6 +117,9 @@
           "type": "string"
         }
       ]
+    },
+    "commitRowOptions": {
+      "description": "Commit all row options and trigger a single re-render"
     },
     "getLastEvent": {
       "description": "Get last widget event payload",
