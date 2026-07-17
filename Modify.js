@@ -1323,11 +1323,30 @@ class PositionManageWidget extends HTMLElement {
   // PUBLIC API — SETTERS
   // ─────────────────────────────────────────────
 
-  setManageData(dataStr) {
+   setManageData(dataStr) {
+    var dataString = String(dataStr || "");
+
+    console.log("=== setManageData called ===");
+    console.log("Length:", dataString.length);
+    console.log("First 300 chars:", dataString.substring(0, 300));
+    console.log("Last 100 chars:",  dataString.substring(dataString.length - 100));
+
     try {
-      var parsedRows = JSON.parse(dataStr || "[]");
+      var parsedRows = JSON.parse(dataString || "[]");
       this._rows = Array.isArray(parsedRows) ? parsedRows : [];
+      console.log("Parse SUCCESS — rows:", this._rows.length);
     } catch (e) {
+      console.error("Parse FAILED:", e.message);
+
+      // find the exact broken position
+      var errMsg = String(e.message || "");
+      var posMatch = errMsg.match(/(\d+)/);
+      if (posMatch) {
+        var errPos = parseInt(posMatch[1], 10);
+        console.log("Error position:", errPos);
+        console.log("Context around error:", dataString.substring(Math.max(0, errPos - 80), errPos + 80));
+      }
+
       this._rows = [];
     }
 
@@ -1335,12 +1354,11 @@ class PositionManageWidget extends HTMLElement {
     this._currentPage = 1;
     this._setManageDataProperty();
     this._rebuildFilteredIndexes();
-
-    // Only update rows — do NOT call _render() which would wipe the DOM
     this._refreshToolbar();
     this._renderVisibleOnly();
     this._updateVisibleCountText();
   }
+
 
   setOptions(fieldName, optionsStr) {
     try {
