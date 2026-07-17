@@ -212,6 +212,19 @@ class PositionManageWidget extends HTMLElement {
   commitRowOptions() {
     this._renderVisibleOnly();
   }
+getVisibleIndexForRow(actualRowIndex) {
+  var visibleCount = 0;
+  var i = 0;
+  for (i = 0; i < this._rows.length; i++) {
+    if (this._isRowVisible(this._rows[i])) {
+      if (i === actualRowIndex) {
+        return visibleCount;
+      }
+      visibleCount++;
+    }
+  }
+  return actualRowIndex; // fallback
+}
 
   setCellValue(rowIndex, fieldName, value) {
     // rowIndex is visible position index — resolve to actual array index
