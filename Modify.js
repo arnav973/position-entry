@@ -378,7 +378,6 @@ class PositionManageWidget extends HTMLElement {
     var rowCompany = this._normalizeCompanyCode(rowData.companyCode);
     var searchText = String(this._positionSearchText || "").toLowerCase().trim();
     var employeeId = String(rowData.employeeId || "").toLowerCase();
-    var positionTitle = String(rowData.positionTitle || "").toLowerCase();
     var companyPass = false;
     var searchPass = true;
 
@@ -395,7 +394,7 @@ class PositionManageWidget extends HTMLElement {
     }
 
     if (searchText !== "") {
-      searchPass = employeeId.indexOf(searchText) > -1 || positionTitle.indexOf(searchText) > -1;
+      searchPass = employeeId.indexOf(searchText) > -1;
     }
 
     return companyPass && searchPass;
@@ -778,7 +777,6 @@ class PositionManageWidget extends HTMLElement {
         '.cell.error, .dropdown-trigger.error { border-color:#e25555; background:#fff5f5; }' +
         '.readonly-cell { width:100%; min-height:34px; height:34px; border:1px solid #d6dee8; border-radius:6px; padding:6px 10px; font-size:13px; background:#f6f8fb; color:#425466; box-sizing:border-box; display:flex; align-items:center; }' +
         '.rowErr { margin-top:4px; font-size:11px; color:#c53030; white-space:normal; max-width:240px; line-height:1.3; }' +
-        '.summary { padding:10px 12px; border-top:1px solid #e5edf7; display:flex; gap:18px; font-size:12px; background:#fafcff; flex-wrap:wrap; }' +
         '.dropdown-trigger { width:100%; min-height:34px; height:34px; border:1px solid #c9d6e5; border-radius:6px; background:#fff; display:flex; align-items:center; justify-content:space-between; box-sizing:border-box; padding:0 10px; cursor:pointer; font-size:13px; color:#223548; user-select:none; }' +
         '.dropdown-trigger .label { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding-right:8px; }' +
         '.dropdown-trigger .arrow { color:#6a7f94; font-size:11px; flex:0 0 auto; }' +
@@ -797,7 +795,7 @@ class PositionManageWidget extends HTMLElement {
     html += '<div class="wrap">';
     html += '<div class="toolbarWrap">';
     html += '<div class="toolbarLeft">';
-    html += '<input id="positionSearchBox" class="searchBox" type="text" placeholder="Search Position ID or Title..." value="' + this._escapeHtml(String(this._positionSearchText || "")) + '" />';
+    html += '<input id="positionSearchBox" class="searchBox" type="text" placeholder="Search Position ID..." value="' + this._escapeHtml(String(this._positionSearchText || "")) + '" />';
     html += '<span class="muted">Visible: ' + this._filteredIndexes.length + '</span>';
     html += '</div>';
 
@@ -828,15 +826,6 @@ class PositionManageWidget extends HTMLElement {
     html += '</tr></thead>';
     html += '<tbody id="tbodyVirtual"></tbody>';
     html += '</table>';
-    html += '</div>';
-
-    html += '<div class="summary">';
-    html += '<div>Total Rows: ' + this._rows.length + '</div>';
-    html += '<div>Visible Rows: ' + this._filteredIndexes.length + '</div>';
-    html += '<div>Modified Rows: ' + this._countModifiedRows() + '</div>';
-    html += '<div>Selected Rows: ' + this._countSelectedRows() + '</div>';
-    html += '<div>Validation: ' + this._validationResult + '</div>';
-    html += '<div>Error Rows: ' + this._countErrorRows() + '</div>';
     html += '</div>';
     html += '</div>';
 
@@ -922,17 +911,6 @@ class PositionManageWidget extends HTMLElement {
 
     tbody.innerHTML = html;
     this._bindCellEvents();
-
-    var summary = this.shadowRoot.querySelector(".summary");
-    if (summary) {
-      summary.innerHTML =
-        '<div>Total Rows: ' + this._rows.length + '</div>' +
-        '<div>Visible Rows: ' + this._filteredIndexes.length + '</div>' +
-        '<div>Modified Rows: ' + this._countModifiedRows() + '</div>' +
-        '<div>Selected Rows: ' + this._countSelectedRows() + '</div>' +
-        '<div>Validation: ' + this._validationResult + '</div>' +
-        '<div>Error Rows: ' + this._countErrorRows() + '</div>';
-    }
   }
 
   _handleScroll() {
@@ -947,32 +925,6 @@ class PositionManageWidget extends HTMLElement {
       this._visibleStart = nextStart;
       this._renderVisibleOnly();
     }
-  }
-
-  _countModifiedRows() {
-    var i = 0;
-    var count = 0;
-
-    for (i = 0; i < this._rows.length; i++) {
-      if (this._rows[i].isModified === true) {
-        count++;
-      }
-    }
-
-    return count;
-  }
-
-  _countSelectedRows() {
-    var i = 0;
-    var count = 0;
-
-    for (i = 0; i < this._rows.length; i++) {
-      if (this._rows[i].selected === true) {
-        count++;
-      }
-    }
-
-    return count;
   }
 
   _renderCell(rowData, rowIndex, columnData, rowErrors) {
