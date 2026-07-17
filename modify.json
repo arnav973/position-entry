@@ -101,6 +101,13 @@
         }
       ]
     },
+
+    "getVisibleIndexForRow": {
+    "description": "Convert actual row index to visible position index",
+    "parameters": [{ "name": "actualRowIndex", "type": "integer" }],
+    "returnType": "integer"
+    },
+    
     "setCellValue": {
       "description": "Set cell value programmatically",
       "parameters": [
