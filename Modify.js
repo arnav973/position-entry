@@ -63,10 +63,8 @@ class PositionManageWidget extends HTMLElement {
     ];
 
     this._visibleStart = 0;
-    this._visibleCount = 80;
-    this._rowHeight = 52;
-    this._topSpacer = 0;
-    this._bottomSpacer = 0;
+    this._pageSize = 50;
+    this._renderCount = 50;
   }
 
   connectedCallback() {
@@ -375,7 +373,8 @@ class PositionManageWidget extends HTMLElement {
 
   _isRowVisible(rowData) {
     var i = 0;
-    var rowCompany = this._normalizeCompanyCode(rowData.companyCode);
+    var rowCompanyRaw = rowData.companyCode !== undefined && rowData.companyCode !== null ? String(rowData.companyCode) : "";
+    var rowCompany = this._normalizeCompanyCode(rowCompanyRaw);
     var searchText = String(this._positionSearchText || "").toLowerCase().trim();
     var employeeId = String(rowData.employeeId || "").toLowerCase();
     var companyPass = false;
@@ -386,7 +385,17 @@ class PositionManageWidget extends HTMLElement {
     } else {
       for (i = 0; i < this._companyFilter.length; i++) {
         var filterValue = this._normalizeCompanyCode(this._companyFilter[i]);
-        if (filterValue !== "" && filterValue !== "ALL_SBU" && rowCompany === filterValue) {
+
+        if (filterValue === "") {
+          continue;
+        }
+
+        if (rowCompany === filterValue) {
+          companyPass = true;
+          break;
+        }
+
+        if (rowCompanyRaw.indexOf(filterValue) === 0) {
           companyPass = true;
           break;
         }
@@ -400,32 +409,22 @@ class PositionManageWidget extends HTMLElement {
     return companyPass && searchPass;
   }
 
- _rebuildFilteredIndexes() {
-  var i = 0;
-  this._filteredIndexes = [];
+  _rebuildFilteredIndexes() {
+    var i = 0;
+    this._filteredIndexes = [];
 
-  for (i = 0; i < this._rows.length; i++) {
-    if (this._isRowVisible(this._rows[i])) {
-      this._filteredIndexes.push(i);
+    for (i = 0; i < this._rows.length; i++) {
+      if (this._isRowVisible(this._rows[i])) {
+        this._filteredIndexes.push(i);
+      }
     }
-  }
 
-  this._visibleStart = 0;
-}
+    this._visibleStart = 0;
+    this._renderCount = this._pageSize;
 
-
-  _recalculateVirtualSpace() {
-    var total = this._filteredIndexes.length;
-    var start = this._visibleStart;
-    var end = Math.min(start + this._visibleCount, total);
-
-    this._topSpacer = start * this._rowHeight;
-    this._bottomSpacer = Math.max(0, (total - end) * this._rowHeight);
-  }
-
-  _getVisibleIndexes() {
-    var end = Math.min(this._visibleStart + this._visibleCount, this._filteredIndexes.length);
-    return this._filteredIndexes.slice(this._visibleStart, end);
+    if (this._renderCount > this._filteredIndexes.length) {
+      this._renderCount = this._filteredIndexes.length;
+    }
   }
 
   _setProperties() {
@@ -549,10 +548,6 @@ class PositionManageWidget extends HTMLElement {
     return map;
   }
 
-  _countErrorRows() {
-    return this._validationErrors.length;
-  }
-
   _hasSelectedRows() {
     var i = 0;
     for (i = 0; i < this._rows.length; i++) {
@@ -578,10 +573,20 @@ class PositionManageWidget extends HTMLElement {
 
     return true;
   }
- _updateVisibleCountText() {
+
+  _updateVisibleCountText() {
     var visibleText = this.shadowRoot.getElementById("visibleCountText");
     if (visibleText) {
       visibleText.textContent = "Visible: " + this._filteredIndexes.length;
+    }
+
+    var loadMoreInfo = this.shadowRoot.getElementById("loadMoreInfo");
+    if (loadMoreInfo) {
+      var shown = this._renderCount;
+      if (shown > this._filteredIndexes.length) {
+        shown = this._filteredIndexes.length;
+      }
+      loadMoreInfo.textContent = "Showing " + shown + " of " + this._filteredIndexes.length;
     }
   }
 
@@ -600,7 +605,6 @@ class PositionManageWidget extends HTMLElement {
     this._updateVisibleCountText();
     this._renderVisibleOnly();
     this._dispatch("onDataChange");
-
   }
 
   _createDropdownPanel() {
@@ -788,8 +792,6 @@ class PositionManageWidget extends HTMLElement {
         '.row-checkbox { width:24px; height:24px; cursor:pointer; margin-top:6px; accent-color:#0a6ed1; }' +
         '.select-all-wrap { display:flex; align-items:center; gap:6px; }' +
         '.select-all-checkbox { width:18px; height:18px; cursor:pointer; accent-color:#0a6ed1; }' +
-        '.spacer-row td { padding:0 !important; border-bottom:none !important; height:auto !important; background:#fff !important; }' +
-        '.spacer { width:1px; }' +
         '.muted { font-size:12px; color:#6b7c93; }' +
       '</style>';
 
@@ -815,6 +817,7 @@ class PositionManageWidget extends HTMLElement {
     html += '</div>';
     html += '</div>';
 
+    html += '<div class="muted" id="loadMoreInfo" style="padding:8px 12px 0 12px;">Showing 0 of ' + this._filteredIndexes.length + '</div>';
     html += '<div class="gridWrap" id="gridWrap">';
     html += '<table>';
     html += '<thead><tr>';
@@ -855,65 +858,81 @@ class PositionManageWidget extends HTMLElement {
     }
 
     var positionSearchBox = this.shadowRoot.getElementById("positionSearchBox");
-if (positionSearchBox) {
-  positionSearchBox.addEventListener("input", function() {
-    this._positionSearchText = positionSearchBox.value || "";
-    this._visibleStart = 0;
-    this._rebuildFilteredIndexes();
-    this._updateVisibleCountText();
-    this._renderVisibleOnly();
-  }.bind(this));
-}
-
+    if (positionSearchBox) {
+      positionSearchBox.addEventListener("input", function() {
+        this._positionSearchText = positionSearchBox.value || "";
+        this._visibleStart = 0;
+        this._rebuildFilteredIndexes();
+        this._updateVisibleCountText();
+        this._renderVisibleOnly();
+      }.bind(this));
+    }
 
     var gridWrap = this.shadowRoot.getElementById("gridWrap");
     gridWrap.addEventListener("scroll", this._handleScroll.bind(this));
 
     this._renderVisibleOnly();
+    this._updateVisibleCountText();
   }
 
- _renderVisibleOnly() {
-  var tbody = this.shadowRoot.getElementById("tbodyVirtual");
-  if (!tbody) {
-    return;
-  }
-
-  var visibleIndexes = this._filteredIndexes;
-  var rowErrorMap = this._getRowErrorMap();
-  var html = "";
-  var i = 0;
-  var j = 0;
-
-  for (i = 0; i < visibleIndexes.length; i++) {
-    var actualIndex = visibleIndexes[i];
-    var row = this._rows[actualIndex];
-    var rowErrors = rowErrorMap[actualIndex] || [];
-    var rowClass = "";
-
-    if (rowErrors.length) {
-      rowClass = "errorRow";
-    } else if (row.isModified === true) {
-      rowClass = "modifiedRow";
+  _renderVisibleOnly() {
+    var tbody = this.shadowRoot.getElementById("tbodyVirtual");
+    if (!tbody) {
+      return;
     }
 
-    html += '<tr class="' + rowClass + '">';
+    var visibleIndexes = this._filteredIndexes.slice(0, this._renderCount);
+    var rowErrorMap = this._getRowErrorMap();
+    var html = "";
+    var i = 0;
+    var j = 0;
 
-    for (j = 0; j < this._columns.length; j++) {
-      html += '<td style="width:' + this._columns[j].width + '">' + this._renderCell(row, actualIndex, this._columns[j], rowErrors) + '</td>';
+    for (i = 0; i < visibleIndexes.length; i++) {
+      var actualIndex = visibleIndexes[i];
+      var row = this._rows[actualIndex];
+      var rowErrors = rowErrorMap[actualIndex] || [];
+      var rowClass = "";
+
+      if (rowErrors.length) {
+        rowClass = "errorRow";
+      } else if (row.isModified === true) {
+        rowClass = "modifiedRow";
+      }
+
+      html += '<tr class="' + rowClass + '">';
+
+      for (j = 0; j < this._columns.length; j++) {
+        html += '<td style="width:' + this._columns[j].width + '">' + this._renderCell(row, actualIndex, this._columns[j], rowErrors) + '</td>';
+      }
+
+      html += '</tr>';
     }
 
-    html += '</tr>';
+    tbody.innerHTML = html;
+    this._bindCellEvents();
+    this._updateVisibleCountText();
   }
 
-  tbody.innerHTML = html;
-  this._bindCellEvents();
-}
+  _handleScroll() {
+    var gridWrap = this.shadowRoot.getElementById("gridWrap");
+    if (!gridWrap) {
+      return;
+    }
 
+    var nearBottom = gridWrap.scrollTop + gridWrap.clientHeight >= gridWrap.scrollHeight - 100;
 
- _handleScroll() {
-  return;
-}
+    if (nearBottom) {
+      if (this._renderCount < this._filteredIndexes.length) {
+        this._renderCount = this._renderCount + this._pageSize;
 
+        if (this._renderCount > this._filteredIndexes.length) {
+          this._renderCount = this._filteredIndexes.length;
+        }
+
+        this._renderVisibleOnly();
+      }
+    }
+  }
 
   _renderCell(rowData, rowIndex, columnData, rowErrors) {
     var cellHasError = this._hasFieldError(columnData.key, rowErrors);
@@ -1014,7 +1033,7 @@ if (positionSearchBox) {
           that._validationResult = "true";
           that._setProperties();
           that._updateVisibleCountText();
-          that._renderVisibleOnly();
+          that._render();
           that._fireFieldChange(rowIndex, fieldName, value);
         });
 
