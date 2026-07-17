@@ -400,22 +400,19 @@ class PositionManageWidget extends HTMLElement {
     return companyPass && searchPass;
   }
 
-  _rebuildFilteredIndexes() {
-    var i = 0;
-    this._filteredIndexes = [];
+ _rebuildFilteredIndexes() {
+  var i = 0;
+  this._filteredIndexes = [];
 
-    for (i = 0; i < this._rows.length; i++) {
-      if (this._isRowVisible(this._rows[i])) {
-        this._filteredIndexes.push(i);
-      }
+  for (i = 0; i < this._rows.length; i++) {
+    if (this._isRowVisible(this._rows[i])) {
+      this._filteredIndexes.push(i);
     }
-
-    if (this._visibleStart > this._filteredIndexes.length) {
-      this._visibleStart = 0;
-    }
-
-    this._recalculateVirtualSpace();
   }
+
+  this._visibleStart = 0;
+}
+
 
   _recalculateVirtualSpace() {
     var total = this._filteredIndexes.length;
@@ -875,67 +872,48 @@ if (positionSearchBox) {
     this._renderVisibleOnly();
   }
 
-  _renderVisibleOnly() {
-    var tbody = this.shadowRoot.getElementById("tbodyVirtual");
-    if (!tbody) {
-      return;
-    }
-
-    this._recalculateVirtualSpace();
-
-    var visibleIndexes = this._getVisibleIndexes();
-    var rowErrorMap = this._getRowErrorMap();
-    var html = "";
-    var colCount = this._columns.length;
-    var i = 0;
-    var j = 0;
-
-    if (this._topSpacer > 0) {
-      html += '<tr class="spacer-row"><td colspan="' + colCount + '"><div class="spacer" style="height:' + this._topSpacer + 'px;"></div></td></tr>';
-    }
-
-    for (i = 0; i < visibleIndexes.length; i++) {
-      var actualIndex = visibleIndexes[i];
-      var row = this._rows[actualIndex];
-      var rowErrors = rowErrorMap[actualIndex] || [];
-      var rowClass = "";
-
-      if (rowErrors.length) {
-        rowClass = "errorRow";
-      } else if (row.isModified === true) {
-        rowClass = "modifiedRow";
-      }
-
-      html += '<tr class="' + rowClass + '">';
-
-      for (j = 0; j < this._columns.length; j++) {
-        html += '<td style="width:' + this._columns[j].width + '">' + this._renderCell(row, actualIndex, this._columns[j], rowErrors) + '</td>';
-      }
-
-      html += '</tr>';
-    }
-
-    if (this._bottomSpacer > 0) {
-      html += '<tr class="spacer-row"><td colspan="' + colCount + '"><div class="spacer" style="height:' + this._bottomSpacer + 'px;"></div></td></tr>';
-    }
-
-    tbody.innerHTML = html;
-    this._bindCellEvents();
+ _renderVisibleOnly() {
+  var tbody = this.shadowRoot.getElementById("tbodyVirtual");
+  if (!tbody) {
+    return;
   }
 
-  _handleScroll() {
-    var gridWrap = this.shadowRoot.getElementById("gridWrap");
-    if (!gridWrap) {
-      return;
+  var visibleIndexes = this._filteredIndexes;
+  var rowErrorMap = this._getRowErrorMap();
+  var html = "";
+  var i = 0;
+  var j = 0;
+
+  for (i = 0; i < visibleIndexes.length; i++) {
+    var actualIndex = visibleIndexes[i];
+    var row = this._rows[actualIndex];
+    var rowErrors = rowErrorMap[actualIndex] || [];
+    var rowClass = "";
+
+    if (rowErrors.length) {
+      rowClass = "errorRow";
+    } else if (row.isModified === true) {
+      rowClass = "modifiedRow";
     }
 
-    var nextStart = Math.floor(gridWrap.scrollTop / this._rowHeight);
+    html += '<tr class="' + rowClass + '">';
 
-    if (nextStart !== this._visibleStart) {
-      this._visibleStart = nextStart;
-      this._renderVisibleOnly();
+    for (j = 0; j < this._columns.length; j++) {
+      html += '<td style="width:' + this._columns[j].width + '">' + this._renderCell(row, actualIndex, this._columns[j], rowErrors) + '</td>';
     }
+
+    html += '</tr>';
   }
+
+  tbody.innerHTML = html;
+  this._bindCellEvents();
+}
+
+
+ _handleScroll() {
+  return;
+}
+
 
   _renderCell(rowData, rowIndex, columnData, rowErrors) {
     var cellHasError = this._hasFieldError(columnData.key, rowErrors);
