@@ -581,6 +581,12 @@ class PositionManageWidget extends HTMLElement {
 
     return true;
   }
+ _updateVisibleCountText() {
+    var visibleText = this.shadowRoot.getElementById("visibleCountText");
+    if (visibleText) {
+      visibleText.textContent = "Visible: " + this._filteredIndexes.length;
+    }
+  }
 
   _toggleSelectAllVisible(checked) {
     var i = 0;
@@ -594,8 +600,10 @@ class PositionManageWidget extends HTMLElement {
     this._validationResult = "true";
     this._lastEvent = "manageSelectAll|" + (checked ? "true" : "false");
     this._setProperties();
-    this._render();
+    this._updateVisibleCountText();
+    this._renderVisibleOnly();
     this._dispatch("onDataChange");
+
   }
 
   _createDropdownPanel() {
@@ -796,7 +804,7 @@ class PositionManageWidget extends HTMLElement {
     html += '<div class="toolbarWrap">';
     html += '<div class="toolbarLeft">';
     html += '<input id="positionSearchBox" class="searchBox" type="text" placeholder="Search Position ID..." value="' + this._escapeHtml(String(this._positionSearchText || "")) + '" />';
-    html += '<span class="muted">Visible: ' + this._filteredIndexes.length + '</span>';
+    html += '<span class="muted" id="visibleCountText">Visible: ' + this._filteredIndexes.length + '</span>';
     html += '</div>';
 
     html += '<div class="toolbarRight">';
@@ -850,14 +858,16 @@ class PositionManageWidget extends HTMLElement {
     }
 
     var positionSearchBox = this.shadowRoot.getElementById("positionSearchBox");
-    if (positionSearchBox) {
-      positionSearchBox.addEventListener("input", function() {
-        this._positionSearchText = positionSearchBox.value || "";
-        this._visibleStart = 0;
-        this._rebuildFilteredIndexes();
-        this._render();
-      }.bind(this));
-    }
+if (positionSearchBox) {
+  positionSearchBox.addEventListener("input", function() {
+    this._positionSearchText = positionSearchBox.value || "";
+    this._visibleStart = 0;
+    this._rebuildFilteredIndexes();
+    this._updateVisibleCountText();
+    this._renderVisibleOnly();
+  }.bind(this));
+}
+
 
     var gridWrap = this.shadowRoot.getElementById("gridWrap");
     gridWrap.addEventListener("scroll", this._handleScroll.bind(this));
@@ -1025,7 +1035,8 @@ class PositionManageWidget extends HTMLElement {
           that._validationErrors = [];
           that._validationResult = "true";
           that._setProperties();
-          that._render();
+          that._updateVisibleCountText();
+          that._renderVisibleOnly();
           that._fireFieldChange(rowIndex, fieldName, value);
         });
 
