@@ -1354,21 +1354,25 @@ class PositionManageWidget extends HTMLElement {
   }
 
   setRowOptions(rowIndex, fieldName, optionsStr) {
-    try {
-      var optionsArray = JSON.parse(optionsStr || "[]");
+  try {
+    var optionsArray = JSON.parse(optionsStr || "[]");
 
-      if (!Array.isArray(optionsArray)) {
-        optionsArray = [];
-      }
+    if (!Array.isArray(optionsArray)) {
+      optionsArray = [];
+    }
 
-      if (!this._rowOptions[rowIndex]) {
-        this._rowOptions[rowIndex] = {};
-      }
+    if (!this._rowOptions[rowIndex]) {
+      this._rowOptions[rowIndex] = {};
+    }
 
-      this._rowOptions[rowIndex][fieldName] = optionsArray;
-      this._renderVisibleOnly();
-    } catch (e) {}
-  }
+    this._rowOptions[rowIndex][fieldName] = optionsArray;
+  } catch (e) {}
+}
+
+commitRowOptions() {
+  this._renderVisibleOnly();
+}
+
 
   setCellValue(rowIndex, fieldName, value) {
     if (!this._rows[rowIndex]) {
