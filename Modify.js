@@ -1,5 +1,5 @@
 
-/*
+
 class PositionManageWidget extends HTMLElement {
   constructor() {
     super();
@@ -23,7 +23,7 @@ class PositionManageWidget extends HTMLElement {
       employeeClass: [],
       overtime: [],
       specialApproval: []
-    };  */
+    };  
     this._rowOptions = {};
     this._companyFilter = [];
 
