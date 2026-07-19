@@ -18,11 +18,7 @@ class PositionManageWidget extends HTMLElement {
       payGradeGroup: [],
       payGradeLevel: [],
       nationality: [],
-      accommodation: [],
-      transport: [],
-      employeeClass: [],
-      overtime: [],
-      specialApproval: []
+      employeesubclass: []
     };  
     this._rowOptions = {};
     this._companyFilter = [];
@@ -54,12 +50,8 @@ class PositionManageWidget extends HTMLElement {
       { key: "payGradeGroup",   label: "Pay Grade",        type: "select",   width: "130px" },
       { key: "payGradeLevel",   label: "Level",            type: "select",   width: "110px" },
       { key: "hireDate",        label: "Hire Date",        type: "date",     width: "150px" },
-      { key: "nationality",     label: "Nationality",      type: "select",   width: "160px" },
-      { key: "accommodation",   label: "Accommodation",    type: "select",   width: "160px" },
-      { key: "transport",       label: "Transport",        type: "select",   width: "150px" },
-      { key: "employeeClass",   label: "Employee Class",   type: "select",   width: "160px" },
-      { key: "overtime",        label: "Overtime",         type: "select",   width: "130px" },
-      { key: "specialApproval", label: "Special Approval", type: "select",   width: "170px" },
+      { key: "nationality",     label: "Nationality",      type: "select",   width: "160px" }, 
+      { key: "employeesubclass", label: "Employee Sub Class", type: "select",   width: "170px" },
       { key: "comment",         label: "Comment",          type: "text",     width: "260px" }
     ];
 
@@ -353,11 +345,7 @@ class PositionManageWidget extends HTMLElement {
       if (!row.payGradeLevel)   { rowErrors.push("Level is required"); }
       if (!row.hireDate)        { rowErrors.push("Hire Date is required"); }
       if (!row.nationality)     { rowErrors.push("Nationality is required"); }
-      if (!row.accommodation)   { rowErrors.push("Accommodation is required"); }
-      if (!row.transport)       { rowErrors.push("Transport is required"); }
-      if (!row.employeeClass)   { rowErrors.push("Employee Class is required"); }
-      if (!row.overtime)        { rowErrors.push("Overtime is required"); }
-      if (!row.specialApproval) { rowErrors.push("Special Approval is required"); }
+      if (!row.employeesubclass) { rowErrors.push("Special Approval is required"); }
 
       if (row.employeeId && idMap[row.employeeId] > 1) {
         rowErrors.push("Duplicate Position ID in selected rows");
@@ -839,11 +827,7 @@ class PositionManageWidget extends HTMLElement {
         (fieldName === "payGradeLevel"   && text.indexOf("Level")            === 0) ||
         (fieldName === "hireDate"        && text.indexOf("Hire Date")        === 0) ||
         (fieldName === "nationality"     && text.indexOf("Nationality")      === 0) ||
-        (fieldName === "accommodation"   && text.indexOf("Accommodation")    === 0) ||
-        (fieldName === "transport"       && text.indexOf("Transport")        === 0) ||
-        (fieldName === "employeeClass"   && text.indexOf("Employee Class")   === 0) ||
-        (fieldName === "overtime"        && text.indexOf("Overtime")         === 0) ||
-        (fieldName === "specialApproval" && text.indexOf("Special Approval") === 0) ||
+        (fieldName === "employeesubclass" && text.indexOf("Special Approval") === 0) ||
         (fieldName === "comment"         && text.indexOf("Comment")          === 0)
       ) {
         messages.push(text);
