@@ -1,6 +1,6 @@
 {
   "id": "com.example.positionentry",
-  "version": "9.0.6",
+  "version": "9.0.8",
   "name": "Position Manage Widget",
   "description": "Manage, load, modify and delete position data for SAC",
   "newInstancePrefix": "PositionManage",
@@ -20,15 +20,15 @@
       "type": "string",
       "default": "[]"
     },
-    "lastEvent": {
+    "lastevent": {
       "type": "string",
       "default": ""
     },
-    "validationResult": {
+    "validationresult": {
       "type": "string",
       "default": "true"
     },
-    "validationErrors": {
+    "validationerrors": {
       "type": "string",
       "default": "[]"
     }
@@ -101,13 +101,16 @@
         }
       ]
     },
-
     "getVisibleIndexForRow": {
-    "description": "Convert actual row index to visible position index",
-    "parameters": [{ "name": "actualRowIndex", "type": "integer" }],
-    "returnType": "integer"
+      "description": "Convert actual row index to visible position index",
+      "parameters": [
+        {
+          "name": "actualRowIndex",
+          "type": "integer"
+        }
+      ],
+      "returnType": "integer"
     },
-    
     "setCellValue": {
       "description": "Set cell value programmatically",
       "parameters": [
