@@ -1,5 +1,3 @@
-console.log("Minimal Modify.js loaded");
-
 
 class PositionManageWidget extends HTMLElement {
   constructor() {
@@ -265,10 +263,6 @@ class PositionManageWidget extends HTMLElement {
     this._dispatch("onDataChange");
   }
 
-  if (!customElements.get("com-example-position-managee")) {
-  customElements.define("com-example-position-managee", PositionManageWidget);
-  console.log("Minimal widget registered");
-}
   clear() {
     this._rows = [];
     this._rowOptions = {};
