@@ -108,10 +108,10 @@ class PositionManageWidget extends HTMLElement {
   }
 
   // ─────────────────────────────────────────────
-  // PUBLIC API — GETTERS
+  // PUBLIC API — GETTERS---need to
   // ─────────────────────────────────────────────
 
-  getManageData() {
+  /*getManageData() {
     return JSON.stringify(this._rows || []);
   }
 
@@ -135,7 +135,7 @@ class PositionManageWidget extends HTMLElement {
 
   getLastEvent()        { return this._lastEvent || ""; }
   getValidationErrors() { return JSON.stringify(this._validationErrors || []); }
-  getValidationResult() { return this._validationResult || "false"; }
+  getValidationResult() { return this._validationResult || "false"; }*/
 
   // ─────────────────────────────────────────────
   // PUBLIC API — SETTERS
