@@ -44,47 +44,43 @@
     },
     "button1Text": { "type": "string", "default": "Load Data" },
     "button1Action": { "type": "string", "default": "loadData" },
-    "button1Style": { "type": "string", "default": "default", "enum": ["default", "primary", "danger"] },
+    "button1Style": { "type": "string", "default": "default" },
 
     "button2Text": { "type": "string", "default": "Validate" },
     "button2Action": { "type": "string", "default": "validate" },
-    "button2Style": { "type": "string", "default": "default", "enum": ["default", "primary", "danger"] },
+    "button2Style": { "type": "string", "default": "default" },
 
     "button3Text": { "type": "string", "default": "Save Changes" },
     "button3Action": { "type": "string", "default": "saveData" },
-    "button3Style": { "type": "string", "default": "primary", "enum": ["default", "primary", "danger"] },
+    "button3Style": { "type": "string", "default": "primary" },
 
     "button4Text": { "type": "string", "default": "Delete Selected" },
     "button4Action": { "type": "string", "default": "deleteSelected" },
-    "button4Style": { "type": "string", "default": "danger", "enum": ["default", "primary", "danger"] },
+    "button4Style": { "type": "string", "default": "danger" },
 
     "button5Text": { "type": "string", "default": "" },
     "button5Action": { "type": "string", "default": "" },
-    "button5Style": { "type": "string", "default": "default", "enum": ["default", "primary", "danger"] },
+    "button5Style": { "type": "string", "default": "default" },
 
     "button6Text": { "type": "string", "default": "" },
     "button6Action": { "type": "string", "default": "" },
-    "button6Style": { "type": "string", "default": "default", "enum": ["default", "primary", "danger"] },
+    "button6Style": { "type": "string", "default": "default" },
 
     "managedata": {
       "type": "string",
-      "default": "[]",
-      "hidden": true
+      "default": "[]"
     },
     "lastevent": {
       "type": "string",
-      "default": "",
-      "hidden": true
+      "default": ""
     },
     "validationresult": {
       "type": "string",
-      "default": "true",
-      "hidden": true
+      "default": "true"
     },
     "validationerrors": {
       "type": "string",
-      "default": "[]",
-      "hidden": true
+      "default": "[]"
     }
   },
   "methods": {
