@@ -42,30 +42,78 @@
       "type": "boolean",
       "default": true
     },
-    "button1Text": { "type": "string", "default": "Load Data" },
-    "button1Action": { "type": "string", "default": "loadData" },
-    "button1Style": { "type": "string", "default": "default" },
-
-    "button2Text": { "type": "string", "default": "Validate" },
-    "button2Action": { "type": "string", "default": "validate" },
-    "button2Style": { "type": "string", "default": "default" },
-
-    "button3Text": { "type": "string", "default": "Save Changes" },
-    "button3Action": { "type": "string", "default": "saveData" },
-    "button3Style": { "type": "string", "default": "primary" },
-
-    "button4Text": { "type": "string", "default": "Delete Selected" },
-    "button4Action": { "type": "string", "default": "deleteSelected" },
-    "button4Style": { "type": "string", "default": "danger" },
-
-    "button5Text": { "type": "string", "default": "" },
-    "button5Action": { "type": "string", "default": "" },
-    "button5Style": { "type": "string", "default": "default" },
-
-    "button6Text": { "type": "string", "default": "" },
-    "button6Action": { "type": "string", "default": "" },
-    "button6Style": { "type": "string", "default": "default" },
-
+    "button1Text": {
+      "type": "string",
+      "default": "Load Data"
+    },
+    "button1Action": {
+      "type": "string",
+      "default": "loadData"
+    },
+    "button1Style": {
+      "type": "string",
+      "default": "default"
+    },
+    "button2Text": {
+      "type": "string",
+      "default": "Validate"
+    },
+    "button2Action": {
+      "type": "string",
+      "default": "validate"
+    },
+    "button2Style": {
+      "type": "string",
+      "default": "default"
+    },
+    "button3Text": {
+      "type": "string",
+      "default": "Save Changes"
+    },
+    "button3Action": {
+      "type": "string",
+      "default": "saveData"
+    },
+    "button3Style": {
+      "type": "string",
+      "default": "primary"
+    },
+    "button4Text": {
+      "type": "string",
+      "default": "Delete Selected"
+    },
+    "button4Action": {
+      "type": "string",
+      "default": "deleteSelected"
+    },
+    "button4Style": {
+      "type": "string",
+      "default": "danger"
+    },
+    "button5Text": {
+      "type": "string",
+      "default": ""
+    },
+    "button5Action": {
+      "type": "string",
+      "default": ""
+    },
+    "button5Style": {
+      "type": "string",
+      "default": "default"
+    },
+    "button6Text": {
+      "type": "string",
+      "default": ""
+    },
+    "button6Action": {
+      "type": "string",
+      "default": ""
+    },
+    "button6Style": {
+      "type": "string",
+      "default": "default"
+    },
     "managedata": {
       "type": "string",
       "default": "[]"
@@ -84,30 +132,77 @@
     }
   },
   "methods": {
-    "getManageData": { "description": "Get current table data as JSON", "returnType": "string" },
+    "getManageData": {
+      "description": "Get current table data as JSON",
+      "returnType": "string"
+    },
     "setManageData": {
       "description": "Override table data manually",
-      "parameters": [{ "name": "dataStr", "type": "string" }]
+      "parameters": [
+        {
+          "name": "dataStr",
+          "type": "string"
+        }
+      ]
     },
-    "getModifiedRows": { "description": "Get modified rows", "returnType": "string" },
-    "getSelectedRows": { "description": "Get selected rows", "returnType": "string" },
-    "clear": { "description": "Clear all rows" },
-    "validate": { "description": "Validate selected rows", "returnType": "string" },
-    "getLastEvent": { "description": "Get last event", "returnType": "string" },
-    "getValidationErrors": { "description": "Get validation errors", "returnType": "string" },
-    "getValidationResult": { "description": "Get validation result", "returnType": "string" },
-    "loadData": { "description": "Trigger load event" },
-    "saveData": { "description": "Trigger save event" },
-    "deleteSelected": { "description": "Delete selected rows locally" },
+    "getModifiedRows": {
+      "description": "Get modified rows",
+      "returnType": "string"
+    },
+    "getSelectedRows": {
+      "description": "Get selected rows",
+      "returnType": "string"
+    },
+    "clear": {
+      "description": "Clear all rows"
+    },
+    "validate": {
+      "description": "Validate selected rows",
+      "returnType": "string"
+    },
+    "getLastEvent": {
+      "description": "Get last event",
+      "returnType": "string"
+    },
+    "getValidationErrors": {
+      "description": "Get validation errors",
+      "returnType": "string"
+    },
+    "getValidationResult": {
+      "description": "Get validation result",
+      "returnType": "string"
+    },
+    "loadData": {
+      "description": "Trigger load event"
+    },
+    "saveData": {
+      "description": "Trigger save event"
+    },
+    "deleteSelected": {
+      "description": "Delete selected rows locally"
+    },
     "triggerButtonAction": {
       "description": "Trigger a custom button action",
-      "parameters": [{ "name": "actionName", "type": "string" }]
+      "parameters": [
+        {
+          "name": "actionName",
+          "type": "string"
+        }
+      ]
     }
   },
   "events": {
-    "onDataChange": { "description": "Triggered when data changes" },
-    "onValidate": { "description": "Triggered after validate" },
-    "onReady": { "description": "Triggered when widget is ready" },
-    "onCustomButton": { "description": "Triggered when a custom button is clicked" }
+    "onDataChange": {
+      "description": "Triggered when data changes"
+    },
+    "onValidate": {
+      "description": "Triggered after validate"
+    },
+    "onReady": {
+      "description": "Triggered when widget is ready"
+    },
+    "onCustomButton": {
+      "description": "Triggered when a custom button is clicked"
+    }
   }
 }
