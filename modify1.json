@@ -11,12 +11,14 @@
       "kind": "main",
       "tag": "com-example-dynamic-position-manage",
       "url": "https://arnav973.github.io/position-entry/webcomponent.js",
+      "integrity": "",
       "ignoreIntegrity": true
     },
     {
       "kind": "styling",
       "tag": "com-example-dynamic-position-manage-builder",
       "url": "https://arnav973.github.io/position-entry/builder.js",
+      "integrity": "",
       "ignoreIntegrity": true
     }
   ],
