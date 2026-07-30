@@ -1,6 +1,6 @@
 {
   "id": "com.example.dynamicpositionmanage",
-  "version": "11.0.0",
+  "version": "11.0.1",
   "name": "Dynamic Position Manage Widget",
   "description": "Production-ready dynamic SAC custom widget with configurable columns, buttons, model binding and editable table UI.",
   "newInstancePrefix": "DynamicPositionManage",
