@@ -1,11 +1,13 @@
 {
   "id": "com.example.dynamicmodelwidget",
-  "version": "1.0.13",
+  "version": "2.0.13",
   "name": "Dynamic Model Table Widget",
-  "description": "Custom widget with native model/dimension/measure selection in Builder Panel, dynamic buttons, and editable table.",
+  "description": "Custom widget with native model/dimension/measure selection and dynamic buttons configurable from the Styling Panel.",
   "newInstancePrefix": "DynamicModelWidget",
   "vendor": "Arnav",
-  "icon": "sap-icon://table-view",
+  "icon": "https://arnav973.github.io/position-entry/icon.png",
+  "eula": "",
+  "license": "",
   "webcomponents": [
     {
       "kind": "main",
@@ -23,135 +25,67 @@
     }
   ],
   "properties": {
-    "myDataBinding": {
-      "type": "dataBinding"
-    },
     "title": {
       "type": "string",
+      "description": "Widget title shown at the top",
       "default": "Dynamic Model Table"
     },
     "searchPlaceholder": {
       "type": "string",
+      "description": "Placeholder text for the search box",
       "default": "Search..."
     },
     "pageSize": {
       "type": "integer",
+      "description": "Number of rows per page",
       "default": 50
     },
     "allowEditMeasures": {
       "type": "boolean",
+      "description": "Whether measure cells are editable",
       "default": true
     },
-    "button1Text": {
+    "buttonsConfig": {
       "type": "string",
-      "default": "Load Data"
-    },
-    "button1Action": {
-      "type": "string",
-      "default": "loadData"
-    },
-    "button1Style": {
-      "type": "string",
-      "default": "default"
-    },
-    "button2Text": {
-      "type": "string",
-      "default": "Validate"
-    },
-    "button2Action": {
-      "type": "string",
-      "default": "validate"
-    },
-    "button2Style": {
-      "type": "string",
-      "default": "default"
-    },
-    "button3Text": {
-      "type": "string",
-      "default": "Save Changes"
-    },
-    "button3Action": {
-      "type": "string",
-      "default": "saveData"
-    },
-    "button3Style": {
-      "type": "string",
-      "default": "primary"
-    },
-    "button4Text": {
-      "type": "string",
-      "default": "Delete Selected"
-    },
-    "button4Action": {
-      "type": "string",
-      "default": "deleteSelected"
-    },
-    "button4Style": {
-      "type": "string",
-      "default": "danger"
-    },
-    "button5Text": {
-      "type": "string",
-      "default": ""
-    },
-    "button5Action": {
-      "type": "string",
-      "default": ""
-    },
-    "button5Style": {
-      "type": "string",
-      "default": "default"
-    },
-    "button6Text": {
-      "type": "string",
-      "default": ""
-    },
-    "button6Action": {
-      "type": "string",
-      "default": ""
-    },
-    "button6Style": {
-      "type": "string",
-      "default": "default"
+      "description": "JSON array of button definitions created from the Styling Panel",
+      "default": "[]"
     },
     "managedata": {
       "type": "string",
+      "description": "Current table data as JSON",
       "default": "[]"
     },
     "lastevent": {
       "type": "string",
+      "description": "Last internal event fired",
       "default": ""
     },
     "validationresult": {
       "type": "string",
+      "description": "Result of last validation",
       "default": "true"
     },
     "validationerrors": {
       "type": "string",
+      "description": "Validation errors as JSON",
       "default": "[]"
     }
   },
   "methods": {
     "getManageData": {
-      "description": "Get current table data as JSON",
-      "returnType": "string"
+      "description": "Get current table data as JSON string"
     },
     "setManageData": {
       "description": "Override table data manually",
       "parameters": [
-        {
-          "name": "dataStr",
-          "type": "string"
-        }
+        { "name": "dataStr", "type": "string", "description": "JSON array string" }
       ]
     },
     "getModifiedRows": {
-      "description": "Get modified rows",
-      "returnType": "string"
+      "description": "Get modified rows as JSON string"
     },
     "getSelectedRows": {
-      "description": "Get selected rows",
-      "returnType": "string"
+      "description": "Get selected rows as JSON string"
     },
     "clear": {
       "description": "Clear all rows"
@@ -161,11 +95,11 @@
       "returnType": "string"
     },
     "getLastEvent": {
-      "description": "Get last event",
+      "description": "Get last internal event",
       "returnType": "string"
     },
     "getValidationErrors": {
-      "description": "Get validation errors",
+      "description": "Get validation errors as JSON string",
       "returnType": "string"
     },
     "getValidationResult": {
@@ -173,7 +107,7 @@
       "returnType": "string"
     },
     "loadData": {
-      "description": "Trigger load event"
+      "description": "Reload data from the current data binding"
     },
     "saveData": {
       "description": "Trigger save event"
@@ -182,27 +116,40 @@
       "description": "Delete selected rows locally"
     },
     "triggerButtonAction": {
-      "description": "Trigger a custom button action",
+      "description": "Trigger a dynamic button action by name",
       "parameters": [
-        {
-          "name": "actionName",
-          "type": "string"
-        }
+        { "name": "actionName", "type": "string", "description": "The action identifier" }
       ]
     }
   },
   "events": {
     "onDataChange": {
-      "description": "Triggered when data changes"
+      "description": "Fired when data changes"
     },
     "onValidate": {
-      "description": "Triggered after validate"
+      "description": "Fired after validate() is called"
     },
     "onReady": {
-      "description": "Triggered when widget is ready"
+      "description": "Fired when the widget is initialized"
     },
     "onCustomButton": {
-      "description": "Triggered when a custom button is clicked"
+      "description": "Fired when a dynamic button is clicked"
+    }
+  },
+  "dataBindings": {
+    "myDataBinding": {
+      "feeds": [
+        {
+          "id": "dimensions",
+          "description": "Dimensions",
+          "type": "dimension"
+        },
+        {
+          "id": "measures",
+          "description": "Measures",
+          "type": "mainStructureMember"
+        }
+      ]
     }
   }
 }
