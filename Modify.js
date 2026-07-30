@@ -51,6 +51,7 @@ class PositionManageWidget extends HTMLElement {
       { key: "hireDate",        label: "Hire Date",        type: "date",     width: "150px" },
       { key: "nationality",     label: "Nationality",      type: "select",   width: "160px" }, 
       { key: "employeesubclass", label: "Employee Sub Class", type: "select",   width: "170px" },
+      { key: "proposed_salary", label: "Proposed Salary", type: "select",   width: "170px" },
       { key: "comment",         label: "Comment",          type: "text",     width: "260px" }
     ];
 
@@ -345,7 +346,8 @@ class PositionManageWidget extends HTMLElement {
       if (!row.hireDate)        { rowErrors.push("Hire Date is required"); }
       if (!row.nationality)     { rowErrors.push("Nationality is required"); }
       if (!row.employeesubclass) { rowErrors.push("Special Approval is required"); }
-
+      if (!row.proposed_salary) { rowErrors.push("Proposed Salary is required"); }
+      
       if (row.employeeId && idMap[row.employeeId] > 1) {
         rowErrors.push("Duplicate Position ID in selected rows");
       }
@@ -827,7 +829,9 @@ class PositionManageWidget extends HTMLElement {
         (fieldName === "hireDate"        && text.indexOf("Hire Date")        === 0) ||
         (fieldName === "nationality"     && text.indexOf("Nationality")      === 0) ||
         (fieldName === "employeesubclass" && text.indexOf("Special Approval") === 0) ||
+        (fieldName === "proposed_salary" && text.indexOf("Proposed Salary") === 0) ||
         (fieldName === "comment"         && text.indexOf("Comment")          === 0)
+        
       ) {
         messages.push(text);
       }
