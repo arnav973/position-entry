@@ -1,0 +1,167 @@
+{
+  "id": "com.example.positionentry",
+  "version": "9.0.9",
+  "name": "Position Manage Widgett",
+  "description": "Manage, load, modify and delete position data for SAC",
+  "newInstancePrefix": "PositionManage",
+  "vendor": "Arnav choudhary",
+  "icon": "sap-icon://table-view",
+  "webcomponents": [
+    {
+      "kind": "main",
+      "tag": "com-example-position-managee",
+      "url": "/Modify.js",
+      "integrity": "",
+      "ignoreIntegrity": true
+    }
+  ],
+  "properties": {
+    "managedata": {
+      "type": "string",
+      "default": "[]"
+    },
+    "lastevent": {
+      "type": "string",
+      "default": ""
+    },
+    "validationresult": {
+      "type": "string",
+      "default": "true"
+    },
+    "validationerrors": {
+      "type": "string",
+      "default": "[]"
+    }
+  },
+  "methods": {
+    "getManageData": {
+      "description": "Get manage tab data",
+      "returnType": "string"
+    },
+    "setManageData": {
+      "description": "Set manage tab data",
+      "parameters": [
+        {
+          "name": "dataStr",
+          "type": "string"
+        }
+      ]
+    },
+    "getModifiedRows": {
+      "description": "Get only modified rows",
+      "returnType": "string"
+    },
+    "getSelectedRows": {
+      "description": "Get only selected rows",
+      "returnType": "string"
+    },
+    "clear": {
+      "description": "Clear all manage data"
+    },
+    "validate": {
+      "description": "Validate selected manage rows",
+      "returnType": "string"
+    },
+    "setOptions": {
+      "description": "Set dropdown options for a field",
+      "parameters": [
+        {
+          "name": "fieldName",
+          "type": "string"
+        },
+        {
+          "name": "optionsStr",
+          "type": "string"
+        }
+      ]
+    },
+    "setCompanyFilter": {
+      "description": "Filter rows by selected company codes",
+      "parameters": [
+        {
+          "name": "filterStr",
+          "type": "string"
+        }
+      ]
+    },
+    "setRowOptions": {
+      "description": "Set row-specific dropdown options",
+      "parameters": [
+        {
+          "name": "rowIndex",
+          "type": "integer"
+        },
+        {
+          "name": "fieldName",
+          "type": "string"
+        },
+        {
+          "name": "optionsStr",
+          "type": "string"
+        }
+      ]
+    },
+    "getVisibleIndexForRow": {
+      "description": "Convert actual row index to visible position index",
+      "parameters": [
+        {
+          "name": "actualRowIndex",
+          "type": "integer"
+        }
+      ],
+      "returnType": "integer"
+    },
+    "setCellValue": {
+      "description": "Set cell value programmatically",
+      "parameters": [
+        {
+          "name": "rowIndex",
+          "type": "integer"
+        },
+        {
+          "name": "fieldName",
+          "type": "string"
+        },
+        {
+          "name": "value",
+          "type": "string"
+        }
+      ]
+    },
+    "commitRowOptions": {
+      "description": "Commit all row options and trigger a single re-render"
+    },
+    "getLastEvent": {
+      "description": "Get last widget event payload",
+      "returnType": "string"
+    },
+    "getValidationErrors": {
+      "description": "Get validation error details",
+      "returnType": "string"
+    },
+    "getValidationResult": {
+      "description": "Get validation result",
+      "returnType": "string"
+    },
+    "loadData": {
+      "description": "Trigger load data event"
+    },
+    "saveData": {
+      "description": "Trigger save data event"
+    },
+    "deleteSelected": {
+      "description": "Trigger delete selected event"
+    }
+  },
+  "events": {
+    "onDataChange": {
+      "description": "Triggered when widget data changes"
+    },
+    "onValidate": {
+      "description": "Triggered when validation runs"
+    },
+    "onReady": {
+      "description": "Triggered when widget is ready"
+    }
+  }
+}
