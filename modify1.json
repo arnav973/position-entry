@@ -1,232 +1,117 @@
 {
-  "id": "com.example.dynamicpositionmanage",
-  "version": "11.0.1",
-  "name": "Dynamic Position Manage Widget",
-  "description": "Production-ready dynamic SAC custom widget with configurable columns, buttons, model binding and editable table UI.",
-  "newInstancePrefix": "DynamicPositionManage",
+  "id": "com.example.dynamicmodelwidget",
+  "version": "1.0.13",
+  "name": "Dynamic Model Table Widget",
+  "description": "Custom widget with native model/dimension/measure selection in Builder Panel, dynamic buttons, and editable table.",
+  "newInstancePrefix": "DynamicModelWidget",
   "vendor": "Arnav",
   "icon": "sap-icon://table-view",
   "webcomponents": [
     {
       "kind": "main",
-      "tag": "com-example-dynamic-position-manage",
+      "tag": "com-example-dynamic-model-widget",
       "url": "https://arnav973.github.io/position-entry/webcomponent.js",
       "integrity": "",
       "ignoreIntegrity": true
     },
     {
       "kind": "styling",
-      "tag": "com-example-dynamic-position-manage-builder",
-      "url": "https://arnav973.github.io/position-entry/builder.js",
+      "tag": "com-example-dynamic-model-widget-styling",
+      "url": "https://arnav973.github.io/position-entry/styling.js",
       "integrity": "",
       "ignoreIntegrity": true
     }
   ],
   "properties": {
-    "managedata": {
-      "type": "string",
-      "default": "[]"
-    },
-    "lastevent": {
-      "type": "string",
-      "default": ""
-    },
-    "validationresult": {
-      "type": "string",
-      "default": "true"
-    },
-    "validationerrors": {
-      "type": "string",
-      "default": "[]"
+    "myDataBinding": {
+      "type": "dataBinding"
     },
     "title": {
       "type": "string",
-      "default": "Dynamic Position Manager"
+      "default": "Dynamic Model Table"
     },
-    "searchplaceholder": {
+    "searchPlaceholder": {
       "type": "string",
       "default": "Search..."
     },
-    "pagesize": {
+    "pageSize": {
       "type": "integer",
       "default": 50
     },
-    "datamode": {
-      "type": "string",
-      "default": "manual"
+    "allowEditMeasures": {
+      "type": "boolean",
+      "default": true
     },
-    "schema": {
+    "button1Text": { "type": "string", "default": "Load Data" },
+    "button1Action": { "type": "string", "default": "loadData" },
+    "button1Style": { "type": "string", "default": "default", "enum": ["default", "primary", "danger"] },
+
+    "button2Text": { "type": "string", "default": "Validate" },
+    "button2Action": { "type": "string", "default": "validate" },
+    "button2Style": { "type": "string", "default": "default", "enum": ["default", "primary", "danger"] },
+
+    "button3Text": { "type": "string", "default": "Save Changes" },
+    "button3Action": { "type": "string", "default": "saveData" },
+    "button3Style": { "type": "string", "default": "primary", "enum": ["default", "primary", "danger"] },
+
+    "button4Text": { "type": "string", "default": "Delete Selected" },
+    "button4Action": { "type": "string", "default": "deleteSelected" },
+    "button4Style": { "type": "string", "default": "danger", "enum": ["default", "primary", "danger"] },
+
+    "button5Text": { "type": "string", "default": "" },
+    "button5Action": { "type": "string", "default": "" },
+    "button5Style": { "type": "string", "default": "default", "enum": ["default", "primary", "danger"] },
+
+    "button6Text": { "type": "string", "default": "" },
+    "button6Action": { "type": "string", "default": "" },
+    "button6Style": { "type": "string", "default": "default", "enum": ["default", "primary", "danger"] },
+
+    "managedata": {
       "type": "string",
-      "default": "[]"
+      "default": "[]",
+      "hidden": true
     },
-    "buttons": {
+    "lastevent": {
       "type": "string",
-      "default": "[]"
+      "default": "",
+      "hidden": true
     },
-    "modelbinding": {
+    "validationresult": {
       "type": "string",
-      "default": "{}"
+      "default": "true",
+      "hidden": true
+    },
+    "validationerrors": {
+      "type": "string",
+      "default": "[]",
+      "hidden": true
     }
   },
   "methods": {
-    "getManageData": {
-      "description": "Get current table data",
-      "returnType": "string"
-    },
+    "getManageData": { "description": "Get current table data as JSON", "returnType": "string" },
     "setManageData": {
-      "description": "Set current table data",
-      "parameters": [
-        {
-          "name": "dataStr",
-          "type": "string"
-        }
-      ]
+      "description": "Override table data manually",
+      "parameters": [{ "name": "dataStr", "type": "string" }]
     },
-    "getModifiedRows": {
-      "description": "Get modified rows only",
-      "returnType": "string"
-    },
-    "getSelectedRows": {
-      "description": "Get selected rows only",
-      "returnType": "string"
-    },
-    "clear": {
-      "description": "Clear all rows"
-    },
-    "validate": {
-      "description": "Validate selected rows",
-      "returnType": "string"
-    },
-    "setOptions": {
-      "description": "Set dropdown options for a field",
-      "parameters": [
-        {
-          "name": "fieldName",
-          "type": "string"
-        },
-        {
-          "name": "optionsStr",
-          "type": "string"
-        }
-      ]
-    },
-    "setRowOptions": {
-      "description": "Set row level dropdown options",
-      "parameters": [
-        {
-          "name": "rowIndex",
-          "type": "integer"
-        },
-        {
-          "name": "fieldName",
-          "type": "string"
-        },
-        {
-          "name": "optionsStr",
-          "type": "string"
-        }
-      ]
-    },
-    "commitRowOptions": {
-      "description": "Re-render after bulk row option changes"
-    },
-    "setCellValue": {
-      "description": "Set a single cell value",
-      "parameters": [
-        {
-          "name": "rowIndex",
-          "type": "integer"
-        },
-        {
-          "name": "fieldName",
-          "type": "string"
-        },
-        {
-          "name": "value",
-          "type": "string"
-        }
-      ]
-    },
-    "getVisibleIndexForRow": {
-      "description": "Convert actual row index to visible row index",
-      "parameters": [
-        {
-          "name": "actualRowIndex",
-          "type": "integer"
-        }
-      ],
-      "returnType": "integer"
-    },
-    "setSchema": {
-      "description": "Set dynamic schema",
-      "parameters": [
-        {
-          "name": "schemaStr",
-          "type": "string"
-        }
-      ]
-    },
-    "setButtons": {
-      "description": "Set dynamic buttons",
-      "parameters": [
-        {
-          "name": "buttonsStr",
-          "type": "string"
-        }
-      ]
-    },
-    "applyResultSet": {
-      "description": "Apply result set using model binding",
-      "parameters": [
-        {
-          "name": "resultSetStr",
-          "type": "string"
-        }
-      ]
-    },
+    "getModifiedRows": { "description": "Get modified rows", "returnType": "string" },
+    "getSelectedRows": { "description": "Get selected rows", "returnType": "string" },
+    "clear": { "description": "Clear all rows" },
+    "validate": { "description": "Validate selected rows", "returnType": "string" },
+    "getLastEvent": { "description": "Get last event", "returnType": "string" },
+    "getValidationErrors": { "description": "Get validation errors", "returnType": "string" },
+    "getValidationResult": { "description": "Get validation result", "returnType": "string" },
+    "loadData": { "description": "Trigger load event" },
+    "saveData": { "description": "Trigger save event" },
+    "deleteSelected": { "description": "Delete selected rows locally" },
     "triggerButtonAction": {
-      "description": "Trigger custom dynamic action",
-      "parameters": [
-        {
-          "name": "actionName",
-          "type": "string"
-        }
-      ]
-    },
-    "getLastEvent": {
-      "description": "Get last event",
-      "returnType": "string"
-    },
-    "getValidationErrors": {
-      "description": "Get validation errors",
-      "returnType": "string"
-    },
-    "getValidationResult": {
-      "description": "Get validation result",
-      "returnType": "string"
-    },
-    "loadData": {
-      "description": "Trigger load data event"
-    },
-    "saveData": {
-      "description": "Trigger save data event"
-    },
-    "deleteSelected": {
-      "description": "Trigger delete selected event"
+      "description": "Trigger a custom button action",
+      "parameters": [{ "name": "actionName", "type": "string" }]
     }
   },
   "events": {
-    "onDataChange": {
-      "description": "Triggered on any row data change"
-    },
-    "onValidate": {
-      "description": "Triggered after validate"
-    },
-    "onReady": {
-      "description": "Triggered when widget is ready"
-    },
-    "onCustomButton": {
-      "description": "Triggered when custom dynamic button clicked"
-    }
+    "onDataChange": { "description": "Triggered when data changes" },
+    "onValidate": { "description": "Triggered after validate" },
+    "onReady": { "description": "Triggered when widget is ready" },
+    "onCustomButton": { "description": "Triggered when a custom button is clicked" }
   }
 }
