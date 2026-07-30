@@ -51,7 +51,7 @@ class PositionManageWidget extends HTMLElement {
       { key: "hireDate",        label: "Hire Date",        type: "date",     width: "150px" },
       { key: "nationality",     label: "Nationality",      type: "select",   width: "160px" }, 
       { key: "employeesubclass", label: "Employee Sub Class", type: "select",   width: "170px" },
-      { key: "proposed_salary", label: "Proposed Salary", type: "select",   width: "170px" },
+      { key: "proposed_salary", label: "Proposed Salary", type: "integer",   width: "170px" },
       { key: "comment",         label: "Comment",          type: "text",     width: "260px" }
     ];
 
