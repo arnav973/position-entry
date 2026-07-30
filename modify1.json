@@ -1,17 +1,22 @@
 {
-  "id": "com.example.positionentry",
-  "version": "9.0.9",
-  "name": "Position Manage Widgett",
-  "description": "Manage, load, modify and delete position data for SAC",
-  "newInstancePrefix": "PositionManage",
-  "vendor": "Arnav choudhary",
+  "id": "com.example.dynamicpositionmanage",
+  "version": "11.0.0",
+  "name": "Dynamic Position Manage Widget",
+  "description": "Production-ready dynamic SAC custom widget with configurable columns, buttons, model binding and editable table UI.",
+  "newInstancePrefix": "DynamicPositionManage",
+  "vendor": "Arnav",
   "icon": "sap-icon://table-view",
   "webcomponents": [
     {
       "kind": "main",
-      "tag": "com-example-position-managee",
-      "url": "/Modify.js",
-      "integrity": "",
+      "tag": "com-example-dynamic-position-manage",
+      "url": "https://arnav973.github.io/position-entry/webcomponent.js",
+      "ignoreIntegrity": true
+    },
+    {
+      "kind": "styling",
+      "tag": "com-example-dynamic-position-manage-builder",
+      "url": "https://arnav973.github.io/position-entry/builder.js",
       "ignoreIntegrity": true
     }
   ],
@@ -31,15 +36,43 @@
     "validationerrors": {
       "type": "string",
       "default": "[]"
+    },
+    "title": {
+      "type": "string",
+      "default": "Dynamic Position Manager"
+    },
+    "searchplaceholder": {
+      "type": "string",
+      "default": "Search..."
+    },
+    "pagesize": {
+      "type": "integer",
+      "default": 50
+    },
+    "datamode": {
+      "type": "string",
+      "default": "manual"
+    },
+    "schema": {
+      "type": "string",
+      "default": "[]"
+    },
+    "buttons": {
+      "type": "string",
+      "default": "[]"
+    },
+    "modelbinding": {
+      "type": "string",
+      "default": "{}"
     }
   },
   "methods": {
     "getManageData": {
-      "description": "Get manage tab data",
+      "description": "Get current table data",
       "returnType": "string"
     },
     "setManageData": {
-      "description": "Set manage tab data",
+      "description": "Set current table data",
       "parameters": [
         {
           "name": "dataStr",
@@ -48,18 +81,18 @@
       ]
     },
     "getModifiedRows": {
-      "description": "Get only modified rows",
+      "description": "Get modified rows only",
       "returnType": "string"
     },
     "getSelectedRows": {
-      "description": "Get only selected rows",
+      "description": "Get selected rows only",
       "returnType": "string"
     },
     "clear": {
-      "description": "Clear all manage data"
+      "description": "Clear all rows"
     },
     "validate": {
-      "description": "Validate selected manage rows",
+      "description": "Validate selected rows",
       "returnType": "string"
     },
     "setOptions": {
@@ -75,17 +108,8 @@
         }
       ]
     },
-    "setCompanyFilter": {
-      "description": "Filter rows by selected company codes",
-      "parameters": [
-        {
-          "name": "filterStr",
-          "type": "string"
-        }
-      ]
-    },
     "setRowOptions": {
-      "description": "Set row-specific dropdown options",
+      "description": "Set row level dropdown options",
       "parameters": [
         {
           "name": "rowIndex",
@@ -101,18 +125,11 @@
         }
       ]
     },
-    "getVisibleIndexForRow": {
-      "description": "Convert actual row index to visible position index",
-      "parameters": [
-        {
-          "name": "actualRowIndex",
-          "type": "integer"
-        }
-      ],
-      "returnType": "integer"
+    "commitRowOptions": {
+      "description": "Re-render after bulk row option changes"
     },
     "setCellValue": {
-      "description": "Set cell value programmatically",
+      "description": "Set a single cell value",
       "parameters": [
         {
           "name": "rowIndex",
@@ -128,15 +145,58 @@
         }
       ]
     },
-    "commitRowOptions": {
-      "description": "Commit all row options and trigger a single re-render"
+    "getVisibleIndexForRow": {
+      "description": "Convert actual row index to visible row index",
+      "parameters": [
+        {
+          "name": "actualRowIndex",
+          "type": "integer"
+        }
+      ],
+      "returnType": "integer"
+    },
+    "setSchema": {
+      "description": "Set dynamic schema",
+      "parameters": [
+        {
+          "name": "schemaStr",
+          "type": "string"
+        }
+      ]
+    },
+    "setButtons": {
+      "description": "Set dynamic buttons",
+      "parameters": [
+        {
+          "name": "buttonsStr",
+          "type": "string"
+        }
+      ]
+    },
+    "applyResultSet": {
+      "description": "Apply result set using model binding",
+      "parameters": [
+        {
+          "name": "resultSetStr",
+          "type": "string"
+        }
+      ]
+    },
+    "triggerButtonAction": {
+      "description": "Trigger custom dynamic action",
+      "parameters": [
+        {
+          "name": "actionName",
+          "type": "string"
+        }
+      ]
     },
     "getLastEvent": {
-      "description": "Get last widget event payload",
+      "description": "Get last event",
       "returnType": "string"
     },
     "getValidationErrors": {
-      "description": "Get validation error details",
+      "description": "Get validation errors",
       "returnType": "string"
     },
     "getValidationResult": {
@@ -155,13 +215,16 @@
   },
   "events": {
     "onDataChange": {
-      "description": "Triggered when widget data changes"
+      "description": "Triggered on any row data change"
     },
     "onValidate": {
-      "description": "Triggered when validation runs"
+      "description": "Triggered after validate"
     },
     "onReady": {
       "description": "Triggered when widget is ready"
+    },
+    "onCustomButton": {
+      "description": "Triggered when custom dynamic button clicked"
     }
   }
 }
