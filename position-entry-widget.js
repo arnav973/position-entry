@@ -15,7 +15,6 @@ class PositionEntryWidget extends HTMLElement {
       costCenter: [],
       jobCode: [],
       payGradeGroup: [],
-      payGradeLevel: [],
       nationality: [],
       accommodation: [],
       transport: [],
@@ -55,7 +54,6 @@ class PositionEntryWidget extends HTMLElement {
       { key: "positionTitle", label: "Position Title", type: "readonly", width: "220px" },
       { key: "employeeId", label: "Position ID", type: "readonly", width: "170px" },
       { key: "payGradeGroup", label: "Pay Grade", type: "select", width: "130px" },
-      { key: "payGradeLevel", label: "Level", type: "select", width: "110px" },
       { key: "hireDate", label: "Hire Date", type: "date", width: "150px" },
       { key: "nationality", label: "Nationality", type: "select", width: "160px" },
       { key: "accommodation", label: "Accommodation", type: "select", width: "160px" },
@@ -76,7 +74,6 @@ class PositionEntryWidget extends HTMLElement {
       { key: "jobCode", label: "Job Code", type: "select", width: "190px" },
       { key: "positionTitle", label: "Position Title", type: "text", width: "220px" },
       { key: "payGradeGroup", label: "Pay Grade", type: "select", width: "130px" },
-      { key: "payGradeLevel", label: "Level", type: "select", width: "110px" },
       { key: "hireDate", label: "Hire Date", type: "date", width: "150px" },
       { key: "nationality", label: "Nationality", type: "select", width: "160px" },
       { key: "accommodation", label: "Accommodation", type: "select", width: "160px" },
@@ -169,7 +166,6 @@ class PositionEntryWidget extends HTMLElement {
         + "positionTitle::" + this._safeValue(dataRow.positionTitle) + "~~"
         + "employeeId::" + this._safeValue(dataRow.employeeId) + "~~"
         + "payGradeGroup::" + this._safeValue(dataRow.payGradeGroup) + "~~"
-        + "payGradeLevel::" + this._safeValue(dataRow.payGradeLevel) + "~~"
         + "hireDate::" + this._safeValue(dataRow.hireDate) + "~~"
         + "nationality::" + this._safeValue(dataRow.nationality) + "~~"
         + "accommodation::" + this._safeValue(dataRow.accommodation) + "~~"
@@ -457,7 +453,6 @@ class PositionEntryWidget extends HTMLElement {
           positionTitle: copySource.positionTitle || "",
           employeeId: "",
           payGradeGroup: copySource.payGradeGroup || "",
-          payGradeLevel: copySource.payGradeLevel || "",
           hireDate: copySource.hireDate || "",
           nationality: copySource.nationality || "",
           accommodation: copySource.accommodation || "Yes",
@@ -597,7 +592,6 @@ class PositionEntryWidget extends HTMLElement {
       positionTitle: "",
       employeeId: "",
       payGradeGroup: "",
-      payGradeLevel: "",
       hireDate: "",
       nationality: "",
       accommodation: "Yes",
@@ -866,7 +860,6 @@ class PositionEntryWidget extends HTMLElement {
       if (!createValidateRow.positionTitle) { createRowErrors.push("Position Title is required"); }
       if (!createValidateRow.employeeId) { createRowErrors.push("Position ID is required"); }
       if (!createValidateRow.payGradeGroup) { createRowErrors.push("Pay Grade is required"); }
-      if (!createValidateRow.payGradeLevel) { createRowErrors.push("Level is required"); }
       if (!createValidateRow.hireDate) { createRowErrors.push("Hire Date is required"); }
       if (!createValidateRow.nationality) { createRowErrors.push("Nationality is required"); }
       if (!createValidateRow.accommodation) { createRowErrors.push("Accommodation is required"); }
@@ -947,7 +940,6 @@ class PositionEntryWidget extends HTMLElement {
       if (!manageValidateRow.jobCode) { manageRowErrors.push("Job Code is required"); }
       if (!manageValidateRow.positionTitle) { manageRowErrors.push("Position Title is required"); }
       if (!manageValidateRow.payGradeGroup) { manageRowErrors.push("Pay Grade is required"); }
-      if (!manageValidateRow.payGradeLevel) { manageRowErrors.push("Level is required"); }
       if (!manageValidateRow.hireDate) { manageRowErrors.push("Hire Date is required"); }
       if (!manageValidateRow.nationality) { manageRowErrors.push("Nationality is required"); }
       if (!manageValidateRow.accommodation) { manageRowErrors.push("Accommodation is required"); }
@@ -1538,7 +1530,6 @@ class PositionEntryWidget extends HTMLElement {
         (fieldName === "positionTitle" && fieldErrorText.indexOf("Position Title") === 0) ||
         (fieldName === "employeeId" && (fieldErrorText.indexOf("Position ID") === 0 || fieldErrorText.indexOf("Duplicate Position ID") === 0)) ||
         (fieldName === "payGradeGroup" && fieldErrorText.indexOf("Pay Grade") === 0) ||
-        (fieldName === "payGradeLevel" && fieldErrorText.indexOf("Level") === 0) ||
         (fieldName === "hireDate" && fieldErrorText.indexOf("Hire Date") === 0) ||
         (fieldName === "nationality" && fieldErrorText.indexOf("Nationality") === 0) ||
         (fieldName === "accommodation" && fieldErrorText.indexOf("Accommodation") === 0) ||
