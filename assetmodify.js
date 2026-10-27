@@ -1,19 +1,21 @@
-class AssetManageWidget extends HTMLElement {
+class AssetModifyWidget extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
 
     this._rows = [];
     this._filteredIndexes = [];
-    this._assetSearchText = "";
+    this._searchText = "";
 
     this._options = {
-      companyCode: [],
+      company: [],
       costCenter: [],
       assetClass: []
     };
 
     this._rowOptions = {};
+    this._companyFilter = [];
+
     this._lastEvent = "";
     this._validationResult = "true";
     this._validationErrors = [];
@@ -31,12 +33,12 @@ class AssetManageWidget extends HTMLElement {
 
     this._columns = [
       { key: "selected",    label: "Sel",         type: "checkbox", width: "70px"  },
-      { key: "assetId",     label: "ID",          type: "readonly", width: "180px" },
-      { key: "description", label: "Description", type: "readonly",     width: "260px" }.
-      { key: "companyCode", label: "Company",     type: "select",   width: "180px" },
+      { key: "company",     label: "Company",     type: "select",   width: "180px" },
       { key: "costCenter",  label: "Cost Center", type: "select",   width: "190px" },
-      { key: "assetClass",  label: "Asset Class", type: "select",   width: "240px" },
-      { key: "capitalized", label: "Capitalized", type: "date",     width: "160px" }      
+      { key: "assetClass",  label: "Asset Class", type: "select",   width: "190px" },
+      { key: "capitalized", label: "Capitalized", type: "date",     width: "170px" },
+      { key: "id",          label: "ID",          type: "readonly", width: "170px" },
+      { key: "description", label: "Description", type: "text",     width: "320px" }
     ];
 
     this._pageSize = 50;
@@ -70,9 +72,7 @@ class AssetManageWidget extends HTMLElement {
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
-    if (oldValue === newValue || this._suspendAttributeSync) {
-      return;
-    }
+    if (oldValue === newValue || this._suspendAttributeSync) { return; }
 
     if (name === "managedata") {
       try {
@@ -90,10 +90,6 @@ class AssetManageWidget extends HTMLElement {
     }
   }
 
-  // =========================
-  // PUBLIC API
-  // =========================
-
   getManageData() {
     return JSON.stringify(this._rows || []);
   }
@@ -102,9 +98,7 @@ class AssetManageWidget extends HTMLElement {
     var out = [];
     var i = 0;
     for (i = 0; i < this._rows.length; i++) {
-      if (this._rows[i].isModified === true) {
-        out.push(this._rows[i]);
-      }
+      if (this._rows[i].isModified === true) { out.push(this._rows[i]); }
     }
     return JSON.stringify(out);
   }
@@ -113,28 +107,20 @@ class AssetManageWidget extends HTMLElement {
     var out = [];
     var i = 0;
     for (i = 0; i < this._rows.length; i++) {
-      if (this._rows[i].selected === true) {
-        out.push(this._rows[i]);
-      }
+      if (this._rows[i].selected === true) { out.push(this._rows[i]); }
     }
     return JSON.stringify(out);
   }
 
-  getLastEvent() {
-    return this._lastEvent || "";
-  }
-
-  getValidationErrors() {
-    return JSON.stringify(this._validationErrors || []);
-  }
-
-  getValidationResult() {
-    return this._validationResult || "false";
-  }
+  getLastEvent() { return this._lastEvent || ""; }
+  getValidationErrors() { return JSON.stringify(this._validationErrors || []); }
+  getValidationResult() { return this._validationResult || "false"; }
 
   setManageData(dataStr) {
+    var dataString = String(dataStr || "");
+
     try {
-      var parsedRows = JSON.parse(String(dataStr || "[]"));
+      var parsedRows = JSON.parse(dataString || "[]");
       this._rows = Array.isArray(parsedRows) ? parsedRows : [];
     } catch (e) {
       this._rows = [];
@@ -159,20 +145,16 @@ class AssetManageWidget extends HTMLElement {
   setRowOptions(rowIndex, fieldName, optionsStr) {
     try {
       var optionsArray = JSON.parse(optionsStr || "[]");
-      if (!Array.isArray(optionsArray)) {
-        optionsArray = [];
-      }
+      if (!Array.isArray(optionsArray)) { optionsArray = []; }
 
       var visibleCount = 0;
       var i = 0;
       for (i = 0; i < this._rows.length; i++) {
         if (this._isRowVisible(this._rows[i])) {
           if (visibleCount === rowIndex) {
-            var assetId = this._rows[i].assetId || ("__row__" + String(i));
-            if (!this._rowOptions[assetId]) {
-              this._rowOptions[assetId] = {};
-            }
-            this._rowOptions[assetId][fieldName] = optionsArray;
+            var rowKey = this._rows[i].id || ("__row__" + String(i));
+            if (!this._rowOptions[rowKey]) { this._rowOptions[rowKey] = {}; }
+            this._rowOptions[rowKey][fieldName] = optionsArray;
             return;
           }
           visibleCount++;
@@ -183,6 +165,18 @@ class AssetManageWidget extends HTMLElement {
 
   commitRowOptions() {
     this._renderVisibleOnly();
+  }
+
+  getVisibleIndexForRow(actualRowIndex) {
+    var visibleCount = 0;
+    var i = 0;
+    for (i = 0; i < this._rows.length; i++) {
+      if (this._isRowVisible(this._rows[i])) {
+        if (i === actualRowIndex) { return visibleCount; }
+        visibleCount++;
+      }
+    }
+    return actualRowIndex;
   }
 
   setCellValue(rowIndex, fieldName, value) {
@@ -202,14 +196,22 @@ class AssetManageWidget extends HTMLElement {
     }
   }
 
+  setCompanyFilter(filterStr) { return; }
+
   loadData() {
-    this._lastEvent = "loadManage";
+    this._lastEvent = "loadAssetModify";
     this._setProperties();
     this._dispatch("onDataChange");
   }
 
   saveData() {
-    this._lastEvent = "saveManage";
+    this._lastEvent = "saveAssetModify";
+    this._setProperties();
+    this._dispatch("onDataChange");
+  }
+
+  deleteSelected() {
+    this._lastEvent = "deleteAssetModify";
     this._setProperties();
     this._dispatch("onDataChange");
   }
@@ -219,8 +221,8 @@ class AssetManageWidget extends HTMLElement {
     this._rowOptions = {};
     this._validationErrors = [];
     this._validationResult = "true";
-    this._lastEvent = "clearManage";
-    this._assetSearchText = "";
+    this._lastEvent = "clearAssetModify";
+    this._searchText = "";
     this._currentPage = 1;
     this._setProperties();
     this._rebuildFilteredIndexes();
@@ -234,16 +236,21 @@ class AssetManageWidget extends HTMLElement {
     var result = this._validateRows();
     this._validationErrors = result.errors;
     this._validationResult = result.isValid ? "true" : "false";
-    this._lastEvent = "validateManage";
+    this._lastEvent = "validateAssetModify";
     this._setProperties();
     this._renderVisibleOnly();
     this._dispatch("onValidate");
     return this._validationResult;
   }
 
-  // =========================
-  // VALIDATION
-  // =========================
+  _validateSilently() {
+    var result = this._validateRows();
+    this._validationErrors = result.errors;
+    this._validationResult = result.isValid ? "true" : "false";
+    this._lastEvent = "validateAssetModify";
+    this._setProperties();
+    return this._validationResult;
+  }
 
   _validateRows() {
     var errors = [];
@@ -254,18 +261,18 @@ class AssetManageWidget extends HTMLElement {
     for (i = 0; i < this._rows.length; i++) {
       if (this._rows[i].selected === true) {
         selectedCount++;
-        if (this._rows[i].assetId) {
-          if (!idMap[this._rows[i].assetId]) {
-            idMap[this._rows[i].assetId] = 1;
+        if (this._rows[i].id) {
+          if (!idMap[this._rows[i].id]) {
+            idMap[this._rows[i].id] = 1;
           } else {
-            idMap[this._rows[i].assetId]++;
+            idMap[this._rows[i].id]++;
           }
         }
       }
     }
 
     if (selectedCount === 0) {
-      errors.push({ tab: "manage", rowIndex: -1, rowId: "", messages: ["Please select at least one row."] });
+      errors.push({ tab: "assetmodify", rowIndex: -1, rowId: "", messages: ["Please select at least one row."] });
       return { isValid: false, errors: errors };
     }
 
@@ -273,32 +280,26 @@ class AssetManageWidget extends HTMLElement {
       var row = this._rows[i];
       var rowErrors = [];
 
-      if (row.selected !== true) {
-        continue;
-      }
+      if (row.selected !== true) { continue; }
 
-      if (!row.companyCode) { rowErrors.push("Company is required"); }
-      if (!row.costCenter)  { rowErrors.push("Cost Center is required"); }
-      if (!row.assetClass)  { rowErrors.push("Asset Class is required"); }
+      if (!row.company) { rowErrors.push("Company is required"); }
+      if (!row.costCenter) { rowErrors.push("Cost Center is required"); }
+      if (!row.assetClass) { rowErrors.push("Asset Class is required"); }
       if (!row.capitalized) { rowErrors.push("Capitalized is required"); }
-      if (!row.assetId)     { rowErrors.push("ID is required"); }
+      if (!row.id) { rowErrors.push("ID is required"); }
       if (!row.description) { rowErrors.push("Description is required"); }
 
-      if (row.assetId && idMap[row.assetId] > 1) {
-        rowErrors.push("Duplicate Asset ID in selected rows");
+      if (row.id && idMap[row.id] > 1) {
+        rowErrors.push("Duplicate ID in selected rows");
       }
 
       if (rowErrors.length > 0) {
-        errors.push({ tab: "manage", rowIndex: i, rowId: row.rowId, messages: rowErrors });
+        errors.push({ tab: "assetmodify", rowIndex: i, rowId: row.rowId, messages: rowErrors });
       }
     }
 
     return { isValid: errors.length === 0, errors: errors };
   }
-
-  // =========================
-  // HELPERS
-  // =========================
 
   _syncRowIds() {
     var i = 0;
@@ -310,16 +311,16 @@ class AssetManageWidget extends HTMLElement {
   }
 
   _getOptionsForCell(rowIndex, fieldName) {
-    var assetId = this._rows[rowIndex]
-      ? (this._rows[rowIndex].assetId || ("__row__" + String(rowIndex)))
+    var rowKey = this._rows[rowIndex]
+      ? (this._rows[rowIndex].id || ("__row__" + String(rowIndex)))
       : ("__row__" + String(rowIndex));
 
     if (
-      this._rowOptions[assetId] &&
-      this._rowOptions[assetId][fieldName] &&
-      Array.isArray(this._rowOptions[assetId][fieldName])
+      this._rowOptions[rowKey] &&
+      this._rowOptions[rowKey][fieldName] &&
+      Array.isArray(this._rowOptions[rowKey][fieldName])
     ) {
-      return this._rowOptions[assetId][fieldName];
+      return this._rowOptions[rowKey][fieldName];
     }
 
     return this._options[fieldName] || [];
@@ -337,12 +338,9 @@ class AssetManageWidget extends HTMLElement {
   }
 
   _isRowVisible(rowData) {
-    var searchText = String(this._assetSearchText || "").toLowerCase().trim();
-    var assetId = String(rowData.assetId || "").toLowerCase();
-
-    if (searchText !== "") {
-      return assetId.indexOf(searchText) > -1;
-    }
+    var searchText = String(this._searchText || "").toLowerCase().trim();
+    var id = String(rowData.id || "").toLowerCase();
+    if (searchText !== "") { return id.indexOf(searchText) > -1; }
     return true;
   }
 
@@ -358,9 +356,7 @@ class AssetManageWidget extends HTMLElement {
   }
 
   _getTotalPages() {
-    if (this._filteredIndexes.length === 0) {
-      return 1;
-    }
+    if (this._filteredIndexes.length === 0) { return 1; }
     return Math.ceil(this._filteredIndexes.length / this._pageSize);
   }
 
@@ -412,7 +408,8 @@ class AssetManageWidget extends HTMLElement {
   }
 
   _fireFieldChange(rowIndex, fieldName, value) {
-    this._lastEvent = "manageFieldChange|" + String(rowIndex) + "|" + String(fieldName) + "|" + String(value);
+    this._lastEvent =
+      "assetModifyFieldChange|" + String(rowIndex) + "|" + String(fieldName) + "|" + String(value);
     this._setProperties();
     this._dispatch("onDataChange");
   }
@@ -420,9 +417,7 @@ class AssetManageWidget extends HTMLElement {
   _hasSelectedRows() {
     var i = 0;
     for (i = 0; i < this._rows.length; i++) {
-      if (this._rows[i].selected === true) {
-        return true;
-      }
+      if (this._rows[i].selected === true) { return true; }
     }
     return false;
   }
@@ -430,13 +425,9 @@ class AssetManageWidget extends HTMLElement {
   _areAllVisibleRowsSelected() {
     var i = 0;
     var paged = this._getPagedIndexes();
-    if (!paged.length) {
-      return false;
-    }
+    if (!paged.length) { return false; }
     for (i = 0; i < paged.length; i++) {
-      if (this._rows[paged[i]].selected !== true) {
-        return false;
-      }
+      if (this._rows[paged[i]].selected !== true) { return false; }
     }
     return true;
   }
@@ -450,7 +441,7 @@ class AssetManageWidget extends HTMLElement {
     }
     this._validationErrors = [];
     this._validationResult = "true";
-    this._lastEvent = "manageSelectAll|" + (checked ? "true" : "false");
+    this._lastEvent = "assetModifySelectAll|" + (checked ? "true" : "false");
     this._setProperties();
     this._refreshToolbar();
     this._renderVisibleOnly();
@@ -463,10 +454,9 @@ class AssetManageWidget extends HTMLElement {
     var allSelected = this._areAllVisibleRowsSelected();
 
     var toolbarRight = this.shadowRoot.getElementById("toolbarRight");
+
     var selectAll = this.shadowRoot.getElementById("selectAll");
-    if (selectAll) {
-      selectAll.checked = allSelected;
-    }
+    if (selectAll) { selectAll.checked = allSelected; }
 
     if (toolbarRight) {
       var existingDelete = this.shadowRoot.getElementById("btnDelete");
@@ -475,6 +465,7 @@ class AssetManageWidget extends HTMLElement {
         newDeleteBtn.className = "btn danger";
         newDeleteBtn.id = "btnDelete";
         newDeleteBtn.textContent = "Delete Selected";
+        newDeleteBtn.addEventListener("click", this.deleteSelected.bind(this));
         var btnClear = this.shadowRoot.getElementById("btnClear");
         if (btnClear) {
           toolbarRight.insertBefore(newDeleteBtn, btnClear);
@@ -556,7 +547,7 @@ class AssetManageWidget extends HTMLElement {
     html += '<div class="wrap">';
     html += '<div class="toolbarWrap">';
     html += '<div class="toolbarLeft">';
-    html += '<input id="assetSearchBox" class="searchBox" type="text" placeholder="Search Asset ID..." value="" />';
+    html += '<input id="searchBox" class="searchBox" type="text" placeholder="Search ID..." value="" />';
     html += '<span class="muted" id="visibleCountText">Visible: 0</span>';
     html += '</div>';
     html += '<div class="toolbarRight" id="toolbarRight">';
@@ -611,10 +602,10 @@ class AssetManageWidget extends HTMLElement {
       }.bind(this));
     }
 
-    var assetSearchBox = this.shadowRoot.getElementById("assetSearchBox");
-    if (assetSearchBox) {
-      assetSearchBox.addEventListener("input", function() {
-        this._assetSearchText = assetSearchBox.value || "";
+    var searchBox = this.shadowRoot.getElementById("searchBox");
+    if (searchBox) {
+      searchBox.addEventListener("input", function() {
+        this._searchText = searchBox.value || "";
         this._rebuildFilteredIndexes();
         this._updateVisibleCountText();
         this._renderVisibleOnly();
@@ -624,9 +615,7 @@ class AssetManageWidget extends HTMLElement {
 
   _renderVisibleOnly() {
     var tbody = this.shadowRoot.getElementById("tbodyVirtual");
-    if (!tbody) {
-      return;
-    }
+    if (!tbody) { return; }
 
     var visibleIndexes = this._getPagedIndexes();
     var rowErrorMap = this._getRowErrorMap();
@@ -670,9 +659,7 @@ class AssetManageWidget extends HTMLElement {
     this._updateVisibleCountText();
 
     var selectAll = this.shadowRoot.getElementById("selectAll");
-    if (selectAll) {
-      selectAll.checked = this._areAllVisibleRowsSelected();
-    }
+    if (selectAll) { selectAll.checked = this._areAllVisibleRowsSelected(); }
   }
 
   _renderCell(rowData, rowIndex, columnData, rowErrors) {
@@ -694,9 +681,7 @@ class AssetManageWidget extends HTMLElement {
 
     if (columnData.type === "select") {
       var displayText = this._getOptionText(rowIndex, columnData.key, cellValue);
-      if (!displayText) {
-        displayText = cellValue ? String(cellValue) : "Select...";
-      }
+      if (!displayText) { displayText = cellValue ? String(cellValue) : "Select"; }
 
       return '<div class="dropdown-trigger ' + errorCss + '" tabindex="0"'
         + ' data-row="' + rowIndex + '" data-field="' + columnData.key + '" data-type="select">'
@@ -724,20 +709,18 @@ class AssetManageWidget extends HTMLElement {
     for (i = 0; i < rowErrors.length; i++) {
       var text = rowErrors[i];
       if (
-        (fieldName === "companyCode" && text.indexOf("Company") === 0) ||
-        (fieldName === "costCenter"  && text.indexOf("Cost Center") === 0) ||
-        (fieldName === "assetClass"  && text.indexOf("Asset Class") === 0) ||
+        (fieldName === "company" && text.indexOf("Company") === 0) ||
+        (fieldName === "costCenter" && text.indexOf("Cost Center") === 0) ||
+        (fieldName === "assetClass" && text.indexOf("Asset Class") === 0) ||
         (fieldName === "capitalized" && text.indexOf("Capitalized") === 0) ||
-        (fieldName === "assetId"     && (text.indexOf("ID") === 0 || text.indexOf("Duplicate") === 0)) ||
+        (fieldName === "id" && (text.indexOf("ID") === 0 || text.indexOf("Duplicate") === 0)) ||
         (fieldName === "description" && text.indexOf("Description") === 0)
       ) {
         messages.push(text);
       }
     }
 
-    if (!messages.length) {
-      return "";
-    }
+    if (!messages.length) { return ""; }
     return '<div class="rowErr">' + messages.join("<br>") + '</div>';
   }
 
@@ -789,9 +772,7 @@ class AssetManageWidget extends HTMLElement {
         return;
       }
 
-      if (elementType === "readonly") {
-        return;
-      }
+      if (elementType === "readonly") { return; }
 
       el.addEventListener("input", function() {
         var rowIndex = parseInt(this.getAttribute("data-row"), 10);
@@ -821,9 +802,7 @@ class AssetManageWidget extends HTMLElement {
   }
 
   _createDropdownPanel() {
-    if (this._dropdownPanel) {
-      return;
-    }
+    if (this._dropdownPanel) { return; }
 
     var dropdownPanel = document.createElement("div");
     dropdownPanel.className = "asset-widget-dropdown-panel";
@@ -847,9 +826,7 @@ class AssetManageWidget extends HTMLElement {
     });
 
     this._documentClickHandler = function(e) {
-      if (!that._dropdownOpen) {
-        return;
-      }
+      if (!that._dropdownOpen) { return; }
       var insidePanel = that._dropdownPanel && that._dropdownPanel.contains(e.target);
       var insideShadow = that.shadowRoot && that.shadowRoot.contains(e.target);
       if (!insidePanel && !insideShadow) {
@@ -877,9 +854,7 @@ class AssetManageWidget extends HTMLElement {
     if (dropdownLeft + dropdownWidth > window.innerWidth - 10) {
       dropdownLeft = window.innerWidth - dropdownWidth - 10;
     }
-    if (dropdownLeft < 10) {
-      dropdownLeft = 10;
-    }
+    if (dropdownLeft < 10) { dropdownLeft = 10; }
 
     this._dropdownPanel.style.display = "block";
     this._dropdownPanel.style.position = "fixed";
@@ -894,16 +869,12 @@ class AssetManageWidget extends HTMLElement {
 
     var that = this;
     setTimeout(function() {
-      if (that._dropdownSearch) {
-        that._dropdownSearch.focus();
-      }
+      if (that._dropdownSearch) { that._dropdownSearch.focus(); }
     }, 0);
   }
 
   _closeDropdown() {
-    if (this._dropdownPanel) {
-      this._dropdownPanel.style.display = "none";
-    }
+    if (this._dropdownPanel) { this._dropdownPanel.style.display = "none"; }
     this._dropdownOpen = false;
     this._activeDropdownTrigger = null;
     this._activeDropdownRow = -1;
@@ -913,9 +884,7 @@ class AssetManageWidget extends HTMLElement {
   }
 
   _renderDropdownItems(searchText) {
-    if (!this._dropdownList) {
-      return;
-    }
+    if (!this._dropdownList) { return; }
 
     var that = this;
     var searchValue = String(searchText || "").toLowerCase().trim();
@@ -978,14 +947,12 @@ class AssetManageWidget extends HTMLElement {
   }
 }
 
-if (!customElements.get("com-example-asset-manage")) {
-  customElements.define("com-example-asset-manage", AssetManageWidget);
+if (!customElements.get("com-example-asset-modify")) {
+  customElements.define("com-example-asset-modify", AssetModifyWidget);
 }
 
 (function() {
-  if (document.getElementById("asset-widget-dropdown-global-style")) {
-    return;
-  }
+  if (document.getElementById("asset-widget-dropdown-global-style")) { return; }
 
   var globalStyleEl = document.createElement("style");
   globalStyleEl.id = "asset-widget-dropdown-global-style";
