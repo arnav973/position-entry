@@ -1,11 +1,11 @@
-class AssetModifyWidget extends HTMLElement {
+class AssetManageWidget extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
 
     this._rows = [];
     this._filteredIndexes = [];
-    this._searchText = "";
+    this._assetSearchText = "";
 
     this._options = {
       company: [],
@@ -32,14 +32,15 @@ class AssetModifyWidget extends HTMLElement {
     this._activeDropdownSelectedKey = "";
 
     this._columns = [
-      { key: "selected",    label: "Sel",         type: "checkbox", width: "70px"  },
-      { key: "company",     label: "Company",     type: "select",   width: "180px" },
-      { key: "costCenter",  label: "Cost Center", type: "select",   width: "190px" },
-      { key: "assetClass",  label: "Asset Class", type: "select",   width: "190px" },
-      { key: "capitalized", label: "Capitalized", type: "date",     width: "170px" },
-      { key: "id",          label: "ID",          type: "readonly", width: "170px" },
-      { key: "description", label: "Description", type: "text",     width: "320px" }
-    ];
+  { key: "selected",    label: "Sel",         type: "checkbox", width: "70px"  },
+  { key: "assetId",     label: "ID",          type: "text",     width: "220px" },
+  { key: "description", label: "Description", type: "text",     width: "320px" },
+  { key: "company",     label: "Company",     type: "select",   width: "260px" },
+  { key: "costCenter",  label: "Cost Center", type: "select",   width: "280px" },
+  { key: "assetClass",  label: "Asset Class", type: "select",   width: "280px" },
+  { key: "capitalized", label: "Capitalized", type: "month",    width: "200px" }
+];
+
 
     this._pageSize = 50;
     this._currentPage = 1;
@@ -152,9 +153,9 @@ class AssetModifyWidget extends HTMLElement {
       for (i = 0; i < this._rows.length; i++) {
         if (this._isRowVisible(this._rows[i])) {
           if (visibleCount === rowIndex) {
-            var rowKey = this._rows[i].id || ("__row__" + String(i));
-            if (!this._rowOptions[rowKey]) { this._rowOptions[rowKey] = {}; }
-            this._rowOptions[rowKey][fieldName] = optionsArray;
+            var assetId = this._rows[i].assetId || ("__row__" + String(i));
+            if (!this._rowOptions[assetId]) { this._rowOptions[assetId] = {}; }
+            this._rowOptions[assetId][fieldName] = optionsArray;
             return;
           }
           visibleCount++;
@@ -199,19 +200,19 @@ class AssetModifyWidget extends HTMLElement {
   setCompanyFilter(filterStr) { return; }
 
   loadData() {
-    this._lastEvent = "loadAssetModify";
+    this._lastEvent = "loadManage";
     this._setProperties();
     this._dispatch("onDataChange");
   }
 
   saveData() {
-    this._lastEvent = "saveAssetModify";
+    this._lastEvent = "saveManage";
     this._setProperties();
     this._dispatch("onDataChange");
   }
 
   deleteSelected() {
-    this._lastEvent = "deleteAssetModify";
+    this._lastEvent = "deleteManage";
     this._setProperties();
     this._dispatch("onDataChange");
   }
@@ -221,8 +222,8 @@ class AssetModifyWidget extends HTMLElement {
     this._rowOptions = {};
     this._validationErrors = [];
     this._validationResult = "true";
-    this._lastEvent = "clearAssetModify";
-    this._searchText = "";
+    this._lastEvent = "clearManage";
+    this._assetSearchText = "";
     this._currentPage = 1;
     this._setProperties();
     this._rebuildFilteredIndexes();
@@ -236,7 +237,7 @@ class AssetModifyWidget extends HTMLElement {
     var result = this._validateRows();
     this._validationErrors = result.errors;
     this._validationResult = result.isValid ? "true" : "false";
-    this._lastEvent = "validateAssetModify";
+    this._lastEvent = "validateManage";
     this._setProperties();
     this._renderVisibleOnly();
     this._dispatch("onValidate");
@@ -247,7 +248,7 @@ class AssetModifyWidget extends HTMLElement {
     var result = this._validateRows();
     this._validationErrors = result.errors;
     this._validationResult = result.isValid ? "true" : "false";
-    this._lastEvent = "validateAssetModify";
+    this._lastEvent = "validateManage";
     this._setProperties();
     return this._validationResult;
   }
@@ -261,18 +262,18 @@ class AssetModifyWidget extends HTMLElement {
     for (i = 0; i < this._rows.length; i++) {
       if (this._rows[i].selected === true) {
         selectedCount++;
-        if (this._rows[i].id) {
-          if (!idMap[this._rows[i].id]) {
-            idMap[this._rows[i].id] = 1;
+        if (this._rows[i].assetId) {
+          if (!idMap[this._rows[i].assetId]) {
+            idMap[this._rows[i].assetId] = 1;
           } else {
-            idMap[this._rows[i].id]++;
+            idMap[this._rows[i].assetId]++;
           }
         }
       }
     }
 
     if (selectedCount === 0) {
-      errors.push({ tab: "assetmodify", rowIndex: -1, rowId: "", messages: ["Please select at least one row."] });
+      errors.push({ tab: "manage", rowIndex: -1, rowId: "", messages: ["Please select at least one row."] });
       return { isValid: false, errors: errors };
     }
 
@@ -286,15 +287,15 @@ class AssetModifyWidget extends HTMLElement {
       if (!row.costCenter) { rowErrors.push("Cost Center is required"); }
       if (!row.assetClass) { rowErrors.push("Asset Class is required"); }
       if (!row.capitalized) { rowErrors.push("Capitalized is required"); }
-      if (!row.id) { rowErrors.push("ID is required"); }
+      if (!row.assetId) { rowErrors.push("ID is required"); }
       if (!row.description) { rowErrors.push("Description is required"); }
 
-      if (row.id && idMap[row.id] > 1) {
+      if (row.assetId && idMap[row.assetId] > 1) {
         rowErrors.push("Duplicate ID in selected rows");
       }
 
       if (rowErrors.length > 0) {
-        errors.push({ tab: "assetmodify", rowIndex: i, rowId: row.rowId, messages: rowErrors });
+        errors.push({ tab: "manage", rowIndex: i, rowId: row.rowId, messages: rowErrors });
       }
     }
 
@@ -311,16 +312,16 @@ class AssetModifyWidget extends HTMLElement {
   }
 
   _getOptionsForCell(rowIndex, fieldName) {
-    var rowKey = this._rows[rowIndex]
-      ? (this._rows[rowIndex].id || ("__row__" + String(rowIndex)))
+    var assetId = this._rows[rowIndex]
+      ? (this._rows[rowIndex].assetId || ("__row__" + String(rowIndex)))
       : ("__row__" + String(rowIndex));
 
     if (
-      this._rowOptions[rowKey] &&
-      this._rowOptions[rowKey][fieldName] &&
-      Array.isArray(this._rowOptions[rowKey][fieldName])
+      this._rowOptions[assetId] &&
+      this._rowOptions[assetId][fieldName] &&
+      Array.isArray(this._rowOptions[assetId][fieldName])
     ) {
-      return this._rowOptions[rowKey][fieldName];
+      return this._rowOptions[assetId][fieldName];
     }
 
     return this._options[fieldName] || [];
@@ -338,9 +339,13 @@ class AssetModifyWidget extends HTMLElement {
   }
 
   _isRowVisible(rowData) {
-    var searchText = String(this._searchText || "").toLowerCase().trim();
-    var id = String(rowData.id || "").toLowerCase();
-    if (searchText !== "") { return id.indexOf(searchText) > -1; }
+    var searchText = String(this._assetSearchText || "").toLowerCase().trim();
+    var assetId = String(rowData.assetId || "").toLowerCase();
+    var description = String(rowData.description || "").toLowerCase();
+
+    if (searchText !== "") {
+      return assetId.indexOf(searchText) > -1 || description.indexOf(searchText) > -1;
+    }
     return true;
   }
 
@@ -409,7 +414,7 @@ class AssetModifyWidget extends HTMLElement {
 
   _fireFieldChange(rowIndex, fieldName, value) {
     this._lastEvent =
-      "assetModifyFieldChange|" + String(rowIndex) + "|" + String(fieldName) + "|" + String(value);
+      "manageFieldChange|" + String(rowIndex) + "|" + String(fieldName) + "|" + String(value);
     this._setProperties();
     this._dispatch("onDataChange");
   }
@@ -441,7 +446,7 @@ class AssetModifyWidget extends HTMLElement {
     }
     this._validationErrors = [];
     this._validationResult = "true";
-    this._lastEvent = "assetModifySelectAll|" + (checked ? "true" : "false");
+    this._lastEvent = "manageSelectAll|" + (checked ? "true" : "false");
     this._setProperties();
     this._refreshToolbar();
     this._renderVisibleOnly();
@@ -545,9 +550,10 @@ class AssetModifyWidget extends HTMLElement {
 
     var html = "";
     html += '<div class="wrap">';
+
     html += '<div class="toolbarWrap">';
     html += '<div class="toolbarLeft">';
-    html += '<input id="searchBox" class="searchBox" type="text" placeholder="Search ID..." value="" />';
+    html += '<input id="assetSearchBox" class="searchBox" type="text" placeholder="Search ID or Description..." value="" />';
     html += '<span class="muted" id="visibleCountText">Visible: 0</span>';
     html += '</div>';
     html += '<div class="toolbarRight" id="toolbarRight">';
@@ -602,10 +608,10 @@ class AssetModifyWidget extends HTMLElement {
       }.bind(this));
     }
 
-    var searchBox = this.shadowRoot.getElementById("searchBox");
-    if (searchBox) {
-      searchBox.addEventListener("input", function() {
-        this._searchText = searchBox.value || "";
+    var assetSearchBox = this.shadowRoot.getElementById("assetSearchBox");
+    if (assetSearchBox) {
+      assetSearchBox.addEventListener("input", function() {
+        this._assetSearchText = assetSearchBox.value || "";
         this._rebuildFilteredIndexes();
         this._updateVisibleCountText();
         this._renderVisibleOnly();
@@ -691,7 +697,9 @@ class AssetModifyWidget extends HTMLElement {
         + this._renderFieldErrors(columnData.key, rowErrors);
     }
 
-    var inputTypeName = columnData.type === "date" ? "date" : "text";
+    var inputTypeName = "text";
+    if (columnData.type === "date") { inputTypeName = "date"; }
+    if (columnData.type === "month") { inputTypeName = "month"; }
 
     return '<input class="cell ' + errorCss + '"'
       + ' data-row="' + rowIndex + '"'
@@ -713,7 +721,7 @@ class AssetModifyWidget extends HTMLElement {
         (fieldName === "costCenter" && text.indexOf("Cost Center") === 0) ||
         (fieldName === "assetClass" && text.indexOf("Asset Class") === 0) ||
         (fieldName === "capitalized" && text.indexOf("Capitalized") === 0) ||
-        (fieldName === "id" && (text.indexOf("ID") === 0 || text.indexOf("Duplicate") === 0)) ||
+        (fieldName === "assetId" && (text.indexOf("ID") === 0 || text.indexOf("Duplicate") === 0)) ||
         (fieldName === "description" && text.indexOf("Description") === 0)
       ) {
         messages.push(text);
@@ -947,8 +955,8 @@ class AssetModifyWidget extends HTMLElement {
   }
 }
 
-if (!customElements.get("com-example-asset-modify")) {
-  customElements.define("com-example-asset-modify", AssetModifyWidget);
+if (!customElements.get("com-example-asset-managee")) {
+  customElements.define("com-example-asset-managee", AssetManageWidget);
 }
 
 (function() {
