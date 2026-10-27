@@ -32,15 +32,15 @@ class AssetManageWidget extends HTMLElement {
     this._activeDropdownSelectedKey = "";
 
     this._columns = [
-  { key: "selected",    label: "Sel",         type: "checkbox", width: "70px"  },
-  { key: "assetId",     label: "ID",          type: "text",     width: "220px" },
-  { key: "description", label: "Description", type: "text",     width: "320px" },
-  { key: "company",     label: "Company",     type: "select",   width: "260px" },
-  { key: "costCenter",  label: "Cost Center", type: "select",   width: "280px" },
-  { key: "assetClass",  label: "Asset Class", type: "select",   width: "280px" },
-  { key: "capitalized", label: "Capitalized", type: "month",    width: "200px" }
-];
-
+      { key: "selected",                     label: "Sel",                          type: "checkbox", width: "70px"  },
+      { key: "assetId",                      label: "Id",                           type: "text",     width: "180px" },
+      { key: "description",                  label: "Description",                  type: "text",     width: "320px" },
+      { key: "company",                      label: "Company",                      type: "select",   width: "180px" },
+      { key: "costCenter",                   label: "Cost Center",                  type: "select",   width: "180px" },
+      { key: "assetClass",                   label: "Asset Class",                  type: "select",   width: "180px" },
+      { key: "assetAdditionalDescription",   label: "Asset Additional Description", type: "text",     width: "260px" },
+      { key: "capitalizedMonth",             label: "Capitalized Month",            type: "text",     width: "180px" }
+    ];
 
     this._pageSize = 50;
     this._currentPage = 1;
@@ -113,9 +113,17 @@ class AssetManageWidget extends HTMLElement {
     return JSON.stringify(out);
   }
 
-  getLastEvent() { return this._lastEvent || ""; }
-  getValidationErrors() { return JSON.stringify(this._validationErrors || []); }
-  getValidationResult() { return this._validationResult || "false"; }
+  getLastEvent() {
+    return this._lastEvent || "";
+  }
+
+  getValidationErrors() {
+    return JSON.stringify(this._validationErrors || []);
+  }
+
+  getValidationResult() {
+    return this._validationResult || "false";
+  }
 
   setManageData(dataStr) {
     var dataString = String(dataStr || "");
@@ -197,7 +205,9 @@ class AssetManageWidget extends HTMLElement {
     }
   }
 
-  setCompanyFilter(filterStr) { return; }
+  setCompanyFilter(filterStr) {
+    return;
+  }
 
   loadData() {
     this._lastEvent = "loadManage";
@@ -283,15 +293,15 @@ class AssetManageWidget extends HTMLElement {
 
       if (row.selected !== true) { continue; }
 
+      if (!row.assetId) { rowErrors.push("Id is required"); }
+      if (!row.description) { rowErrors.push("Description is required"); }
       if (!row.company) { rowErrors.push("Company is required"); }
       if (!row.costCenter) { rowErrors.push("Cost Center is required"); }
       if (!row.assetClass) { rowErrors.push("Asset Class is required"); }
-      if (!row.capitalized) { rowErrors.push("Capitalized is required"); }
-      if (!row.assetId) { rowErrors.push("ID is required"); }
-      if (!row.description) { rowErrors.push("Description is required"); }
+      if (!row.capitalizedMonth) { rowErrors.push("Capitalized Month is required"); }
 
       if (row.assetId && idMap[row.assetId] > 1) {
-        rowErrors.push("Duplicate ID in selected rows");
+        rowErrors.push("Duplicate Id in selected rows");
       }
 
       if (rowErrors.length > 0) {
@@ -308,6 +318,7 @@ class AssetManageWidget extends HTMLElement {
       this._rows[i].rowId = i + 1;
       if (this._rows[i].selected === undefined) { this._rows[i].selected = false; }
       if (this._rows[i].isModified === undefined) { this._rows[i].isModified = false; }
+      if (this._rows[i].assetAdditionalDescription === undefined) { this._rows[i].assetAdditionalDescription = ""; }
     }
   }
 
@@ -413,8 +424,7 @@ class AssetManageWidget extends HTMLElement {
   }
 
   _fireFieldChange(rowIndex, fieldName, value) {
-    this._lastEvent =
-      "manageFieldChange|" + String(rowIndex) + "|" + String(fieldName) + "|" + String(value);
+    this._lastEvent = "manageFieldChange|" + String(rowIndex) + "|" + String(fieldName) + "|" + String(value);
     this._setProperties();
     this._dispatch("onDataChange");
   }
@@ -459,7 +469,6 @@ class AssetManageWidget extends HTMLElement {
     var allSelected = this._areAllVisibleRowsSelected();
 
     var toolbarRight = this.shadowRoot.getElementById("toolbarRight");
-
     var selectAll = this.shadowRoot.getElementById("selectAll");
     if (selectAll) { selectAll.checked = allSelected; }
 
@@ -550,10 +559,9 @@ class AssetManageWidget extends HTMLElement {
 
     var html = "";
     html += '<div class="wrap">';
-
     html += '<div class="toolbarWrap">';
     html += '<div class="toolbarLeft">';
-    html += '<input id="assetSearchBox" class="searchBox" type="text" placeholder="Search ID or Description..." value="" />';
+    html += '<input id="assetSearchBox" class="searchBox" type="text" placeholder="Search Id or Description..." value="" />';
     html += '<span class="muted" id="visibleCountText">Visible: 0</span>';
     html += '</div>';
     html += '<div class="toolbarRight" id="toolbarRight">';
@@ -697,15 +705,11 @@ class AssetManageWidget extends HTMLElement {
         + this._renderFieldErrors(columnData.key, rowErrors);
     }
 
-    var inputTypeName = "text";
-    if (columnData.type === "date") { inputTypeName = "date"; }
-    if (columnData.type === "month") { inputTypeName = "month"; }
-
     return '<input class="cell ' + errorCss + '"'
       + ' data-row="' + rowIndex + '"'
       + ' data-field="' + columnData.key + '"'
       + ' data-type="' + columnData.type + '"'
-      + ' type="' + inputTypeName + '"'
+      + ' type="text"'
       + ' value="' + this._escapeHtml(String(cellValue)) + '" />'
       + this._renderFieldErrors(columnData.key, rowErrors);
   }
@@ -717,12 +721,12 @@ class AssetManageWidget extends HTMLElement {
     for (i = 0; i < rowErrors.length; i++) {
       var text = rowErrors[i];
       if (
+        (fieldName === "assetId" && (text.indexOf("Id") === 0 || text.indexOf("Duplicate") === 0)) ||
+        (fieldName === "description" && text.indexOf("Description") === 0) ||
         (fieldName === "company" && text.indexOf("Company") === 0) ||
         (fieldName === "costCenter" && text.indexOf("Cost Center") === 0) ||
         (fieldName === "assetClass" && text.indexOf("Asset Class") === 0) ||
-        (fieldName === "capitalized" && text.indexOf("Capitalized") === 0) ||
-        (fieldName === "assetId" && (text.indexOf("ID") === 0 || text.indexOf("Duplicate") === 0)) ||
-        (fieldName === "description" && text.indexOf("Description") === 0)
+        (fieldName === "capitalizedMonth" && text.indexOf("Capitalized Month") === 0)
       ) {
         messages.push(text);
       }
