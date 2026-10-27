@@ -40,7 +40,7 @@ class AssetManageWidget extends HTMLElement {
 
     this._columns = [
       { key: "selected",                     label: "Sel",                          type: "checkbox", width: "70px"  },
-      { key: "assetId",                      label: "Id",                           type: "text",     width: "180px" },
+      { key: "assetId",                      label: "Id",                           type: "readonly",     width: "180px" },
       { key: "description",                  label: "Description",                  type: "text",     width: "320px" },
       { key: "company",                      label: "Company",                      type: "select",   width: "180px" },
       { key: "costCenter",                   label: "Cost Center",                  type: "select",   width: "180px" },
