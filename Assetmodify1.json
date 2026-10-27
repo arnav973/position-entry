@@ -9,7 +9,7 @@
   "webcomponents": [
     {
       "kind": "main",
-      "tag": "com-example-position-managee",
+      "tag": "com-example-asset-managee",
       "url": "https://arnav973.github.io/position-entry/assetmodify.js",
       "integrity": "",
       "ignoreIntegrity": true
