@@ -1,7 +1,7 @@
 {
   "id": "com.example.positionentry",
   "version": "10.0.8",
-  "name": "Position Manage Widget",
+  "name": "Asset Manage Widget",
   "description": "Manage, load, modify and delete asset data for SAC",
   "newInstancePrefix": "assetManage",
   "vendor": "Arnav",
