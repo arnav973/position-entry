@@ -487,6 +487,24 @@ class AssetManageWidget extends HTMLElement {
     return false;
   }
 
+  _getSelectedCount() {
+    var count = 0;
+    var i = 0;
+    for (i = 0; i < this._rows.length; i++) {
+      if (this._rows[i].selected === true) { count++; }
+    }
+    return count;
+  }
+
+  _getModifiedCount() {
+    var count = 0;
+    var i = 0;
+    for (i = 0; i < this._rows.length; i++) {
+      if (this._rows[i].isModified === true) { count++; }
+    }
+    return count;
+  }
+
   _areAllVisibleRowsSelected() {
     var i = 0;
     var paged = this._getPagedIndexes();
@@ -560,6 +578,21 @@ class AssetManageWidget extends HTMLElement {
       var end = Math.min(this._currentPage * this._pageSize, total);
       loadMoreInfo.textContent = "Showing " + start + " to " + end + " of " + total;
     }
+
+    var totalRows = this.shadowRoot.getElementById("footerTotalRows");
+    if (totalRows) {
+      totalRows.textContent = "Total Rows: " + this._rows.length;
+    }
+
+    var selectedRows = this.shadowRoot.getElementById("footerSelectedRows");
+    if (selectedRows) {
+      selectedRows.textContent = "Selected Rows: " + this._getSelectedCount();
+    }
+
+    var modifiedRows = this.shadowRoot.getElementById("footerModifiedRows");
+    if (modifiedRows) {
+      modifiedRows.textContent = "Modified Rows: " + this._getModifiedCount();
+    }
   }
 
   _getRowErrorMap() {
@@ -598,8 +631,8 @@ class AssetManageWidget extends HTMLElement {
   _render() {
     var styleHtml =
       '<style>' +
-        ':host { display:block; font-family:"72", Arial, sans-serif; color:#223548; }' +
-        '.wrap { border:1px solid #d9e2ef; border-radius:12px; background:#ffffff; overflow:visible; position:relative; }' +
+        ':host { display:block; width:100%; height:100%; font-family:"72", Arial, sans-serif; color:#223548; }' +
+        '.wrap { border:1px solid #d9e2ef; border-radius:12px; background:#ffffff; overflow:visible; position:relative; width:100%; min-height:720px; display:flex; flex-direction:column; }' +
         '.toolbarWrap { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:12px; border-bottom:1px solid #e5edf7; background:#f8fbff; flex-wrap:wrap; }' +
         '.toolbarLeft { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }' +
         '.toolbarRight { display:flex; justify-content:flex-end; gap:8px; flex-wrap:wrap; }' +
@@ -609,7 +642,7 @@ class AssetManageWidget extends HTMLElement {
         '.btn:hover { background:#f3f8fd; }' +
         '.btn.primary { background:#0a6ed1; color:#ffffff; border-color:#0a6ed1; }' +
         '.btn.danger { color:#bb1e1e; border-color:#efb4b4; background:#fff7f7; }' +
-        '.gridWrap { overflow:auto; max-height:520px; background:#ffffff; position:relative; }' +
+        '.gridWrap { overflow:auto; background:#ffffff; position:relative; flex:1 1 auto; min-height:520px; }' +
         'table { border-collapse:separate; border-spacing:0; width:max-content; min-width:100%; }' +
         'th, td { border-bottom:1px solid #edf2f7; padding:8px; vertical-align:top; white-space:nowrap; box-sizing:border-box; overflow:visible; }' +
         'th { position:sticky; top:0; background:#eef4fb; z-index:2; text-align:left; font-size:12px; color:#223548; font-weight:700; }' +
@@ -634,6 +667,8 @@ class AssetManageWidget extends HTMLElement {
         '.select-all-checkbox { width:18px; height:18px; cursor:pointer; accent-color:#0a6ed1; }' +
         '.muted { font-size:12px; color:#6b7c93; }' +
         '.pager { display:flex; justify-content:flex-end; align-items:center; gap:8px; padding:8px 12px; border-bottom:1px solid #e5edf7; background:#ffffff; }' +
+        '.footerBar { display:flex; align-items:center; gap:18px; padding:10px 12px; border-top:1px solid #e5edf7; background:#fafcff; font-size:12px; color:#6b7c93; flex-wrap:wrap; }' +
+        '.footerBar .strong { color:#223548; font-weight:600; }' +
         '.empty-msg { padding:40px; text-align:center; color:#8a9bb0; font-size:14px; }' +
       '</style>';
 
@@ -678,6 +713,13 @@ class AssetManageWidget extends HTMLElement {
     html += '<tbody id="tbodyVirtual"></tbody>';
     html += '</table>';
     html += '</div>';
+
+    html += '<div class="footerBar">';
+    html += '<span id="footerTotalRows" class="strong">Total Rows: 0</span>';
+    html += '<span id="footerSelectedRows">Selected Rows: 0</span>';
+    html += '<span id="footerModifiedRows">Modified Rows: 0</span>';
+    html += '</div>';
+
     html += '</div>';
 
     this.shadowRoot.innerHTML = styleHtml + html;
@@ -889,6 +931,7 @@ class AssetManageWidget extends HTMLElement {
         that._setProperties();
         that._refreshToolbar();
         that._scheduleRender();
+        that._scheduleVisibleCountUpdate();
         that._fireFieldChange(rowIndex, fieldName, value);
         return;
       }
@@ -907,6 +950,7 @@ class AssetManageWidget extends HTMLElement {
         }
 
         that._setProperties();
+        that._scheduleVisibleCountUpdate();
         that._fireFieldChange(rowIndex, fieldName, textValue);
       }
     });
@@ -933,6 +977,7 @@ class AssetManageWidget extends HTMLElement {
         }
 
         that._setManageDataProperty();
+        that._scheduleVisibleCountUpdate();
       }
     });
 
@@ -1233,6 +1278,7 @@ class AssetManageWidget extends HTMLElement {
     this._setProperties();
     this._closeMonthPicker();
     this._scheduleRender();
+    this._scheduleVisibleCountUpdate();
     this._fireFieldChange(rowIndex, fieldName, normalizedValue);
   }
 
@@ -1369,6 +1415,7 @@ class AssetManageWidget extends HTMLElement {
         that._validationResult = "true";
         that._setProperties();
         that._scheduleRender();
+        that._scheduleVisibleCountUpdate();
         that._fireFieldChange(that._activeDropdownRow, that._activeDropdownField, selectedKeyValue);
         that._closeDropdown();
       });
@@ -1541,7 +1588,7 @@ if (!customElements.get("com-example-asset-managee")) {
     + '}';
 
   document.head.appendChild(globalStyleEl);
-})();
+})(); 
 
 
 
